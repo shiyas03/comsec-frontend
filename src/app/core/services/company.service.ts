@@ -16,6 +16,8 @@ export class CompanyService {
   private payloadSubject = new BehaviorSubject<any>(null);
 
   submitCompanyInfo(payload: any) {
+    console.log("sendign req to",this.baseUrl);
+    
     return this.http.post<{ message: string, companyId: string }>(`${this.baseUrl}company/submitCompanyInfo`, payload).pipe(
       
       
