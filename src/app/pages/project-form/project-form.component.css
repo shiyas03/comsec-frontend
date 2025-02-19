@@ -1,0 +1,23 @@
+.text-danger {
+    color: red;
+    font-weight: bold;
+    font-size: 18px;
+  }
+
+  .error-message {
+    color: red; 
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  select {
+    width: 100%; 
+    min-width: 100px;
+  }
+  
+  .border-primary {
+    border-color: #3b82f6; 
+  }
+  .bg-primary {
+    background-color: #3b82f6; 
+  }
