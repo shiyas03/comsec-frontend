@@ -27,145 +27,109 @@
                 Create an Account
               </div>
               <form
-                [formGroup]="registerForm"
-                (ngSubmit)="onRegister()"
-                class="mx-auto mt-4 max-w-xl sm:mt-4"
+              [formGroup]="registerForm"
+              (ngSubmit)="onRegister()"
+              class="mx-auto mt-8 max-w-lg rounded-lg bg-white p-6 shadow-lg"
+            >
+              <!-- Full Name -->
+              <div class="mb-4">
+                <label for="name" class="block text-sm font-medium text-gray-800">Full Name</label>
+                <input
+                  type="text"
+                  formControlName="name"
+                  placeholder="Enter your full name"
+                  class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring focus:ring-indigo-300"
+                  [ngClass]="{
+                    'border-red-500': registerForm.get('name')?.invalid && (registerForm.get('name')?.touched || registerForm.get('name')?.dirty)
+                  }"
+                />
+                <p class="mt-1 text-sm text-red-600">{{ nameError }}</p>
+              </div>
+            
+              <!-- Role -->
+              <div class="mb-4">
+                <label for="roles" class="block text-sm font-medium text-gray-800">Role</label>
+                <select
+                  formControlName="roles"
+                  class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring focus:ring-indigo-300"
+                  [ngClass]="{
+                    'border-red-500': registerForm.get('roles')?.invalid && (registerForm.get('roles')?.touched || registerForm.get('roles')?.dirty)
+                  }"
+                >
+                  <option value="" disabled>Select Role</option>
+                  <option value="Shareholder">Shareholder</option>
+                  <option value="Director">Director</option>
+                  <option value="Company Secretary">Company Secretary</option>
+                  <option value="Employee">Employee</option>
+                </select>
+                <p class="mt-1 text-sm text-red-600">{{ rolesError }}</p>
+              </div>
+            
+              <!-- Email -->
+              <div class="mb-4">
+                <label for="email" class="block text-sm font-medium text-gray-800">Email</label>
+                <input
+                  type="email"
+                  formControlName="email"
+                  placeholder="xyz@gmail.com"
+                  class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring focus:ring-indigo-300"
+                  [ngClass]="{
+                    'border-red-500': registerForm.get('email')?.invalid && (registerForm.get('email')?.touched || registerForm.get('email')?.dirty)
+                  }"
+                />
+                <p class="mt-1 text-sm text-red-600">{{ emailError }}</p>
+              </div>
+            
+              <!-- Password -->
+              <div class="mb-4">
+                <label for="password" class="block text-sm font-medium text-gray-800">Password</label>
+                <input
+                  type="password"
+                  formControlName="password"
+                  placeholder="********"
+                  class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring focus:ring-indigo-300"
+                  [ngClass]="{
+                    'border-red-500': registerForm.get('password')?.invalid && (registerForm.get('password')?.touched || registerForm.get('password')?.dirty)
+                  }"
+                />
+                <p class="mt-1 text-sm text-red-600">{{ passwordError }}</p>
+              </div>
+            
+              <!-- Mobile Number (Optional) -->
+              <div class="mb-4">
+                <label for="mobile" class="block text-sm font-medium text-gray-800">Mobile Number (Optional)</label>
+                <input
+                  type="text"
+                  formControlName="mobile"
+                  placeholder="1234567890"
+                  class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring focus:ring-indigo-300"
+                  [ngClass]="{
+                    'border-red-500': registerForm.get('mobile')?.invalid && (registerForm.get('mobile')?.touched || registerForm.get('mobile')?.dirty)
+                  }"
+                />
+                <p class="mt-1 text-sm text-red-600">{{ mobileNumberError }}</p>
+              </div>
+            
+              <!-- Submit Button -->
+              <button
+                type="submit"
+                class="w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-md hover:bg-indigo-700 focus:ring focus:ring-indigo-300"
               >
-                <div>
-                  <!-- Full Name -->
-                  <div class="mt-2">
-                    <label
-                      for="name"
-                      class="block text-sm font-medium text-gray-900"
-                      >Full Name</label
-                    >
-                    <div class="mt-1">
-                      <input
-                        type="text"
-                        formControlName="name"
-                        placeholder="Enter the name"
-                        class="w-full border rounded-lg px-3 py-2 outline-none focus:ring focus:ring-indigo-300"
-                        [ngClass]="{
-                          'input-error': registerForm.get('name')?.invalid &&
-                          (registerForm.get('name')?.touched || registerForm.get('name')?.dirty)
-                        }"
-                      />
-                      <p class="h-2 text-red-600">{{ nameError }}</p>
-                    </div>
-                  </div>
-  
-                  <!-- Role -->
-                  <div class="mt-2">
-                    <label
-                      for="roles"
-                      class="block text-sm font-medium text-gray-900"
-                      >Role</label
-                    >
-                    <div class="mt-1">
-                      <select
-                        formControlName="roles"
-                        class="w-full border rounded-lg px-3 py-2 outline-none focus:ring focus:ring-indigo-300"
-                        [ngClass]="{
-                          'input-error': registerForm.get('roles')?.invalid &&
-                          (registerForm.get('roles')?.touched || registerForm.get('roles')?.dirty)
-                        }"
-                      >
-                        <option value="" disabled selected>Select Role</option>
-                        <option value="Shareholder">Shareholder</option>
-                        <option value="Director">Director</option>
-                        <option value="Company Secretary">Company Secretary</option>
-                        <option value="Employee">Employee</option>
-                      </select>
-                      <p class="h-2 text-red-600">{{ rolesError }}</p>
-                    </div>
-                  </div>
-  
-                  <!-- Email -->
-                  <div class="mt-2">
-                    <label
-                      for="email"
-                      class="block text-sm font-medium text-gray-900"
-                      >Email</label
-                    >
-                    <div class="mt-1">
-                      <input
-                        type="email"
-                        formControlName="email"
-                        placeholder="xyz@gmail.com"
-                        class="w-full border rounded-lg px-3 py-2 outline-none focus:ring focus:ring-indigo-300"
-                        [ngClass]="{
-                          'input-error': registerForm.get('email')?.invalid &&
-                          (registerForm.get('email')?.touched || registerForm.get('email')?.dirty)
-                        }"
-                      />
-                      <p class="h-2 text-red-600">{{ emailError }}</p>
-                    </div>
-                  </div>
-  
-                  <!-- Password -->
-                  <div class="mt-2">
-                    <label
-                      for="password"
-                      class="block text-sm font-medium text-gray-900"
-                      >Password</label
-                    >
-                    <div class="mt-1">
-                      <input
-                        type="password"
-                        formControlName="password"
-                        placeholder="********"
-                        class="w-full border rounded-lg px-3 py-2 outline-none focus:ring focus:ring-indigo-300"
-                        [ngClass]="{
-                          'input-error': registerForm.get('password')?.invalid &&
-                          (registerForm.get('password')?.touched || registerForm.get('password')?.dirty)
-                        }"
-                      />
-                      <p class="h-2 text-red-600">{{ passwordError }}</p>
-                    </div>
-                  </div>
-  
-                  <!-- Mobile Number -->
-                  <div class="mt-2">
-                    <label
-                      for="mobile_number"
-                      class="block text-sm font-medium text-gray-900"
-                      >Mobile Number</label
-                    >
-                    <div class="mt-1">
-                      <input
-                        type="text"
-                        formControlName="mobile"
-                        placeholder="1234567890"
-                        class="w-full border rounded-lg px-3 py-2 outline-none focus:ring focus:ring-indigo-300"
-                        [ngClass]="{
-                          'input-error': registerForm.get('mobile_number')?.invalid &&
-                          (registerForm.get('mobile_number')?.touched || registerForm.get('mobile_number')?.dirty)
-                        }"
-                      />
-                      <p class="h-2 text-red-600">{{ mobileNumberError }}</p>
-                    </div>
-                  </div>
-                </div>
-  
-                <!-- Submit Button -->
-                <div class="mt-10">
-                  <button
-                    type="submit"
-                    class="block float-right rounded-md bg-black px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                  >
-                    Register
-                  </button>
-                </div>
-                <div class="mt-2">
-                    <span class="text-sm text-gray-700">Already have an account?</span>
-                    <a
-                      [routerLink]="['/login']"
-                      class="text-sm font-medium text-indigo-600 hover:underline"
-                    >
-                      Login Here
-                    </a>
-                  </div>
-              </form>
+                Register
+              </button>
+            
+              <!-- Login Redirect -->
+              <p class="mt-4 text-center text-sm text-gray-600">
+                Already have an account?
+                <a
+                  [routerLink]="['/login']"
+                  class="font-medium text-indigo-600 hover:underline"
+                >
+                  Login here
+                </a>
+              </p>
+            </form>
+            
             </div>
           </div>
         </div>

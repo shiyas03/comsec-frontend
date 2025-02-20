@@ -31,7 +31,7 @@ export class RegisterComponent implements OnInit {
       roles: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      mobile: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
+      mobile: ['', [ Validators.pattern(/^\d{10}$/)]],
     });
   }
 
@@ -83,19 +83,33 @@ export class RegisterComponent implements OnInit {
           });
         },
         error: (err) => {
-          console.error(err);
-          this.errorMessage = err.error.message || 'Registration Failed!';
+          console.error("Error registering user:", err);
+        
+          // Default error message
+          let errorMessage = "Registration Failed! Email already Exists / Invalid Credentials";
+        
+          // Handle specific backend errors
+          if (err.status === 400) {
+            errorMessage = err.error?.error || "Invalid input. Please check your details.";
+          } else if (err.status === 500) {
+            errorMessage = "Something went wrong on our end. Please try again later.";
+          }
+        
+          // Show error in toast
           Swal.fire({
             position: "top-end",
             icon: 'error',
-            title: 'Registeration Failed',
-            text: err.message || 'An error occurred. Please try again.',
+            title: 'Registration Failed',
+            text: errorMessage,  // Display backend error message
             toast: true,
             showConfirmButton: false,
             timer: 2000,
             timerProgressBar: true,
           });
-        },
+        
+          this.errorMessage = errorMessage;
+        }
+        
       });
     } else {
       this.registerForm.markAllAsTouched();

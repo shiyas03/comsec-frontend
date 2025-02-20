@@ -26,7 +26,17 @@ export class AuthService {
       })
     );
   }
-
+  
+  getUserById(userId: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}user/getUser/${userId}`).pipe(
+      catchError((error) => {
+        console.error('Error fetching user:', error);
+        return throwError(() => new Error('Failed to fetch user. Please try again.'));
+      })
+    );
+  }
+  
+  
   register(data: any): Observable<any> {
     return this.http.post(`${this.baseUrl}user/register`, data).pipe(
       catchError((error) => {
@@ -81,6 +91,11 @@ verifyOtp(data: { email: string; twoFactorCode: string }): Observable<any> {
 isLoggedIn(): boolean {
   const userId = localStorage.getItem('userId');
   return userId !== null; 
+}
+
+getUserId(): any {
+  const userId = localStorage.getItem('userId');
+  return userId ; 
 }
 
 

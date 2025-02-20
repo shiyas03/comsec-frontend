@@ -39,6 +39,7 @@ export class ProjectFormComponent implements OnInit {
   shareCapitalList:any[]= []
   shareholders: any[] = [];
   activeTabIndex = 0;
+  currentHolder:any
   showForm:boolean = false;
   invateShareHolderForm:boolean = false
   imagePreview: string | null = null;
@@ -448,18 +449,39 @@ export class ProjectFormComponent implements OnInit {
     return '';
   }
 
-  getErrorMessage2(controlName: string): string {
-    const control = this.shareHoldersForm.get(controlName);
-  
-    if (control?.touched || control?.dirty) { 
-      if (control?.hasError('required')) {
-        return `${controlName} is required.`;
+  getErrorMessage2(fieldName: string): string {
+    const control = this.shareHoldersForm.get(fieldName);
+    
+    if (control?.errors && (control.dirty || control.touched)) {
+      if (control.errors['required']) {
+        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
+      }
+      if (control.errors['email']) {
+        return 'Please enter a valid email address';
+      }
+      if (control.errors['min']) {
+        return 'Value must be greater than 0';
       }
     }
     return '';
   }
 
   
+  changeTabShare(index: number) {
+
+    if (!this.currentHolder || this.currentHolder.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No Shareholders Added',
+        text: 'Please add at least one shareholder before proceeding.',
+        confirmButtonText: 'OK',
+      });
+      return; // Prevent changing the tab
+    }
+
+    this.activeTabIndex = index;
+  
+  }  
   changeTab(index: number) {
     this.activeTabIndex = index;
   }  
@@ -483,6 +505,7 @@ export class ProjectFormComponent implements OnInit {
   }
 
   onSaveAndNext(): void {
+    console.log('companyInfoForm',this.companyInfoForm.value)
     if (this.companyInfoForm.valid) {
       this.submitCompanyInfo().subscribe({
         next: () => {
@@ -734,53 +757,55 @@ this.shareHoldersForm.get('userType')?.valueChanges.subscribe((value) => {
 }
 
 shareHoldersFormSubmit() {
+  // Mark all fields as touched to trigger validation messages
+  Object.keys(this.shareHoldersForm.controls).forEach(key => {
+    const control = this.shareHoldersForm.get(key);
+    control?.markAsTouched();
+  });
+
   if (this.shareHoldersForm.invalid) {
-    this.shareHoldersForm.markAllAsTouched(); 
-    return; 
+    // Optionally scroll to the first error
+    const firstInvalidElement = document.querySelector('.error-message');
+    firstInvalidElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
   }
 
   const userId = localStorage.getItem('userId');
-  const companyId = this.companyId;
-
   const formData = {
     ...this.shareHoldersForm.value,
-    userId: userId, 
-    companyId: companyId
+    userId,
+    companyId: this.companyId
   };
 
-  console.log(formData);
-  
   this.companyService.shareHoldersCreation(formData).subscribe({
     next: (response) => {
-      console.log('Share creation successful:', response.message);
-      
       Swal.fire({
-          position: "top-end", 
-          icon: "success",
-          title: response.message, 
-          toast: true, 
-          showConfirmButton: false, 
-          timer: 2000, 
-          timerProgressBar: true, 
-        });
+        position: "top-end",
+        icon: "success",
+        title: response.message,
+        toast: true,
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+      });
 
       this.shareHoldersForm.reset();
       this.addressProofPreview = null;
       this.idProofPreview = null;
-      this.getShareHoldersList()
+      this.currentHolder = formData;
+      this.getShareHoldersList();
     },
     error: (error) => {
       console.error('Error occurred during share creation:', error);
-
-       Swal.fire({
-          position: "top-end", 
-          icon: "error",
-          title: error.message, 
-          toast: true, 
-          showConfirmButton: false, 
-          timer: 2000, 
-          timerProgressBar: true, 
-        });
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: error.message,
+        toast: true,
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+      });
     }
   });
 }
@@ -1083,14 +1108,25 @@ initializeDirectorInfoForm(){
 
 getErrorMessage4(controlName: string): string {
   const control = this.directorInformationForm.get(controlName);
-
-  if (control?.touched || control?.dirty) { 
-      if (control?.hasError('required')) {
-          return `${controlName} is required.`;
-      }
-      if (control?.hasError('email')) {
-          return `${controlName} must be a valid email address.`;
-      }
+  
+  if (control?.errors && (control.dirty || control.touched)) {
+    // Format the control name for display
+    const formattedName = controlName
+      .replace(/([A-Z])/g, ' $1') // Add space before capital letters
+      .replace(/^./, str => str.toUpperCase()); // Capitalize first letter
+    
+    if (control.errors['required']) {
+      return `${formattedName} is required`;
+    }
+    if (control.errors['email']) {
+      return 'Please enter a valid email address';
+    }
+    if (control.errors['pattern']) {
+      return `Invalid ${formattedName.toLowerCase()} format`;
+    }
+    if (control.errors['minlength']) {
+      return `${formattedName} must be at least ${control.errors['minlength'].requiredLength} characters`;
+    }
   }
   return '';
 }
@@ -1143,12 +1179,20 @@ imagePreviewOnDirectorsAddressProof(event: Event): void {
 
 
 
-directorFormSubmission(){
-  console.log(this.directorInformationForm.value);
+directorFormSubmission() {
+  // Mark all fields as touched to trigger validation messages
+  Object.keys(this.directorInformationForm.controls).forEach(key => {
+    const control = this.directorInformationForm.get(key);
+    control?.markAsTouched();
+  });
 
   if (this.directorInformationForm.invalid) {
-    this.directorInformationForm.markAllAsTouched(); 
-    return; 
+    // Scroll to first error message
+    const firstInvalidElement = document.querySelector('.error-message');
+    if (firstInvalidElement) {
+      firstInvalidElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return;
   }
 
   const userId = localStorage.getItem('userId');
@@ -1157,43 +1201,44 @@ directorFormSubmission(){
   const formData = {
     ...this.directorInformationForm.value,
     addressProof: this.addressProofDirectors,
-    userId: userId, 
+    userId: userId,
     companyId: companyId
   };
 
-  console.log(formData);
-  
+  console.log('Submitting director form data:', formData);
+
   this.companyService.DirectorInfoCreation(formData).subscribe({
     next: (response) => {
-      console.log('Share creation successful:', response.message);
+      console.log('Director creation successful:', response.message);
       
       Swal.fire({
-          position: "top-end", 
-          icon: "success",
-          title: response.message, 
-          toast: true, 
-          showConfirmButton: false, 
-          timer: 2000, 
-          timerProgressBar: true, 
-        });
+        position: "top-end",
+        icon: "success",
+        title: response.message,
+        toast: true,
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+      });
 
+      // Reset form and clear previews
       this.directorInformationForm.reset();
-      this.fetchDirectorsInfo()
+      this.fetchDirectorsInfo();
       this.imagePreviewDirectorsAddressProof = null;
       this.imagePreviewDirectorsId = null;
     },
     error: (error) => {
       console.error('Error occurred during director information creation:', error);
 
-       Swal.fire({
-          position: "top-end", 
-          icon: "error",
-          title: error.message, 
-          toast: true, 
-          showConfirmButton: false, 
-          timer: 2000, 
-          timerProgressBar: true, 
-        });
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: error.message || 'An error occurred while creating director information',
+        toast: true,
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+      });
     }
   });
 }
@@ -1299,6 +1344,10 @@ getErrorMessage5(controlName: string): string {
 }
 
 invateDirectorSubmit(): void {
+  Object.keys(this.InviteDirectorsForm.controls).forEach(key => {
+    const control = this.InviteDirectorsForm.get(key);
+    control?.markAsTouched();
+  });
   if (this.InviteDirectorsForm.valid) {
     const userId = localStorage.getItem("userId");
     const companyId = this.companyId;
@@ -1348,7 +1397,7 @@ invateDirectorSubmit(): void {
 initializeCompanySecretaryForm() {
   this.comapnySecretaryForm = this.fb.group({
     tcspLicenseNo: ['', [Validators.required]],
-    tcspReason: ['', [Validators.required]],
+    tcspReason: ['', [Validators]],
     type: ['person', Validators.required],
     surname: ['', [Validators.required]],
     name: ['', [Validators.required]],
