@@ -56,14 +56,27 @@ export class DocumentStatusComponent implements OnInit, OnDestroy {
         console.log('Generating PDF with payload:', this.payload);
         this.pdfUrl = await this.pdfService.fillPdf(this.payload);
         this.pdfShareUrl = await this.pdfSharesService.fillPdf(this.payload);
-        if(this.payload.shareholders && this.payload.shareholders.length < 0){
+        const businessType = this.payload.companyInfo[0]?.type_of_business;
+        console.log('Business Type:', businessType);
+        if (businessType === 'private') {
+          console.log("its privateeeee");
           
-          this.pdfAoAUrl = await this.pdfAoAService.fillPdf(this.payload);
+        if(this.payload.shareholders && this.payload.shareholders.length <=1){
+          this.pdfAoAUrl = await this.pdfAoAService.fillPdf(this.payload);         
+         
         }
         else{
-
+          console.log('this.payload.shareholders.length',this.payload.shareholders.length)
+          
           this.pdfAoAUrl = await this.pdfAoABService.fillPdf(this.payload);
+
+          
         }
+      }
+      else{
+
+        this.pdfAoAUrl=null
+      }
         console.log('PDF URL generated:', this.pdfAoAUrl);
         console.log('Documents generated:', {
           pdfUrl: this.pdfUrl,

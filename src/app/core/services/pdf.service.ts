@@ -32,7 +32,7 @@ export class PdfService {
             console.warn(`Field not found: ${fieldName}`);
           }
         } catch (error) {
-          console.warn(`Error setting field ${fieldName}:`, error);
+          //console.warn(`Error setting field ${fieldName}:`, error);
         }
       };
 
@@ -54,10 +54,10 @@ export class PdfService {
               }
             }
           } else {
-            throw new Error(`Checkbox field not found: ${fieldName}`);
+            //throw new Error(`Checkbox field not found: ${fieldName}`);
           }
         } catch (error) {
-          console.error(`Error setting checkbox ${fieldName}:`, error);
+          //console.error(`Error setting checkbox ${fieldName}:`, error);
           throw error;
         }
       };

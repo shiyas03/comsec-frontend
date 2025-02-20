@@ -111,7 +111,6 @@ export class PdfAoAService {
         setFieldValue('founder_share_type_1', `${shareCapital?.share_class} shares`);
         setFieldValue('founder_share_capital_1', shareCapital?.amount_share);
       }
-      
       const allFields = form.getFields();
       console.log('Created fields:', allFields.map(f => ({
         name: f.getName(),

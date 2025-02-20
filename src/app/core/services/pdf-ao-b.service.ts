@@ -10,8 +10,13 @@ export class PdfAoBService {
 
   async fillPdf(payload: any): Promise<string> {
     try {
-      console.log("more than one shareholder founded");
+      console.log("Processing PDF generation...");
       
+      // Validate payload
+      if (!payload) {
+        throw new Error('No payload provided');
+      }
+
       const existingPdfBytes = await fetch('/assets/documents/AA_Sample_B.pdf').then(res => res.arrayBuffer());
       const pdfDoc = await PDFDocument.load(existingPdfBytes);
       pdfDoc.registerFontkit(fontkit);
@@ -21,12 +26,19 @@ export class PdfAoBService {
       const secondPage = pdfDoc.getPage(1);
       const thirdPage = pdfDoc.getPage(2);
       const fourthPage = pdfDoc.getPage(3); 
+
       const { width: width2, height: height2 } = secondPage.getSize();
       const { width: width3, height: height3 } = thirdPage.getSize();
       const { width: width4, height: height4 } = fourthPage.getSize();
+
+      // Create form field helper function with error handling
       const createFormField = (name: string, x: number, y: number, width: number, height: number, page = secondPage) => {
         try {
           const field = form.createTextField(name);
+          if (!field) {
+            console.warn(`Failed to create field: ${name}`);
+            return null;
+          }
           field.addToPage(page, {
             x: x,
             y: y,
@@ -42,6 +54,7 @@ export class PdfAoBService {
         }
       };
       
+      // Create all form fields with proper error handling
       const fields = {
         englishName: createFormField('english_company_name', 100, height2 - 231, 400, 30),
         englishName2: createFormField('english_company_name2', 100, height2 - 361, 400, 30),
@@ -88,77 +101,99 @@ export class PdfAoBService {
         totalShareCapitalBottom4: createFormField('total_share_capital_bottom3', 370, height4 - 500, 150, 25, fourthPage),
       };
 
+      // Safe field value setter with error handling
       const setFieldValue = (fieldName: string, value: any) => {
         try {
           const field = form.getTextField(fieldName);
           if (field) {
             const fieldValue = value != null ? value.toString() : '';
             field.setText(fieldValue);
-            console.log(`Successfully set ${fieldName} to:`, fieldValue);
+            console.log(`Set ${fieldName} to:`, fieldValue);
+          } else {
+            console.warn(`Field ${fieldName} not found`);
           }
         } catch (error) {
           console.warn(`Error setting field ${fieldName}:`, error);
         }
       };
 
+      // Safely handle company info
       const companyInfo = payload.companyInfo?.[0];
       if (companyInfo) {
-        setFieldValue('english_company_name', companyInfo.business_name);
-        setFieldValue('english_company_name2', companyInfo.business_name);
-        setFieldValue('chinese_company_name', companyInfo.business_name_chinese);
-        setFieldValue('chinese_company_name2', companyInfo.business_name_chinese);
+        setFieldValue('english_company_name', companyInfo.business_name || '');
+        setFieldValue('english_company_name2', companyInfo.business_name || '');
+        setFieldValue('chinese_company_name', companyInfo.business_name_chinese || '');
+        setFieldValue('chinese_company_name2', companyInfo.business_name_chinese || '');
       }
   
+      // Safely handle share capital
       const shareCapital = payload.shareCapital?.[0];
       const shareCapital2 = payload.shareCapital?.[1];
+
       if (shareCapital) {
-        setFieldValue('total_shares', shareCapital.total_share);
-        setFieldValue('amount_share', shareCapital.total_capital_subscribed);
-        setFieldValue('paid_up_capital', shareCapital.amount_share);
-        setFieldValue('unpaid_capital', shareCapital.unpaid_amount);
-        setFieldValue('class_of_shares', shareCapital.share_class);
-        console.log("class_of_shares",shareCapital.share_class);
-        setFieldValue('total_shares_in_class', shareCapital.total_share);
-        setFieldValue('total_share_capital', shareCapital.total_capital_subscribed);
-        setFieldValue('paid_up_amount', shareCapital.amount_share);
-        setFieldValue('unpaid_amount', shareCapital.unpaid_amount);
-        setFieldValue('total_shares_bottom', shareCapital.total_share);
-        setFieldValue('total_shares_bottom1', `${shareCapital?.share_class} shares`);
-        setFieldValue('total_share_capital_bottom', shareCapital.amount_share);
-        setFieldValue('total_shares_bottom2', shareCapital2.total_share);
-        setFieldValue('total_shares_bottom5', shareCapital2.total_share + shareCapital.total_share);
-        setFieldValue('total_shares_bottom12', `${shareCapital2?.share_class} shares`);
-        setFieldValue('total_share_capital_bottom2', shareCapital2.amount_share);
-      }
-             
-      if(shareCapital){
-        setFieldValue('class_of_shares2', shareCapital.share_class || 'total_shares');
-        setFieldValue('total_shares_in_class2', shareCapital.total_share || 'amount_share');
-        setFieldValue('total_share_capital2', shareCapital.total_capital_subscribed || 'paid_up_capital');
-        setFieldValue('paid_up_amount2', shareCapital.amount_share);
-        setFieldValue('unpaid_amount2', shareCapital.unpaid_amount);
+        setFieldValue('total_shares', shareCapital.total_share || '');
+        setFieldValue('amount_share', shareCapital.total_capital_subscribed || '');
+        setFieldValue('paid_up_capital', shareCapital.amount_share || '');
+        setFieldValue('unpaid_capital', shareCapital.unpaid_amount || '');
+        setFieldValue('class_of_shares', shareCapital.share_class || '');
+        setFieldValue('total_shares_in_class', shareCapital.total_share || '');
+        setFieldValue('total_share_capital', shareCapital.total_capital_subscribed || '');
+        setFieldValue('paid_up_amount', shareCapital.amount_share || '');
+        setFieldValue('unpaid_amount', shareCapital.unpaid_amount || '');
+        setFieldValue('total_shares_bottom', shareCapital.total_share || '');
+        setFieldValue('total_shares_bottom1', shareCapital.share_class ? `${shareCapital.share_class} shares` : '');
+        setFieldValue('total_share_capital_bottom', shareCapital.amount_share || '');
       }
 
+      // Handle second share capital if exists
+      if (shareCapital2) {
+        setFieldValue('total_shares_bottom2', shareCapital2.total_share || '');
+        setFieldValue('total_shares_bottom12', shareCapital2.share_class ? `${shareCapital2.share_class} shares` : '');
+        setFieldValue('total_share_capital_bottom2', shareCapital2.amount_share || '');
+      }
+
+      // Calculate and set total shares if both share capitals exist
+      if (shareCapital && shareCapital2) {
+        const total1 = Number(shareCapital.total_share) || 0;
+        const total2 = Number(shareCapital2.total_share) || 0;
+        setFieldValue('total_shares_bottom5', total1 + total2);
+      }
+
+      // Safely handle shareholders
       if (payload.shareholders && payload.shareholders.length > 0) {
         const founder = payload.shareholders[0];
-        const founders = payload.shareholders[1];
-        setFieldValue('founder_name_1', founder.name);
-        setFieldValue('founder_name_chineese', founder.chineeseName);
-        setFieldValue('founder_name_2', founders.name);
-        setFieldValue('founder_name_chineese2', founders.chineeseName);
-        setFieldValue('founder_shares_1', founder.shareDetailsNoOfShares);
-        setFieldValue('founder_share_type_1', `${shareCapital?.share_class} shares`);
-        setFieldValue('founder_share_capital_1', shareCapital?.amount_share);
+        if (founder) {
+          setFieldValue('founder_name_1', founder.name || '');
+          setFieldValue('founder_name_chineese', founder.chineeseName || '');
+          setFieldValue('founder_shares_1', founder.shareDetailsNoOfShares || '');
+          setFieldValue('founder_share_type_1', shareCapital?.share_class ? `${shareCapital.share_class} shares` : '');
+          setFieldValue('founder_share_capital_1', shareCapital?.amount_share || '');
+        }
+
+        // Only try to set second founder if exists
+        if (payload.shareholders.length > 1) {
+          const founders = payload.shareholders[1];
+          if (founders) {
+            setFieldValue('founder_name_2', founders.name || '');
+            setFieldValue('founder_name_chineese2', founders.chineeseName || '');
+            setFieldValue('founder_shares_2', founders.shareDetailsNoOfShares || '');
+            setFieldValue('founder_share_type_2', shareCapital?.share_class ? `${shareCapital.share_class} shares` : '');
+            setFieldValue('founder_share_capital_2', shareCapital?.amount_share || '');
+          }
+        }
       }
-      
+
+      // Log created fields for debugging
       const allFields = form.getFields();
-      console.log('Created fields:', allFields.map(f => ({
+      console.log('All fields created:', allFields.map(f => ({
         name: f.getName(),
         type: f.constructor.name
       })));
   
+      // Generate and return PDF
       const pdfBytes = await pdfDoc.save();
       return URL.createObjectURL(new Blob([pdfBytes], { type: 'application/pdf' }));
+
     } catch (error) {
       console.error('Error generating PDF:', error);
       throw error;
