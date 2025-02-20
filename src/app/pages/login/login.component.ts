@@ -59,16 +59,16 @@ export class LoginComponent implements OnInit {
           } else {
             localStorage.setItem('token', res.token);
             localStorage.setItem('userId', res.user.id);
-            Swal.fire({
-              position: "top-end",
-              icon: 'success',
-              title: 'Login Successful',
-              text: 'Welcome back!',
-              toast: true,
-              showConfirmButton: false,
-              timer: 2000,
-              timerProgressBar: true,
-            });
+              Swal.fire({
+                position: "top-end",
+                icon: 'success',
+                title: 'Login Successful',
+                text: 'Welcome back!',
+                toast: true,
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+              });
             this.router.navigate(['/user-dashboard']);
           }
         },
@@ -114,6 +114,10 @@ export class LoginComponent implements OnInit {
       this.authService.verifyOtp({ email: emailValue, twoFactorCode: otpValue }).subscribe({
         next: (res) => {
           console.log('OTP verification successful:', res);
+          // Set necessary auth data
+          localStorage.setItem('token', res.token);  // Add this
+          localStorage.setItem('userId', res.user.id);  // Add this
+          
           Swal.fire({
             position: 'top-end',
             icon: 'success',
@@ -123,8 +127,11 @@ export class LoginComponent implements OnInit {
             showConfirmButton: false,
             timer: 2000,
             timerProgressBar: true,
+          }).then(() => {
+            this.router.navigate(['/user-dashboard'])
+              .then(() => console.log('Navigation successful'))
+              .catch(err => console.error('Navigation error:', err));
           });
-          this.router.navigate(['/user-dashboard']);
         },
         error: (err) => {
           console.error('OTP verification failed:', err);
@@ -132,7 +139,7 @@ export class LoginComponent implements OnInit {
             position: 'top-end',
             icon: 'error',
             title: 'Verification Failed',
-            text: err.error.message || 'Please check your OTP and try again.',
+            text: err.error?.message || 'Please check your OTP and try again.',
             toast: true,
             showConfirmButton: false,
             timer: 3000,

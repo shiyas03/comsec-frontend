@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Router } from '@angular/router';
 
@@ -36,14 +36,24 @@ export class AuthService {
     );
   }
 
-  verifyOtp(data: { email: string; twoFactorCode: string }): Observable<any> {
-    return this.http.post(`${this.baseUrl}user/verify-otp`, data).pipe(
-      catchError((error) => {
-        console.error('Two Factor Verification Error:', error);
-        return throwError(() => new Error('OTP verification failed. Please check your code and try again.'));
-      })
-    );
-  }
+ // auth.service.ts
+verifyOtp(data: { email: string; twoFactorCode: string }): Observable<any> {
+  return this.http.post(`${this.baseUrl}user/verify-otp`, data).pipe(
+    tap(response => {
+      if (response) {
+        console.log("respoonse",response);
+        
+        // Store any necessary user data in localStorage/state if needed
+        //localStorage.setItem('user', JSON.stringify(response.user));
+        this.router.navigate(['/user-dashboard']);
+      }
+    }),
+    catchError((error) => {
+      console.error('Two Factor Verification Error:', error);
+      return throwError(() => new Error('OTP verification failed. Please check your code and try again.'));
+    })
+  );
+}
 
   resendCode(payload: { email: string }) {
     return this.http.post(`${this.baseUrl}user/resendCode`, payload).pipe(
