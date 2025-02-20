@@ -404,7 +404,7 @@
                                         <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">
                                             Name
                                         </th>
-                                        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">
+                                        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 hidden">
                                             ID/Company No.
                                         </th>
                                         <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">
@@ -432,19 +432,19 @@
                                 </thead>
                                 <tbody class="[&amp;_tr:last-child]:border-0">
                                     <!-- Check if directorsData is empty -->
-                                    <ng-container *ngIf="directorsData.length > 0; else noDataTemplate">
-                                        <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted" *ngFor="let director of directorsData">
-                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ director.type }}</td>
-                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ director.surname }}</td>
-                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ director.name }}</td>
-                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ director.idNo }}</td>
-                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ director.address }}</td>
-                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ director.email }}</td>
-                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ director.phone }}</td>
-                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden">{{ director.classOfShares }}</td>
+                                    <ng-container *ngIf="secretoryData.length > 0; else noDataTemplate">
+                                        <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted" *ngFor="let director of secretoryData">
+                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ secretoryData[0].type }}</td>
+                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ secretoryData[0].surname }}</td>
+                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ secretoryData[0].name }}</td>
+                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden">{{ secretoryData[0].idNo }}</td>
+                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ secretoryData[0].address }}</td>
+                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ secretoryData[0].email }}</td>
+                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ secretoryData[0].phone }}</td>
+                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden">{{ secretoryData[0].classOfShares }}</td>
                                             <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden">{{ director.noOfShares }}</td>
-                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ director.tcspLicenseNo }}</td>
-                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ director.tcspLicenseReason }}</td>
+                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ secretoryData[0].tcspLicenseNo }}</td>
+                                            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ secretoryData[0].tcspReason }}</td>
                                         </tr>
                                     </ng-container>
                                     <!-- Template for no data -->
