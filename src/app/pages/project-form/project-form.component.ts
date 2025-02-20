@@ -1397,7 +1397,7 @@ invateDirectorSubmit(): void {
 initializeCompanySecretaryForm() {
   this.comapnySecretaryForm = this.fb.group({
     tcspLicenseNo: ['', [Validators.required]],
-    tcspReason: ['', [Validators]],
+    tcspReason: [''],
     type: ['person', Validators.required],
     surname: ['', [Validators.required]],
     name: ['', [Validators.required]],
