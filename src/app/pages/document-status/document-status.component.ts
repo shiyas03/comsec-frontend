@@ -50,6 +50,11 @@ export class DocumentStatusComponent implements OnInit, OnDestroy {
     }
   }
 
+  getTotalSignedCount(): number {
+    return (this.payload?.directors?.length || 0) + 
+           (this.payload?.shareholders?.length || 0);
+  }
+
   async generatePdf() {
     try {
       if (this.payload) {

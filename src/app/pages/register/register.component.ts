@@ -125,4 +125,8 @@ export class RegisterComponent implements OnInit {
       });
     }
   }
+
+  onregister(){
+    this.router.navigate(['/register'])
+  }
 }

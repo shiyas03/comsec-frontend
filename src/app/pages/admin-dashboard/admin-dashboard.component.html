@@ -246,12 +246,12 @@
                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
                   placeholder="example@email.com" aria-invalid="false" />
               </div>
-              <div class="space-y-2">
+              <!-- <div class="space-y-2">
                 <label class="text-sm font-medium leading-none">Password</label>
                 <input type="password" formControlName="password"
                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
                   placeholder="XXXXXXX" aria-invalid="false" />
-              </div>
+              </div> -->
               <button
                 class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium bg-black text-white h-11 rounded-md px-8 w-full"
                 type="submit" [disabled]="inviteUserForm.invalid">
@@ -301,13 +301,6 @@
                       class="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm !bg-opacity-100 focus:!bg-opacity-100"
                       style="background-color: white !important"
                       placeholder="example@email.com" aria-invalid="false" />
-                  </div>
-                  <div class="space-y-2">
-                    <label class="text-sm font-medium leading-none">Password</label>
-                    <input type="password" formControlName="password"
-                      class="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm !bg-opacity-100 focus:!bg-opacity-100"
-                      style="background-color: white !important"
-                      placeholder="Enter new password" aria-invalid="false" />
                   </div>
                   <div class="flex justify-end space-x-4 mt-4">
                     <button type="button" (click)="closeEditModal()"

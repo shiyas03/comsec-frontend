@@ -65,6 +65,16 @@ verifyOtp(data: { email: string; twoFactorCode: string }): Observable<any> {
   );
 }
 
+forgotPassword(email: string): Observable<any> {
+  return this.http.post(`${this.baseUrl}user/forgot-password`, { email }).pipe(
+    catchError((error) => {
+      console.error('Error in forgot password:', error);
+      return throwError(() => new Error('Failed to process password reset'));
+    })
+  );
+}
+
+
   resendCode(payload: { email: string }) {
     return this.http.post(`${this.baseUrl}user/resendCode`, payload).pipe(
       catchError((error) => {

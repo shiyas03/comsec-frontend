@@ -98,7 +98,7 @@
                     aria-controls="radix-:R11jrrrqla:"
                     data-state="closed"
                   >
-                    <span class="text-foreground">2 Signed</span>
+                    <span class="text-foreground">  {{ getTotalSignedCount() }} Signed</span>
                   </button>
                 </td>
               </tr>
@@ -131,10 +131,9 @@
                   </button>
                 </td>
                 <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
-                  <a
+                  <a (click)="downloadShareCertificate()"
                     class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 cursor-pointer"
                     target="_blank"
-                    href="/documents/AA.pdf"
                     >Print</a
                   >
                 </td>
@@ -169,7 +168,7 @@
                     aria-controls="radix-:R13jrrrqla:"
                     data-state="closed"
                   >
-                    <span class="text-foreground">2 Signed</span>
+                    <span class="text-foreground">{{ getTotalSignedCount() }} Signed</span>
                   </button>
                 </td>
               </tr>

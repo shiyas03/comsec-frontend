@@ -33,8 +33,28 @@ export class AdminDashboardComponent implements OnInit {
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
     });
+  }
+  generateSecurePassword(length: number = 12): string {
+    const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';  // Excluding I and O to avoid confusion
+    const lowercase = 'abcdefghijkmnpqrstuvwxyz';  // Excluding l and o to avoid confusion
+    const numbers = '23456789';  // Excluding 0 and 1 to avoid confusion
+    
+    const allChars = uppercase + lowercase + numbers;
+    let password = '';
+    
+    // Ensure at least one character from each category
+    password += uppercase[Math.floor(Math.random() * uppercase.length)];
+    password += lowercase[Math.floor(Math.random() * lowercase.length)];
+    password += numbers[Math.floor(Math.random() * numbers.length)];
+    
+    // Fill the rest of the password
+    for (let i = password.length; i < length; i++) {
+      password += allChars[Math.floor(Math.random() * allChars.length)];
+    }
+    
+    // Shuffle the password
+    return password.split('').sort(() => Math.random() - 0.5).join('');
   }
 
   InitializeEditEmailForm() {
@@ -43,7 +63,6 @@ export class AdminDashboardComponent implements OnInit {
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: [''] // Optional for updates
     });
   }
 
@@ -66,7 +85,14 @@ export class AdminDashboardComponent implements OnInit {
 
   onSubmit() {
     if (this.inviteUserForm.valid) {
-      const userData = this.inviteUserForm.value;
+      const userData = {
+        ...this.inviteUserForm.value,
+        password: this.generateSecurePassword(12) // Add generated password to form data
+      };
+
+      console.log("gg password",userData);
+      
+  
       this.adminService.inviteUser(userData).pipe(
         catchError((error) => {
           console.error('Error during user invitation:', error);
@@ -89,7 +115,7 @@ export class AdminDashboardComponent implements OnInit {
           timerProgressBar: true,
         });
         this.inviteUserForm.reset();
-        this.loadInvitedUsers(); 
+        this.loadInvitedUsers();
       });
     }
   }
@@ -102,7 +128,6 @@ export class AdminDashboardComponent implements OnInit {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      password: '' // Empty password field for new input
     });
     this.isEditModalOpen = true;
   }
@@ -119,16 +144,11 @@ export class AdminDashboardComponent implements OnInit {
       const userData = {
         firstName: this.editEmailForm.get('firstName')?.value,
         lastName: this.editEmailForm.get('lastName')?.value,
-        email: this.editEmailForm.get('email')?.value
+        email: this.editEmailForm.get('email')?.value,
+        password: this.generateSecurePassword(8) // Generate 8-character password
       };
-
-      
-      // Only include password if it's provided
-      const password = this.editEmailForm.get('password')?.value;
-      if (password) {
-        Object.assign(userData, { password });
-      }
-      console.log("userdataforedit",userData);
+  
+      console.log("userdataforedit", userData);
       
       this.adminService.updateUser(userId, userData).subscribe({
         next: (response) => {
@@ -136,6 +156,7 @@ export class AdminDashboardComponent implements OnInit {
             position: 'top-end',
             icon: 'success',
             title: 'User updated successfully',
+            text: 'A new password has been generated',
             toast: true,
             showConfirmButton: false,
             timer: 2000,
@@ -155,7 +176,6 @@ export class AdminDashboardComponent implements OnInit {
       });
     }
   }
-
   deleteUser(userId: string) {
     // Implement delete logic
     this.adminService.deleteInvitedUser(userId).subscribe({

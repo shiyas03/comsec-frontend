@@ -23,6 +23,16 @@ export class AdminService {
       );
     }
 
+    forgotPassword(email: string): Observable<any> {
+      return this.http.post(`${this.baseUrl}user/forgot-password`, { email }).pipe(
+        catchError((error) => {
+          console.error('Error in forgot password:', error);
+          return throwError(() => new Error('Failed to process password reset'));
+        })
+      );
+    }
+    
+
     getInvitedUsers(): Observable<any> {
       return this.http.get(`${this.baseUrl}user/getInvitedUsers`).pipe(
         catchError((error) => {
