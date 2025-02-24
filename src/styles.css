@@ -18,7 +18,44 @@ body {
     font-family: 'comsecfont', sans-serif;
 } */
 
-
+:root {
+    --background: white;
+    --text-primary: black;
+    --text-secondary: #666;
+    --accent: #484848;
+    --border-color: #e5e7eb;
+    --header-bg: white;
+    --dropdown-bg: white;
+    --button-bg: #1f2937; /* gray-800 */
+  }
+  
+  .dark {
+    --background: #1a1a1a;
+    --text-primary: white;
+    --text-secondary: #b3b3b3;
+    --accent: #707070;
+    --border-color: #374151;
+    --header-bg: #f5f5f5; /* darker background for header */
+    --dropdown-bg: #1f2937;
+    --button-bg: #f3f3f3; /* lighter in dark mode */
+  }
+  
+  /* Global styles */
+  body {
+    background-color: var(--background);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  /* Common component styles */
+  .card {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+  }
+  
+  .component {
+    background-color: var(--component-bg);
+  }
 
 form input:focus, form textarea:focus, form select:focus {
     /* outline: none !important;

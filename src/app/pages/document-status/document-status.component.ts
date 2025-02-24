@@ -13,10 +13,12 @@ import { PdfAoBService } from '../../core/services/pdf-ao-b.service';
   styleUrl: './document-status.component.css'
 })
 export class DocumentStatusComponent implements OnInit, OnDestroy {
-  payload: any;
+  data: any;
   pdfUrl: string | null = null;
   pdfShareUrl: string | null = null;
   pdfAoAUrl: string | null = null;
+  currentUploadId: string | null = null;
+  showUploadModal = false;
   private companyService = inject(CompanyService);
   private pdfService = inject(PdfService);
   private pdfSharesService = inject(PdfSharedAgrementService);
@@ -30,8 +32,8 @@ export class DocumentStatusComponent implements OnInit, OnDestroy {
         console.log("full data",data);
         
         if (data) {
-          this.payload = data;
-          console.log('Received payload:', this.payload);
+          this.data = data;
+          console.log('Received payload:', this.data);
           await this.generatePdf(); // Generate PDF after receiving payload
         } else {
           console.warn('No payload found.');
@@ -51,29 +53,29 @@ export class DocumentStatusComponent implements OnInit, OnDestroy {
   }
 
   getTotalSignedCount(): number {
-    return (this.payload?.directors?.length || 0) + 
-           (this.payload?.shareholders?.length || 0);
+    return (this.data?.directors?.length || 0) + 
+           (this.data?.shareholders?.length || 0);
   }
 
   async generatePdf() {
     try {
-      if (this.payload) {
-        console.log('Generating PDF with payload:', this.payload);
-        this.pdfUrl = await this.pdfService.fillPdf(this.payload);
-        this.pdfShareUrl = await this.pdfSharesService.fillPdf(this.payload);
-        const businessType = this.payload.companyInfo[0]?.type_of_business;
+      if (this.data) {
+        console.log('Generating PDF with payload:', this.data);
+        this.pdfUrl = await this.pdfService.fillPdf(this.data);
+        this.pdfShareUrl = await this.pdfSharesService.fillPdf(this.data);
+        const businessType = this.data.companyInfo[0]?.type_of_business;
         console.log('Business Type:', businessType);
         if (businessType === 'private') {
           console.log("its privateeeee");
           
-        if(this.payload.shareholders && this.payload.shareholders.length <=1){
-          this.pdfAoAUrl = await this.pdfAoAService.fillPdf(this.payload);         
+        if(this.data.shareholders && this.data.shareholders.length <=1){
+          this.pdfAoAUrl = await this.pdfAoAService.fillPdf(this.data);         
          
         }
         else{
-          console.log('this.payload.shareholders.length',this.payload.shareholders.length)
+          console.log('this.payload.shareholders.length',this.data.shareholders.length)
           
-          this.pdfAoAUrl = await this.pdfAoABService.fillPdf(this.payload);
+          this.pdfAoAUrl = await this.pdfAoABService.fillPdf(this.data);
 
           
         }
@@ -102,4 +104,38 @@ export class DocumentStatusComponent implements OnInit, OnDestroy {
   downloadShareCertificate() {
     this.pdfSharesService.downloadGeneratedFile();
   }
+
+  openUploadModal(id: string): void {
+    this.currentUploadId = id;
+    this.showUploadModal = true;
+  }
+
+  closeUploadModal(): void {
+    this.showUploadModal = false;
+    this.currentUploadId = null;
+  }
+
+  uploadFile(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      // Here you would handle the file upload to your backend
+      console.log(`Uploading file ${file.name} for ID: ${this.currentUploadId}`);
+      
+      // Mock successful upload
+      setTimeout(() => {
+        this.closeUploadModal();
+        // You might want to refresh your data here
+      }, 1000);
+    }
+  }
+
+  previewDocument(documentUrl: string): void {
+    window.open(documentUrl, '_blank');
+  }
+
+  // Helper method to generate the appropriate position label
+  getPositionLabel(type: string, index: number): string {
+    return `${type} ${index + 1}`;
+  }
+
 }

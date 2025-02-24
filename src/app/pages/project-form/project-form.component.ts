@@ -9,6 +9,7 @@ import { CompanyService } from '../../core/services/company.service';
 import Swal from 'sweetalert2';
 import { catchError, map, Observable, tap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 
 interface BuisnessNature {
   value: string;
@@ -63,7 +64,10 @@ export class ProjectFormComponent implements OnInit {
   selectedDirectorUserType: string = 'person';
   selectedNodes: string = "";
   selectedCountry = ""
+  userData:any
+  userId: any;
   private router = inject(Router)
+  private authservice = inject(AuthService)
   countries: any[] = [
     { name: 'Australia', code: 'AU' },
     { name: 'Brazil', code: 'BR' },
@@ -353,6 +357,8 @@ export class ProjectFormComponent implements OnInit {
     this.initializeDirectorInfoForm()
     this.initializeInvateDirectorForm()
     this.initializeCompanySecretaryForm()
+    this.getUserDatas()
+    this.userData = this.authservice.getUserId()
 
     this.route.queryParams.subscribe(params => {
       this.companyId = params['companyId']; 
@@ -376,33 +382,52 @@ export class ProjectFormComponent implements OnInit {
     this.companyInfoForm.get('presentorReferance')?.disable();
   }
 
+  getUserDatas() {
+    this.userId = this.authservice.getUserId();
+    console.log('userId:', this.userId);
+
+    if (this.userId) {
+      this.authservice.getUserById(this.userId).subscribe({
+        next: (user) => {
+          this.userData = user;
+          console.log('User data:', this.userData);
+        },
+        error: (err) => {
+          console.error('Error fetching user data:', err);
+        }
+      });
+    } else {
+      console.log('User is not logged in or userId is not available.');
+    }
+  }
+
   initializeCompanyInfoForm(): void {
     this.companyInfoForm = this.fb.group({
       companyNameEN: new FormControl('', [Validators.required]),
-      companyNameCN: new FormControl('', [Validators.required]),
+      companyNameCN: new FormControl(''),
       companyType: new FormControl('private', [Validators.required]),
       natureofCompany: new FormControl<BuisnessNature | null>(null),
       code: new FormControl('', [Validators.required]),
       Flat_Address: new FormControl('', [Validators.required]),
-      Building_Address: new FormControl('', [Validators.required]),
-      Street_Address: new FormControl('', [Validators.required]),
-      District_Address: new FormControl('', [Validators.required]),
+      Building_Address: new FormControl(''),
+      Street_Address: new FormControl(''),
+      District_Address: new FormControl(''),
       country_Address: new FormControl('Hong Kong', [Validators.required]),
-      company_Email: new FormControl('', [Validators.required, Validators.email]),
+      company_Email: new FormControl('', [Validators.email]),
       company_Telphone: new FormControl('', [Validators.required]),
-      company_Fax: new FormControl('', [Validators.required]),
+      company_Fax: new FormControl(''),
       subscriptionDuration: new FormControl('1 year', [Validators.required]),
       presentorName: new FormControl('', [Validators.required]),
-      presentorChiName: new FormControl('', [Validators.required]),
+      presentorChiName: new FormControl(''),
       presentorAddress: new FormControl('', [Validators.required]),
-      presentorBuilding: new FormControl('', [Validators.required]),
-      presentorStreet: new FormControl('', [Validators.required]),
-      presentorDistrict: new FormControl('', [Validators.required]),
+      presentorBuilding: new FormControl(''),
+      presentorStreet: new FormControl(''),
+      presentorDistrict: new FormControl(''),
       presentorTel: new FormControl('', [Validators.required]),
-      presentorFax: new FormControl('', [Validators.required]),
-      presentorEmail: new FormControl('', [Validators.required, Validators.email]),
+      presentorFax: new FormControl(''),
+      presentorEmail: new FormControl('', [Validators.email]),
       presentorReferance: new FormControl('CompanyName-NNC1-06-03-2024', [Validators.required]),
-      companyLogo: new FormControl('', [Validators.required]),
+      companyLogo: new FormControl(''),
     });
 
     // Listen for changes on the `natureofCompany` field
@@ -735,7 +760,7 @@ initializeSharesHoldersForm(){
   this.shareHoldersForm = this.fb.group({
     surname: ['', Validators.required],
     name: ['', Validators.required],
-    chineeseName: ['', Validators.required],
+    chineeseName: [''],
     idNo: ['', Validators.required],
     idProof: ['', Validators.required],
     userType: ['person', Validators.required], 
@@ -771,6 +796,7 @@ shareHoldersFormSubmit() {
   }
 
   const userId = localStorage.getItem('userId');
+  const userRole = localStorage.getItem('userRole'); 
   const formData = {
     ...this.shareHoldersForm.value,
     userId,
@@ -779,6 +805,8 @@ shareHoldersFormSubmit() {
 
   this.companyService.shareHoldersCreation(formData).subscribe({
     next: (response) => {
+      console.log('userRole',userRole);
+      
       Swal.fire({
         position: "top-end",
         icon: "success",
@@ -794,6 +822,20 @@ shareHoldersFormSubmit() {
       this.idProofPreview = null;
       this.currentHolder = formData;
       this.getShareHoldersList();
+      if (userRole !== 'Company Secretary') {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Submission Successful!",
+          text: "Redirecting to your dashboard...",
+          toast: true,
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true,
+        }).then(() => {
+          this.router.navigate(['/user-dashboard']); // Redirect
+        });
+      }
     },
     error: (error) => {
       console.error('Error occurred during share creation:', error);
@@ -1003,11 +1045,34 @@ invateShareHoldersButton(){
   this.invateShareHolderForm=!this.invateShareHolderForm
 }
 
+generateSecurePassword(length: number = 12): string {
+  const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';  // Excluding I and O to avoid confusion
+  const lowercase = 'abcdefghijkmnpqrstuvwxyz';  // Excluding l and o to avoid confusion
+  const numbers = '23456789';  // Excluding 0 and 1 to avoid confusion
+  
+  const allChars = uppercase + lowercase + numbers;
+  let password = '';
+  
+  // Ensure at least one character from each category
+  password += uppercase[Math.floor(Math.random() * uppercase.length)];
+  password += lowercase[Math.floor(Math.random() * lowercase.length)];
+  password += numbers[Math.floor(Math.random() * numbers.length)];
+  
+  // Fill the rest of the password
+  for (let i = password.length; i < length; i++) {
+    password += allChars[Math.floor(Math.random() * allChars.length)];
+  }
+  
+  // Shuffle the password
+  return password.split('').sort(() => Math.random() - 0.5).join('');
+}
+
 
 initializeInvateSharesHoldersForm(){
   this.inviteShareholderForm = this.fb.group({
     name: ['', Validators.required],
     email: ['', Validators.required],
+    password: [''],
     classOfShares: ['Ordinary', Validators.required],
     noOfShares: ['', Validators.required],
   });
@@ -1024,6 +1089,7 @@ invateShareHoldersSubmit() {
 
   const formData = {
     ...this.inviteShareholderForm.value,
+    password:this.generateSecurePassword(),
     userId: userId, 
     companyId: companyId
   };
@@ -1093,7 +1159,7 @@ initializeDirectorInfoForm(){
   type: ['person', Validators.required], 
   surname: ['', [Validators.required]],
   name: ['', [Validators.required]],
-  chineeseName: ['', [Validators.required]],
+  chineeseName: [''],
   idNo: ['', Validators.required],
   idProof: [null, Validators.required],
   address: ['', Validators.required],
@@ -1179,6 +1245,7 @@ imagePreviewOnDirectorsAddressProof(event: Event): void {
 
 
 
+
 directorFormSubmission() {
   // Mark all fields as touched to trigger validation messages
   Object.keys(this.directorInformationForm.controls).forEach(key => {
@@ -1196,6 +1263,7 @@ directorFormSubmission() {
   }
 
   const userId = localStorage.getItem('userId');
+  const userRole = localStorage.getItem('userRole');
   const companyId = this.companyId;
 
   const formData = {
@@ -1226,6 +1294,20 @@ directorFormSubmission() {
       this.fetchDirectorsInfo();
       this.imagePreviewDirectorsAddressProof = null;
       this.imagePreviewDirectorsId = null;
+      if (userRole !== 'Company Secretary') {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Submission Successful!",
+          text: "Redirecting to your dashboard...",
+          toast: true,
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true,
+        }).then(() => {
+          this.router.navigate(['/user-dashboard']); // Redirect
+        });
+      }
     },
     error: (error) => {
       console.error('Error occurred during director information creation:', error);
@@ -1357,6 +1439,7 @@ invateDirectorSubmit(): void {
       ...formData,
       userId: userId,
       companyId: companyId,
+      password:this.generateSecurePassword()
     };
 
     this.companyService.directorInviteCreation(data).subscribe({
@@ -1401,7 +1484,7 @@ initializeCompanySecretaryForm() {
     type: ['person', Validators.required],
     surname: ['', [Validators.required]],
     name: ['', [Validators.required]],
-    chineeseName: ['', [Validators.required]],
+    chineeseName: [''],
     idProof: ['', [Validators.required]],
     address: ['', [Validators.required]],
     street: ['', [Validators.required]],

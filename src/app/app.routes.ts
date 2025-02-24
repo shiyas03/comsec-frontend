@@ -9,13 +9,15 @@ import { ProjectIncorporationsComponent } from './pages/project-incorporations/p
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { ProjectFormComponent } from './pages/project-form/project-form.component';
-import { authGuard } from './core/guards/auth.guard';
+import { AuthGuard } from './core/guards/auth.guard';
 import { noAuthGuard } from './core/guards/no-auth.guard';
+import { AdminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    component: LoginComponent,
+    redirectTo: 'login',
+    pathMatch: 'full'
   },
   {
     path: 'login',
@@ -23,22 +25,22 @@ export const routes: Routes = [
     canActivate: [noAuthGuard] 
   },
   {
-    path:'register',
-    component:RegisterComponent,
+    path: 'register',
+    component: RegisterComponent,
     canActivate: [noAuthGuard] 
   },
   {
     path: '',
     component: MainFrameComponent,
-    canActivate: [authGuard], 
+    canActivate: [AuthGuard], 
     children: [
       {
         path: 'user-dashboard',
         component: UserDashboardComponent,
       },
       {
-        path:'project-form',
-        component:ProjectFormComponent,
+        path: 'project-form',
+        component: ProjectFormComponent,
       },
       {
         path: 'add-company',
@@ -56,10 +58,16 @@ export const routes: Routes = [
         path: 'project-incorp',
         component: ProjectIncorporationsComponent,
       },
-      {
-        path: 'admin-dashboard',
-        component: AdminDashboardComponent,
-      },
     ],
   },
+  {
+    path: 'admin-dashboard',
+    component: AdminDashboardComponent,
+    canActivate: [AdminGuard]
+  },
+  // Add a catch-all route at the end
+  {
+    path: '**',
+    redirectTo: 'login'
+  }
 ];

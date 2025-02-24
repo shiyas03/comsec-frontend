@@ -1,4 +1,4 @@
-// src/app/core/guards/auth.guard.ts
+// src/app/core/guards/admin.guard.ts
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
@@ -6,26 +6,21 @@ import { AuthService } from '../services/auth.service';
 @Injectable({
   providedIn: 'root'
 })
-export class AuthGuard implements CanActivate {
+export class AdminGuard implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(): boolean {
-    console.log(this.authService.isLoggedIn());
-    
     if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/login']);
       return false;
     }
 
-    // If admin tries to access user routes, redirect to admin dashboard
     if (this.authService.isAdmin()) {
-      
-      console.log("he is ");
-      this.router.navigate(['/admin-dashboard']);
-      return false;
+      return true;
     }
-    console.log("he is not");
 
-    return true;
+    // If logged in but not admin, redirect to user dashboard
+    this.router.navigate(['/user-dashboard']);
+    return false;
   }
 }

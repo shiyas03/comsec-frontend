@@ -1,12 +1,10 @@
+<app-header></app-header>
 <div class="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[250px_1fr]">
   <div class="hidden border-r bg-muted/40 md:block px-2 animate-in slide-in-from-left-72 delay-300 duration-700">
     <div class="flex h-full max-h-screen flex-col gap-2 fixed">
       <div class="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
         <a class="flex items-center gap-2 font-semibold" href="/"><img alt="logo" loading="eager" width="24" height="24"
-            decoding="async" data-nimg="1" style="color: transparent" srcset="
-              /_next/image?url=%2Flogo%2Flogo.png&amp;w=32&amp;q=75 1x,
-              /_next/image?url=%2Flogo%2Flogo.png&amp;w=48&amp;q=75 2x
-            " src="/_next/image?url=%2Flogo%2Flogo.png&amp;w=48&amp;q=75" /><span class="">ComSec360 Admin</span></a>
+          src="assets/logos/logo.png"/><span class="">ComSec360 Admin</span></a>
       </div>
       <div class="flex-1">
         <nav class="grid items-start text-sm font-medium gap-4 mt-6">
@@ -59,18 +57,21 @@
           </div>
           <div data-state="closed" class="ml-3">
             <button type="button" aria-controls="radix-:Rv6ja:" aria-expanded="false" data-state="closed"
-              class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 flex gap-3 mb-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-circle-dollar-sign size-4">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
-                <path d="M12 18V6"></path>
-              </svg>
-              <!-- -->Annual Return
+                class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 flex gap-3 mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-circle-dollar-sign size-4">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
+                    <path d="M12 18V6"></path>
+                </svg>
+                <!-- -->Annual Return
             </button>
             <div data-state="closed" id="radix-:Rv6ja:" hidden="" class="CollapsibleContent" style=""></div>
-          </div>
+            
+            <!-- Red Sign Out Button -->
+            <a href="#" (click)="logout()" class="block px-4 py-2 text-sm text-red-700 hover:bg-red-50">Sign out</a>
+        </div>
         </nav>
       </div>
     </div>

@@ -5,11 +5,13 @@ import { catchError, throwError } from 'rxjs';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
 import { InvitedUser } from '../../types/user';
+import { AuthService } from '../../core/services/auth.service';
+import { HeaderComponent } from "../../layout/header/header.component";
 
 
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [ReactiveFormsModule, FormsModule, CommonModule],
+  imports: [ReactiveFormsModule, FormsModule, CommonModule, HeaderComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css'
 })
@@ -21,6 +23,7 @@ export class AdminDashboardComponent implements OnInit {
   selectedUser: any | null = null;
   private fb = inject(FormBuilder);
   private adminService = inject(AdminService);
+  private authService = inject(AuthService);
 
   ngOnInit(): void {
     this.InitializeAdminInvationUser();
@@ -83,11 +86,15 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
+  logout() {
+    this.authService.logout();
+  }
+
   onSubmit() {
     if (this.inviteUserForm.valid) {
       const userData = {
         ...this.inviteUserForm.value,
-        password: this.generateSecurePassword(12) // Add generated password to form data
+        password: 'comsec@125' // Add generated password to form data
       };
 
       console.log("gg password",userData);

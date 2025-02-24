@@ -3,6 +3,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-header',
@@ -16,12 +17,16 @@ export class HeaderComponent implements OnInit {
   userId: any;
   private authService = inject(AuthService);
   userData: any;
+  private themeService = inject(ThemeService);
 
   ngOnInit() {
     this.getUserDatas();
     const savedTheme = localStorage.getItem('theme');
     this.isDarkTheme = savedTheme === 'dark';
     this.applyTheme();
+    this.themeService.isDarkTheme$.subscribe(
+      isDark => this.isDarkTheme = isDark
+    );
   }
 
   getUserDatas() {
@@ -61,9 +66,7 @@ export class HeaderComponent implements OnInit {
   }
 
   toggleTheme() {
-    this.isDarkTheme = !this.isDarkTheme;
-    localStorage.setItem('theme', this.isDarkTheme ? 'dark' : 'light');
-    this.applyTheme();
+    this.themeService.toggleTheme();
   }
 
   private applyTheme() {

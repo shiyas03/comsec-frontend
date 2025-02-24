@@ -213,6 +213,18 @@ export class CompanyService {
         })
       );
   }
+  signNccForm(companyId: string): Observable<{ message: string; data: any }> {
+    const params = new HttpParams().set('companyId', companyId);
+
+    return this.http.get<{ message: string; data: any }>(`${this.baseUrl}company/getDirectorInformation`, { params })
+      .pipe(
+        catchError((error) => {
+          console.error("Directors Holders list getting has an error", error);
+          const errorMessage = error.error?.message || "Failed to get shares holders.";
+          return throwError(() => new Error(errorMessage));
+        })
+      );
+  }
 
   getCompanySecretaryInformation(companyId: string): Observable<{ message: string; data: any }> {
     const params = new HttpParams().set('companyId', companyId);

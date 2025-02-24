@@ -103,6 +103,10 @@ isLoggedIn(): boolean {
   return userId !== null; 
 }
 
+isAdmin(): boolean {
+  return localStorage.getItem('userRole') === 'Admin';
+}
+
 getUserId(): any {
   const userId = localStorage.getItem('userId');
   return userId ; 

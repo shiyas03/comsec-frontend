@@ -311,8 +311,11 @@ export class PdfService {
           console.warn(`Unknown company type: ${companyInfo.companyType}`);
         }
       }
+      
+      
       const pdfBytes = await pdfDoc.save();
       return URL.createObjectURL(new Blob([pdfBytes], { type: 'application/pdf' }));
+      
     } catch (error) {
       console.error('Error generating PDF:', error);
       throw error;

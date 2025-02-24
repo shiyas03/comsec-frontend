@@ -54,8 +54,6 @@ export class LoginComponent implements OnInit, OnDestroy {
       emailEdit: ['', [Validators.email]]
     });
   }
-  
-
   onSubmit() {
     if (this.show2FA) {
       this.verifyOTP();
@@ -66,15 +64,14 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   private initiateLogin() {
     if (this.loginForm.get('email')?.invalid || this.loginForm.get('password')?.invalid) {
-      //this.showValidationToast();
       return;
     }
-
+  
     this.isLoading = true;
     this.loginEmail = this.loginForm.get('email')?.value;
-
+  
     this.authService.login(this.loginForm.value).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         if (res.requiresOtp) {
           this.handle2FARequired();
         } else {
@@ -85,47 +82,107 @@ export class LoginComponent implements OnInit, OnDestroy {
       complete: () => this.isLoading = false
     });
   }
-
+  
   private verifyOTP() {
     if (this.loginForm.get('otp')?.invalid) {
       this.showToast('warning', 'Invalid OTP', 'Please enter a valid OTP');
       return;
     }
-
+  
     this.isLoading = true;
     const otpData = {
       email: this.loginEmail,
       twoFactorCode: this.loginForm.get('otp')?.value
     };
-
+  
     this.authService.verifyOtp(otpData).subscribe({
-      next: (res) => this.handleOTPSuccess(res),
+      next: (res: any) => this.handleOTPSuccess(res),
       error: (err) => this.handleOTPError(err),
       complete: () => this.isLoading = false
     });
   }
-
   private handle2FARequired() {
     this.show2FA = true;
     this.loginForm.get('otp')?.enable();
     this.startTimer();
-    this.showToast('info', 'OTP Sent', 'Please check your email for the verification code');
+    
+    // Save the email temporarily for OTP verification
+    this.loginEmail = this.loginForm.get('email')?.value;
+    
+    // Check if this is an admin login attempt
+    if (this.loginEmail === 'comsec@admin.com') {
+      this.showToast('info', 'Admin OTP Sent', 'Please check your email for the verification code');
+    } else {
+      this.showToast('info', 'OTP Sent', 'Please check your email for the verification code');
+    }
+    
     this.cdRef.detectChanges();
   }
-
+  
   private handleLoginSuccess(res: any) {
+    console.log('res', res);
+    
+    // Store token in any case
     localStorage.setItem('token', res.token);
-    localStorage.setItem('userId', res.user.id);
-    this.showToast('success', 'Login Successful', 'Welcome back!');
-    this.router.navigate(['/user-dashboard']);
-  }
 
+    // Check if it's a user login
+    if (res.user) {
+        localStorage.setItem('userId', res.user.id);
+        localStorage.setItem('userRole', res.user.roles);
+        
+        if (res.user.roles === 'Admin') {
+            this.showToast('success', 'Admin Login Successful', 'Welcome back!');
+            this.router.navigate(['/admin-dashboard']);
+        } else {
+            this.showToast('success', 'Login Successful', 'Welcome back!');
+            this.router.navigate(['/user-dashboard']);
+        }
+    }
+    // Check if it's a shareholder login
+    else if (res.shareholder) {
+        localStorage.setItem('userId', res.shareholder.id);
+        localStorage.setItem('userRole', 'Shareholder');
+        localStorage.setItem('shareholderData', JSON.stringify(res.shareholder));
+        
+        this.showToast('success', 'Shareholder Login Successful', 'Welcome back!');
+        this.router.navigate(['/user-dashboard']);
+    }
+    else if (res.directive) {
+      localStorage.setItem('userId', res.directive.id);
+      localStorage.setItem('userRole', 'Shareholder');
+      localStorage.setItem('shareholderData', JSON.stringify(res.directive));
+      
+      this.showToast('success', 'Directive Login Successful', 'Welcome back!');
+      this.router.navigate(['/user-dashboard']);
+  }
+}
   private handleOTPSuccess(res: any) {
     localStorage.setItem('token', res.token);
     localStorage.setItem('userId', res.user.id);
-    this.showToast('success', 'Verification Successful', 'Logging you in...');
-    this.router.navigate(['/user-dashboard']);
+    localStorage.setItem('userRole', res.user.roles);  // Store the user role
+  
+    if (res.user.roles === 'admin') {
+      this.showToast('success', 'Admin Verification Successful', 'Logging you in...');
+      this.router.navigate(['/admin-dashboard']);
+    } else {
+      this.showToast('success', 'Verification Successful', 'Logging you in...');
+      this.router.navigate(['/user-dashboard']);
+    }
   }
+  
+  // private handleLoginError(err: any) {
+  //   console.error('Login error:', err);
+  //   this.isLoading = false;
+  //   this.showToast('error', 'Login Failed', err.error?.message || 'Invalid credentials');
+  //   this.cdRef.detectChanges();
+  // }
+  
+  // private handleOTPError(err: any) {
+  //   console.error('OTP verification error:', err);
+  //   this.isLoading = false;
+  //   this.showToast('error', 'Verification Failed', err.error?.message || 'Invalid OTP');
+  //   this.cdRef.detectChanges();
+  // }
 
   private showToast(icon: 'success' | 'error' | 'warning' | 'info', title: string, text: string) {
     Swal.fire({
