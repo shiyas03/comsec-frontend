@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { PdfSharedAgrementService } from '../../core/services/pdf-shared-agrement.service';
 import { PdfAoAService } from '../../core/services/pdf-ao-a.service';
 import { PdfAoBService } from '../../core/services/pdf-ao-b.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-document-status',
@@ -44,6 +45,36 @@ export class DocumentStatusComponent implements OnInit, OnDestroy {
       },
     });
   }
+
+  confirmAndSendData() {
+    if (!this.data) {
+      console.warn("No data available to send.");
+      return;
+    }
+
+    this.companyService.storeCompanyData(this.data).subscribe({
+      next: (response) => {
+        console.log('Data stored successfully:', response);
+        Swal.fire({
+          icon: 'success',
+          title: 'Company Data Saved',
+          text: 'Company data has been saved successfully!',
+          confirmButtonText: 'OK',
+        });
+      },
+      error: (error) => {
+        console.error('Error storing data:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed to Save Data',
+          text: 'An error occurred while saving company data. Please try again.',
+          confirmButtonText: 'OK',
+        });
+      }
+    });
+    
+  }
+
 
   ngOnDestroy(): void {
     // Clean up URL object when component is destroyed

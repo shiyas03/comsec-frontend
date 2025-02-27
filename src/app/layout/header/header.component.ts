@@ -20,6 +20,8 @@ export class HeaderComponent implements OnInit {
   private themeService = inject(ThemeService);
 
   ngOnInit() {
+    console.log('heyylloo thereeeee');
+    
     this.getUserDatas();
     const savedTheme = localStorage.getItem('theme');
     this.isDarkTheme = savedTheme === 'dark';

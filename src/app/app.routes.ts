@@ -12,6 +12,7 @@ import { ProjectFormComponent } from './pages/project-form/project-form.componen
 import { AuthGuard } from './core/guards/auth.guard';
 import { noAuthGuard } from './core/guards/no-auth.guard';
 import { AdminGuard } from './core/guards/admin.guard';
+import { InvitationGuard } from './core/guards/invitation.guard';
 
 export const routes: Routes = [
   {
@@ -38,10 +39,7 @@ export const routes: Routes = [
         path: 'user-dashboard',
         component: UserDashboardComponent,
       },
-      {
-        path: 'project-form',
-        component: ProjectFormComponent,
-      },
+      
       {
         path: 'add-company',
         component: AddCompanyComponent,
@@ -61,9 +59,25 @@ export const routes: Routes = [
     ],
   },
   {
+    path: '',
+    component: MainFrameComponent,
+    canActivate: [InvitationGuard] , 
+    children: [
+      {
+        path: 'project-form',
+        component: ProjectFormComponent
+      },
+    ],
+  },
+  {
     path: 'admin-dashboard',
     component: AdminDashboardComponent,
     canActivate: [AdminGuard]
+  },
+  {
+    path: 'project-form',
+    component: ProjectFormComponent,
+    canActivate: [InvitationGuard] 
   },
   // Add a catch-all route at the end
   {

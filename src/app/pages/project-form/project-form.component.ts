@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit,AfterViewInit, HostListener } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
@@ -8,8 +8,10 @@ import { TreeSelectModule } from 'primeng/treeselect';
 import { CompanyService } from '../../core/services/company.service';
 import Swal from 'sweetalert2';
 import { catchError, map, Observable, tap } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { Location } from '@angular/common'; 
+import { ThemeService } from '../../core/services/theme.service';
 
 interface BuisnessNature {
   value: string;
@@ -34,14 +36,16 @@ export class ProjectFormComponent implements OnInit {
 
   private companyService = inject(CompanyService)
   private route=inject(ActivatedRoute)
-
-  companyId!:string
+  public isCompanySelected: boolean = false;
+  companyId!:any
   tabs: any[] = ["Company Info", "Shares Info", "Directors", "Company Secretary"];
   shareCapitalList:any[]= []
   shareholders: any[] = [];
   activeTabIndex = 0;
   currentHolder:any
   showForm:boolean = false;
+  shareholderTabIndex:number=2
+  DirectorTabIndex:number=3
   invateShareHolderForm:boolean = false
   imagePreview: string | null = null;
   imagePreviewDirectorsId: string | ArrayBuffer | null = null; 
@@ -66,8 +70,28 @@ export class ProjectFormComponent implements OnInit {
   selectedCountry = ""
   userData:any
   userId: any;
+  invitationToken: string | null = null;
+  invitationData: any = null;
+  isInvitationValid = false;
+  isLoading = false;
+  errorMessage = '';
   private router = inject(Router)
   private authservice = inject(AuthService)
+  private themeService = inject(ThemeService)
+  constructor(
+    private location: Location
+  ) {
+    // Subscribe to router events to handle browser back/forward
+    // this.router.events.subscribe((event) => {
+    //   if (event instanceof NavigationEnd) {
+    //     // Get tab index from URL if present
+    //     const tabIndex = this.getTabIndexFromUrl();
+    //     if (tabIndex !== null) {
+    //       this.activeTabIndex = tabIndex;
+    //     }
+    //   }
+    // })
+  }
   countries: any[] = [
     { name: 'Australia', code: 'AU' },
     { name: 'Brazil', code: 'BR' },
@@ -346,9 +370,9 @@ export class ProjectFormComponent implements OnInit {
     value: "Activities of extraterritorial organisations and bodies",
     code: "099"
   }]
-
+  isDarkTheme:Boolean=false
   private fb = inject(FormBuilder)
-
+  isAuthenticated:Boolean=false
   ngOnInit() {
     this.initializeCompanyInfoForm()
     this.initializeAddSharesForm()
@@ -358,18 +382,82 @@ export class ProjectFormComponent implements OnInit {
     this.initializeInvateDirectorForm()
     this.initializeCompanySecretaryForm()
     this.getUserDatas()
+    this.themeService.isDarkTheme$.subscribe(
+      isDark => {
+        this.isDarkTheme = isDark;
+        this.applyTheme();
+      }
+    );
+    const savedCompanyId = localStorage.getItem('companyId');
+  if (savedCompanyId) {
+    this.companyId = savedCompanyId;
+    console.log('found saved one',this.companyId);
+    
+  }
     this.userData = this.authservice.getUserId()
+    this.visitedTabs[0] = true;
+    if (this.authservice.isLoggedIn()) {
+      this.isAuthenticated = true;
+      this.getUserDatas();
+    } else {
+      // Check for invitation token
+      this.route.queryParams.subscribe(params => {
+        this.invitationToken = params['token'];
+        this.companyId = params['companyId'] 
+    ? decodeURIComponent(params['companyId']).trim().replace(/\\$/, '') 
+    : null;
+    
+  console.log('Cleaned companyId:', this.companyId);
+;
+        // console.log('compeeeeeee',this.companyId);
+        
+        
+        
+        if (this.invitationToken) {
+          this.validateInvitationToken();
+        } else {
+          // Neither logged in nor has token - shouldn't reach here due to guard
+          this.router.navigate(['/login']);
+        }
+      });
+    }
+  
+    // Check URL for tab index
+    const urlTabIndex = this.getTabIndexFromUrl();
+    if (urlTabIndex !== null) {
+      // Mark all tabs up to current one as visited
+      for (let i = 0; i <= urlTabIndex; i++) {
+        this.visitedTabs[i] = true;
+      }
+      this.activeTabIndex = urlTabIndex;
+    }
 
     this.route.queryParams.subscribe(params => {
-      this.companyId = params['companyId']; 
+      this.companyId = params['companyId'] 
+    ? decodeURIComponent(params['companyId']).trim().replace(/\\$/, '') 
+    : null;
+    
+  console.log('Cleaned companyId:', this.companyId);
+
       if (params['fromEmail']) {
         this.activeTabIndex = 2; 
         this.fetchDirectorsInfo();
       }
     });
 
+    const publicRadioEl = document.querySelector('input[value="public"]');
+  if (publicRadioEl) {
+    publicRadioEl.setAttribute('disabled', 'disabled');
+  }
+
     this.route.queryParams.subscribe(params => {
-      this.companyId = params['companyId']; 
+      this.companyId = params['companyId'] 
+    ? decodeURIComponent(params['companyId']).trim().replace(/\\$/, '') 
+    : null;
+    
+  console.log('Cleaned companyId:', this.companyId);
+
+      
       if (params['fromShare']) {
         this.activeTabIndex = 1; 
         this.getShareCapitalList();
@@ -382,10 +470,74 @@ export class ProjectFormComponent implements OnInit {
     this.companyInfoForm.get('presentorReferance')?.disable();
   }
 
-  getUserDatas() {
-    this.userId = this.authservice.getUserId();
-    console.log('userId:', this.userId);
+  ngAfterViewInit() {
+    const radioButtons = document.querySelectorAll('input[name="companyType"]');
+    radioButtons.forEach(radio => {
+      radio.addEventListener('change', (event) => {
+        const target = event.target as HTMLInputElement;
+        if (target.value === 'public') {
+          // Force selection back to private
+          const privateRadio = document.querySelector('input[value="private"]') as HTMLInputElement;
+          if (privateRadio) privateRadio.checked = true;
+        }
+      });
+    });
+  }
 
+  private validateInvitationToken() {
+    this.isLoading = true;
+    console.log('Validating token:', this.invitationToken);
+    
+    this.companyService.validateInvitationToken(this.invitationToken!)
+      .subscribe({
+        next: (response) => {
+          if (response.valid) {
+            this.invitationData = response.invitationData;
+            this.isInvitationValid = true;
+            
+            // Log the user in automatically
+            this.autoLoginInvitedUser(response);
+          } else {
+            this.errorMessage = 'Invalid or expired invitation.';
+          }
+          this.isLoading = false;
+        },
+        error: (error) => {
+          this.errorMessage = error.error.message || 'Failed to validate invitation.';
+          this.isLoading = false;
+        }
+      });
+  }
+
+  private applyTheme() {
+     if (this.isDarkTheme) {
+    document.body.classList.add('dark-mode');
+    
+    // Force PrimeNG components to update their styling
+    // You might need to get references to your p-select components
+    // For example, if you use ViewChild:
+    
+  } else {
+    document.body.classList.remove('dark-mode');
+  }
+  }
+  
+  private autoLoginInvitedUser(response: any) {
+    // Set authentication data in localStorage similar to handleLoginSuccess method
+    localStorage.setItem('token', response.token);
+    localStorage.setItem('userId', response.invitationData.id);
+    localStorage.setItem('userRole', 'Shareholder');
+    localStorage.setItem('shareholderData', JSON.stringify(response.invitationData));
+    
+    // Now that the user is "logged in", get the user data
+    this.getUserDatas();
+  }
+
+  getUserDatas() {
+    // Get the userId from localStorage directly
+    this.userId = localStorage.getItem('userId');
+    console.log('userId:', this.userId);
+  
     if (this.userId) {
       this.authservice.getUserById(this.userId).subscribe({
         next: (user) => {
@@ -403,32 +555,47 @@ export class ProjectFormComponent implements OnInit {
 
   initializeCompanyInfoForm(): void {
     this.companyInfoForm = this.fb.group({
-      companyNameEN: new FormControl('', [Validators.required]),
-      companyNameCN: new FormControl(''),
-      companyType: new FormControl('private', [Validators.required]),
-      natureofCompany: new FormControl<BuisnessNature | null>(null),
+      companyNameEN: new FormControl('', [Validators.required, Validators.minLength(3)]),
+      companyNameCN: new FormControl('', [Validators.minLength(3)]),
+      companyType: [{ value: 'private', disabled: false }, Validators.required],
+      natureofCompany: new FormControl<BuisnessNature | null>(null, [Validators.required]),
       code: new FormControl('', [Validators.required]),
-      Flat_Address: new FormControl('', [Validators.required]),
-      Building_Address: new FormControl(''),
-      Street_Address: new FormControl(''),
-      District_Address: new FormControl(''),
+      Flat_Address: new FormControl('', [Validators.required, Validators.minLength(10)]),
+      Building_Address: new FormControl('', [Validators.minLength(4)]),
+      Street_Address: new FormControl('', [Validators.minLength(4)]),
+      District_Address: new FormControl('', [Validators.minLength(4)]),
       country_Address: new FormControl('Hong Kong', [Validators.required]),
       company_Email: new FormControl('', [Validators.email]),
-      company_Telphone: new FormControl('', [Validators.required]),
-      company_Fax: new FormControl(''),
+    
+      company_Telphone: new FormControl('', [
+        Validators.pattern(/^\d{10}$/) // Must be exactly 10 digits if entered
+      ]),
+      company_Fax: new FormControl('', [
+        Validators.pattern(/^\d{10}$/) // Must be exactly 10 digits if entered
+      ]),
+    
       subscriptionDuration: new FormControl('1 year', [Validators.required]),
-      presentorName: new FormControl('', [Validators.required]),
-      presentorChiName: new FormControl(''),
-      presentorAddress: new FormControl('', [Validators.required]),
-      presentorBuilding: new FormControl(''),
-      presentorStreet: new FormControl(''),
-      presentorDistrict: new FormControl(''),
-      presentorTel: new FormControl('', [Validators.required]),
-      presentorFax: new FormControl(''),
+      presentorName: new FormControl('', [Validators.required, Validators.minLength(3)]),
+      presentorChiName: new FormControl('', [Validators.minLength(3)]),
+      presentorAddress: new FormControl('', [Validators.required, Validators.minLength(6)]),
+      presentorBuilding: new FormControl('', [Validators.minLength(6)]),
+      presentorStreet: new FormControl('', [Validators.minLength(6)]),
+      presentorDistrict: new FormControl('', [Validators.minLength(6)]),
+    
+      presentorTel: new FormControl('', [
+        Validators.pattern(/^\d{10}$/) // Must be exactly 10 digits if entered
+      ]),
+      presentorFax: new FormControl('', [
+        Validators.pattern(/^\d{10}$/) // Must be exactly 10 digits if entered
+      ]),
+    
       presentorEmail: new FormControl('', [Validators.email]),
       presentorReferance: new FormControl('CompanyName-NNC1-06-03-2024', [Validators.required]),
       companyLogo: new FormControl(''),
     });
+    
+    
+    
 
     // Listen for changes on the `natureofCompany` field
     this.companyInfoForm.get('natureofCompany')?.valueChanges.subscribe((selectedNature: BuisnessNature | null) => {
@@ -444,17 +611,55 @@ export class ProjectFormComponent implements OnInit {
 
   getErrorMessage(controlName: string): string {
     const control = this.companyInfoForm.get(controlName);
+    
+    const fieldNames: { [key: string]: string } = {
+        companyNameEN: "Company Name (English)",
+        companyNameCN: "Company Name (Chinese)",
+        companyType: "Company Type",
+        natureofCompany: "Nature of Company",
+        code: "Code",
+        Flat_Address: "Flat Address",
+        Building_Address: "Building Address",
+        Street_Address: "Street Address",
+        District_Address: "District Address",
+        country_Address: "Country",
+        company_Email: "Company Email",
+        company_Telphone: "Company Telephone",
+        company_Fax: "Company Fax",
+        subscriptionDuration: "Subscription Duration",
+        presentorName: "Presenter Name",
+        presentorChiName: "Presenter Name (Chinese)",
+        presentorAddress: "Presenter Address",
+        presentorBuilding: "Presenter Building",
+        presentorStreet: "Presenter Street",
+        presentorDistrict: "Presenter District",
+        presentorTel: "Presenter Telephone",
+        presentorFax: "Presenter Fax",
+        presentorEmail: "Presenter Email",
+        presentorReferance: "Presenter Reference",
+        companyLogo: "Company Logo"
+    };
 
-    if (control?.touched || control?.dirty) { 
+    const fieldLabel = fieldNames[controlName] || controlName;
+
+    if (control?.touched || control?.dirty) {
         if (control?.hasError('required')) {
-            return `${controlName} is required.`;
+            return `${fieldLabel} is required.`;
+        }
+        if (control?.hasError('minlength')) {
+            const minLength = control?.getError('minlength').requiredLength;
+            return `${fieldLabel} must be at least ${minLength} characters long.`;
         }
         if (control?.hasError('email')) {
-            return `${controlName} must be a valid email address.`;
+            return `Please enter a valid email address for ${fieldLabel}.`;
+        }
+        if (control?.hasError('pattern')) {
+            return `${fieldLabel} must be exactly 10 digits long.`;
         }
     }
     return '';
 }
+
   getErrorMessage1(controlName: string): string {
     const control = this.addShareForm.get(controlName);
   
@@ -476,20 +681,44 @@ export class ProjectFormComponent implements OnInit {
 
   getErrorMessage2(fieldName: string): string {
     const control = this.shareHoldersForm.get(fieldName);
-    
+
+    const fieldLabels: { [key: string]: string } = {
+        surname: "Surname",
+        name: "Name",
+        chineeseName: "Chinese Name",
+        idNo: "ID Number",
+        idProof: "ID Proof",
+        userType: "User Type",
+        address: "Address",
+        building: "Building",
+        district: "District",
+        street: "Street",
+        addressProof: "Address Proof",
+        email: "Email",
+        phone: "Phone",
+        shareDetailsNoOfShares: "Number of Shares",
+        shareDetailsClassOfShares: "Class of Shares"
+    };
+
+    const fieldLabel = fieldLabels[fieldName] || fieldName;
+
     if (control?.errors && (control.dirty || control.touched)) {
-      if (control.errors['required']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
-      }
-      if (control.errors['email']) {
-        return 'Please enter a valid email address';
-      }
-      if (control.errors['min']) {
-        return 'Value must be greater than 0';
-      }
+        if (control.errors['required']) {
+            return `${fieldLabel} is required.`;
+        }
+        if (control.errors['minlength']) {
+            const minLength = control.getError('minlength').requiredLength;
+            return `${fieldLabel} must be at least ${minLength} characters long.`;
+        }
+        if (control.errors['email']) {
+            return `Please enter a valid email address.`;
+        }
+        if (control.errors['pattern']) {
+            return `${fieldLabel} must be exactly 10 digits long.`;
+        }
     }
     return '';
-  }
+}
 
   
   changeTabShare(index: number) {
@@ -507,9 +736,146 @@ export class ProjectFormComponent implements OnInit {
     this.activeTabIndex = index;
   
   }  
+  // changeTab(index: number) {
+  //   this.activeTabIndex = index;
+  // }  
+  // changeTab(index: number) {
+  //   // Check if user can navigate to this tab
+  //   if (this.canNavigateToTab(index)) {
+  //     this.activeTabIndex = index;
+  //     // Update URL with tab index without reloading
+  //     this.updateUrlWithTab(index);
+  //   }
+  // }
+
+  // Helper method to check if navigation is allowed
+  canNavigateToTab(index: number): boolean {
+    // console.log('Current Tab:', this.activeTabIndex, 'Target Tab:', index);
+    
+    // Restrict shareholders to only shareholder tab (index 1)
+    if (this.userData.roles === 'Shareholder' && index !== 1) {
+      return false;
+    }
+  
+    // Restrict directors to only director tab (index 2)
+    if (this.userData.roles === 'Director' && index !== 2) {
+      return false;
+    }
+  
+    // Special case: Going from Company tab (index 0) to Shareholder tab (index 1)
+    if (this.activeTabIndex === 0 && index === 1) {
+      return this.isCompanyFormCompleted(); // Require validation here
+    }
+  
+    // Special case: Going from Shareholder to Director OR Director to Secretary
+    if (this.activeTabIndex === 1 && index === 2) {
+      
+      return true; // No validation needed
+    }
+    
+    if (this.activeTabIndex === 2 && index === 3) {
+      return true; // No validation needed
+    }
+    
+  
+    // Allow navigation to previous tabs always
+    if (index < this.activeTabIndex) {
+      return true;
+    }
+  
+    // For other cases, use the standard validation logic
+    const completedForms = this.getCompletedForms();
+    if (index === this.activeTabIndex + 1) {
+      return completedForms[this.activeTabIndex];
+    }
+  
+    return false;
+  }
+  
+  // Add visited tabs tracking
+  private visitedTabs: boolean[] = [false, false, false, false];
+  
+  // Update changeTab to mark tabs as visited
   changeTab(index: number) {
-    this.activeTabIndex = index;
-  }  
+    if (this.canNavigateToTab(index)) {
+      // Mark current tab as visited
+      this.visitedTabs[this.activeTabIndex] = true;
+      this.activeTabIndex = index;
+      this.updateUrlWithTab(index);
+    }
+  }
+  
+  // New method to determine if a tab should show a checkmark
+  isTabCompleted(index: number): boolean {
+    // For shareholder and director tabs, they're "completed" if visited
+    if ((index === 1 || index === 2) && this.visitedTabs[index]) {
+      return true;
+    }
+    
+    // For company and secretary tabs, use normal validation
+    return this.getCompletedForms()[index];
+  }
+  // Helper method to track completed forms
+  getCompletedForms(): boolean[] {
+    return [
+      this.isCompanyFormCompleted(),
+      this.isShareholderFormCompleted(),
+      this.isDirectorFormCompleted(),
+      this.isSecretaryFormCompleted()
+    ];
+  }
+
+  // Update URL without reloading page
+  private updateUrlWithTab(index: number) {
+    const url = this.router.createUrlTree([], {
+      queryParams: { tab: index },
+      queryParamsHandling: 'merge'
+    });
+    this.location.go(url.toString());
+  }
+
+  // Get tab index from URL
+  private getTabIndexFromUrl(): number | null {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    return tab ? parseInt(tab) : null;
+  }
+
+  // Form completion check methods
+  private isCompanyFormCompleted(): boolean {
+   // console.log('this.shareHoldersForm?.valid || false',this.companyInfoForm?.value,this.companyInfoForm?.valid )
+    return this.companyInfoForm?.valid || false;
+  }
+
+  private isShareholderFormCompleted(): boolean {
+    // console.log('this.shareHoldersForm?.valid || false',this.shareHoldersForm?.value)
+    return this.shareHoldersForm.valid || false;
+  }
+
+  private isDirectorFormCompleted(): boolean {
+    return this.directorInformationForm.valid || false;
+  }
+
+  private isSecretaryFormCompleted(): boolean {
+    return this.comapnySecretaryForm?.valid || false;
+  }
+
+  // Handle browser back button
+  @HostListener('window:popstate', ['$event'])
+  onPopState(event: any) {
+    const tabIndex = this.getTabIndexFromUrl();
+    if (tabIndex !== null && this.canNavigateToTab(tabIndex)) {
+      this.activeTabIndex = tabIndex;
+    } else {
+      // Prevent navigation if not allowed
+      event.preventDefault();
+    }
+  }
+
+  refreshShareDatas(){
+    //this.shareCapitalList();
+    this.getShareHoldersList()
+  }
   
   onFileSelected(event: Event): void {
     const fileInput = event.target as HTMLInputElement;
@@ -581,6 +947,9 @@ export class ProjectFormComponent implements OnInit {
     return this.companyService.submitCompanyInfo(formValues).pipe(
       tap((response) => {
         console.log("Form submitted successfully", response);
+        this.companyId=response.companyId
+        console.log("Form submitted successfully", this.companyId);
+        localStorage.setItem('companyId', this.companyId);
         Swal.fire({
           position: "top-end", 
           icon: "success",
@@ -630,7 +999,7 @@ export class ProjectFormComponent implements OnInit {
       total_amount: [{ value: null, disabled: true }],
       total_capital_subscribed: ['', Validators.required],
       unpaid_amount: [{ value: 0, disabled: true }],
-      particulars_of_rights: ['',[Validators.required]]
+      particulars_of_rights: ['']
     })
 
     // Subscribe to changes in unit price and total shares to calculate total amount
@@ -755,33 +1124,57 @@ toggleShareHoldersForm() {
   this.showForm = !this.showForm; 
 }
 
-
-initializeSharesHoldersForm(){
-  this.shareHoldersForm = this.fb.group({
-    surname: ['', Validators.required],
-    name: ['', Validators.required],
-    chineeseName: [''],
-    idNo: ['', Validators.required],
+initializeSharesHoldersForm() {
+ this.shareHoldersForm = this.fb.group({
+    surname: ['', [Validators.required, Validators.minLength(3)]],
+    name: ['', [Validators.required, Validators.minLength(3)]],
+    chineeseName: ['', [Validators.minLength(3)]],
+    idNo: [''],
     idProof: ['', Validators.required],
     userType: ['person', Validators.required], 
-    address:['',Validators.required],
-    building:['',Validators.required],
-    district:['',Validators.required],
-    street:['',Validators.required],
-    addressProof:['',Validators.required],
-    email:['',Validators.required],
-    phone:['',Validators.required],
-    shareDetailsNoOfShares:['',Validators.required],
-    shareDetailsClassOfShares:['',Validators.required]
+    address: ['', [Validators.required, Validators.minLength(10)]],
+    building: ['', Validators.minLength(4)],
+    district: ['',Validators.minLength(4)],
+    street: ['' ,Validators.minLength(4)],
+    addressProof: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+
+    phone: ['', [
+      Validators.pattern(/^\d{10}$/) // Must be 10 digits if entered
+    ]],
+
+    shareDetailsNoOfShares: ['', Validators.required],
+    shareDetailsClassOfShares: ['', Validators.required]
   });
 
-  // Log the form value on changes to verify functionality
-this.shareHoldersForm.get('userType')?.valueChanges.subscribe((value) => {
-  console.log('Selected User Type:', value);
-});
+  this.shareHoldersForm.get('userType')?.valueChanges.subscribe((userType) => {
+    this.updateFormValidation(userType);
+  });
+}
+
+updateFormValidation(userType: string) {
+  const surnameControl = this.shareHoldersForm.get('surname');
+  const idNoControl = this.shareHoldersForm.get('idNo');
+  const companyNoControl = this.shareHoldersForm.get('companyNo');
+
+  if (userType === 'company') {
+    surnameControl?.clearValidators();
+    idNoControl?.clearValidators();
+    companyNoControl?.setValidators(Validators.required);
+  } else {
+    surnameControl?.setValidators(Validators.required);
+    idNoControl?.setValidators(Validators.required);
+    companyNoControl?.clearValidators();
+  }
+
+  surnameControl?.updateValueAndValidity();
+  idNoControl?.updateValueAndValidity();
+  companyNoControl?.updateValueAndValidity();
 }
 
 shareHoldersFormSubmit() {
+  console.log('this.shareHoldersForm.value',this.shareHoldersForm.value)
+
   // Mark all fields as touched to trigger validation messages
   Object.keys(this.shareHoldersForm.controls).forEach(key => {
     const control = this.shareHoldersForm.get(key);
@@ -795,6 +1188,9 @@ shareHoldersFormSubmit() {
     return;
   }
 
+  console.log('this.shareHoldersForm.value',this.shareHoldersForm.value)
+
+
   const userId = localStorage.getItem('userId');
   const userRole = localStorage.getItem('userRole'); 
   const formData = {
@@ -802,6 +1198,7 @@ shareHoldersFormSubmit() {
     userId,
     companyId: this.companyId
   };
+  console.log('this.shareHoldersForm.value',formData)
 
   this.companyService.shareHoldersCreation(formData).subscribe({
     next: (response) => {
@@ -1011,10 +1408,23 @@ getShareHoldersList() {
     });
     return;
   }
+  const savedCompanyId = localStorage.getItem('companyId');
+
+  if (!savedCompanyId) {
+    console.error("Company ID is missing in localStorage!");
+    return;
+  }
+
+  // Ensure companyId is correctly set before adding it to formData
+  this.companyId = savedCompanyId; 
+  console.log('this.companyId ',this.companyId );
+  
 
   this.companyService.getShareHoldersList(this.companyId, userId).subscribe({
     next: (response) => {
       this.shareholders = response.data;
+      console.log('shareeeethis.shareholders',this.shareholders);
+      
       Swal.fire({
         position: "top-end",
         icon: "success",
@@ -1085,13 +1495,21 @@ invateShareHoldersSubmit() {
   }
 
   const userId = localStorage.getItem('userId');
-  const companyId = this.companyId;
+  const savedCompanyId = localStorage.getItem('companyId');
+
+  if (!savedCompanyId) {
+    console.error("Company ID is missing in localStorage!");
+    return;
+  }
+
+  // Ensure companyId is correctly set before adding it to formData
+  this.companyId = savedCompanyId; 
 
   const formData = {
     ...this.inviteShareholderForm.value,
     password:this.generateSecurePassword(),
     userId: userId, 
-    companyId: companyId
+    companyId: this.companyId
   };
 
   console.log(formData);
@@ -1154,23 +1572,55 @@ directorsInfoFormOpen(){
 
 
 
-initializeDirectorInfoForm(){
- this.directorInformationForm = this.fb.group({
-  type: ['person', Validators.required], 
-  surname: ['', [Validators.required]],
-  name: ['', [Validators.required]],
-  chineeseName: [''],
-  idNo: ['', Validators.required],
-  idProof: [null, Validators.required],
-  address: ['', Validators.required],
-  street: ['', Validators.required],
-  building: ['', Validators.required],
-  district: ['', Validators.required],
-  addressProof: [null, Validators.required],
-  email: ['', [Validators.required, Validators.email]],
-  phone: ['', [Validators.required]],
- })
+initializeDirectorInfoForm() {
+  this.directorInformationForm = this.fb.group({
+    type: ["person", Validators.required],
+    surname: ["", [Validators.required, Validators.minLength(4)]],
+    name: ["", [Validators.required, Validators.minLength(4)]],
+    chineeseName: ["",Validators.minLength(4)],
+    idNo: [""],
+    idProof: [null, Validators.required],
+
+    address: ["", [Validators.required, Validators.minLength(10)]],
+    street: ["", Validators.minLength(4)],
+    building: ["", Validators.minLength(4)],
+    district: ["", Validators.minLength(4)],
+    addressProof: [null, Validators.required],
+
+    email: ["", [Validators.required, Validators.email]],
+    
+    phone: ["", [
+      Validators.pattern(/^\d{10}$/) // Must be 10 digits if entered
+    ]],
+  });
+
+  this.directorInformationForm.get("type")?.valueChanges.subscribe((type) => {
+    this.updateFormValidation1(type)
+  })
 }
+
+updateFormValidation1(type: string) {
+  const surnameControl = this.directorInformationForm.get("surname")
+  const chineseNameControl = this.directorInformationForm.get("chineeseName")
+  const idNoControl = this.directorInformationForm.get("idNo")
+
+  if (type === "company") {
+    surnameControl?.clearValidators()
+    chineseNameControl?.clearValidators()
+    idNoControl?.setValidators([Validators.required])
+    this.directorInformationForm.get("name")?.setValidators([Validators.required])
+  } else {
+    surnameControl?.setValidators([Validators.required])
+    idNoControl?.setValidators([Validators.required])
+    this.directorInformationForm.get("name")?.setValidators([Validators.required])
+  }
+
+  surnameControl?.updateValueAndValidity()
+  chineseNameControl?.updateValueAndValidity()
+  idNoControl?.updateValueAndValidity()
+  this.directorInformationForm.get("name")?.updateValueAndValidity()
+}
+
 
 getErrorMessage4(controlName: string): string {
   const control = this.directorInformationForm.get(controlName);
@@ -1401,8 +1851,8 @@ initializeInvateDirectorForm(){
   this.InviteDirectorsForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
-    classOfShares: ['', Validators.required],
-    noOfShares: ['', [Validators.required, Validators.min(1)]],
+    classOfShares: [''],
+    noOfShares: [''],
   });
 }
 
@@ -1478,27 +1928,54 @@ invateDirectorSubmit(): void {
 
 
 initializeCompanySecretaryForm() {
-  this.comapnySecretaryForm = this.fb.group({
-    tcspLicenseNo: ['', [Validators.required]],
-    tcspReason: [''],
-    type: ['person', Validators.required],
-    surname: ['', [Validators.required]],
-    name: ['', [Validators.required]],
-    chineeseName: [''],
-    idProof: ['', [Validators.required]],
-    address: ['', [Validators.required]],
-    street: ['', [Validators.required]],
-    building: ['', [Validators.required]],
-    district: ['', [Validators.required]],
-    addressProof: ['', [Validators.required]],
-    email: ['', [Validators.required, Validators.email]],
-    phone: ['', [Validators.required]],
-  });
-}
+    this.comapnySecretaryForm = this.fb.group({
+      tcspLicenseNo: ["", [Validators.required]],
+      tcspReason: [""],
+      type: ["person", Validators.required],
+      surname: ["",Validators.required],
+      name: ["", [Validators.required]],
+      chineeseName: [""],
+      idNo: [""],
+      idProof: ["", [Validators.required]],
+      address: ["", [Validators.required,,Validators.minLength(8)]],
+      street: ["",Validators.minLength(4)],
+      building: ["",Validators.minLength(4)],
+      district: ["",Validators.minLength(4)],
+      addressProof: ["", [Validators.required]],
+      email: ["", [Validators.required, Validators.email]],
+      phone: [""],
+    })
+    this.comapnySecretaryForm.get("type")?.valueChanges.subscribe((type) => {
+      this.updateFormValidation3(type)
+    })
+  }
+
+  updateFormValidation3(type: string) {
+    const surnameControl = this.comapnySecretaryForm.get("surname")
+    const idNoControl = this.comapnySecretaryForm.get("idNo")
+
+    if (type === "company") {
+      surnameControl?.clearValidators()
+      idNoControl?.setValidators([Validators.required])
+    } else {
+      surnameControl?.setValidators([Validators.required])
+      idNoControl?.setValidators([Validators.required])
+    }
+
+    surnameControl?.updateValueAndValidity()
+    idNoControl?.updateValueAndValidity()
+  }
+
+
+
 
 
 comapnySecretarySubmission(){
   console.log(this.comapnySecretaryForm.value);
+  Object.keys(this.comapnySecretaryForm.controls).forEach(key => {
+    const control = this.comapnySecretaryForm.get(key);
+    control?.markAsTouched();
+  });
 
   if (this.comapnySecretaryForm.invalid) {
     this.comapnySecretaryForm.markAllAsTouched(); 
@@ -1584,27 +2061,39 @@ getErrorMessage6(controlName: string): string {
   const fieldNames: { [key: string]: string } = {
     tcspLicenseNo: 'TCSP License Number',
     tcspReason: 'TCSP Reason',
+    type: 'Type',
     surname: 'Surname',
+    name: 'Name',
+    chineeseName: 'Chinese Name',
     idProof: 'ID Proof',
     address: 'Address',
-    street: 'street',
-    building: 'building',
-    district: 'district',
+    street: 'Street',
+    building: 'Building',
+    district: 'District',
     addressProof: 'Address Proof',
     email: 'Email',
     phone: 'Phone',
   };
 
-  if (control && (control.touched || control.dirty)) {
+  const fieldLabel = fieldNames[controlName] || controlName;
+
+  if (control?.errors && (control.touched || control.dirty)) {
     if (control.hasError('required')) {
-      return `${fieldNames[controlName]} is required`;
+      return `${fieldLabel} is required.`;
+    }
+    if (control.hasError('minlength')) {
+      return `${fieldLabel} must be at least ${control.getError('minlength').requiredLength} characters long.`;
     }
     if (control.hasError('email')) {
-      return 'Enter a valid email address';
+      return 'Enter a valid email address.';
+    }
+    if (control.hasError('pattern')) {
+      return `${fieldLabel} must be exactly 10 digits long.`;
     }
   }
   return '';
 }
+
 
 
 imagePreviewOnCompanySecretaryAddressProof(event: Event): void {

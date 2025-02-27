@@ -239,6 +239,28 @@ export class CompanyService {
       );
   }
 
+  storeCompanyData(data: any): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.baseUrl}company/storeCompanyData`, data).pipe(
+      catchError((error) => {
+        console.error("Company data storage error:", error);
+        const errorMessage = error.error?.message || "Failed to store company data.";
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+
+  validateInvitationToken(token: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}company/validate-invitation`, { token });
+  }
+
+  getCompanyData(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}company/getAllCompanys`);
+  }
+
+  acceptInvitation(formData: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}company/accept-invitation`, formData);
+  }
+
   setPayload(payload: any): void {
     this.payloadSubject.next(payload);
   }

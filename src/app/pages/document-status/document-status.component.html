@@ -32,11 +32,13 @@
             company.
           </p>
         </div>
-        <a
-          class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white h-11 px-8"
-          href="/document_status/m5gr84i9/documents"
-          >Confirm</a
-        >
+        <button
+  class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white h-11 px-8"
+  (click)="confirmAndSendData()"
+>
+  Confirm
+</button>
+
       </div>
       <div class="p-6 pt-0 space-y-6">
         <div class="relative w-full overflow-auto">
@@ -243,397 +245,177 @@
           </div>
           <div class="p-6 pt-0">
             <div class="relative w-full overflow-auto">
-              <table class="w-full caption-bottom text-sm">
-                <thead class="[&amp;_tr]:border-b">
-                  <tr
-                    class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                  >
-                    <th
-                      class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Sr No.
-                    </th>
-                    <th
-                      class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Documents
-                    </th>
-                    <th
-                      class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Position
-                    </th>
-                    <th
-                      class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Type
-                    </th>
-                    <th
-                      class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Print
-                    </th>
-                    <th
-                      class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Upload Signed NNC1
-                    </th>
-                  </tr>
-                </thead>
-                <tbody class="[&amp;_tr:last-child]:border-0">
-                  <tr
-                    class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                  >
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 font-medium"
-                    >
-                      1
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Ma Heuteng
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Shareholder 1
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Person
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 space-x-1.5"
-                    >
-                      <button
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                        data-state="closed"
-                      >
-                        <a
-                          href="/documents/Users/Shareholder1/ID.pdf"
-                          target="_blank"
-                          >Print</a
-                        ></button
-                      ><button
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                        data-state="closed"
-                      >
-                        <a
-                          href="/documents/Users/Shareholder1/ID.pdf"
-                          target="_blank"
-                          >Print</a
-                        >
-                      </button>
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      <a
-                        target="_blank"
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                        href="/documents/Users/Shareholder1/ID.pdf"
-                        >Preview</a
-                      >
-                    </td>
-                  </tr>
-                  <tr
-                    class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                  >
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 font-medium"
-                    >
-                      2
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Tencent Games Pvt. Ltd.
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Shareholder 2
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Company
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 space-x-1.5"
-                    >
-                      <button
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                        data-state="closed"
-                      >
-                        <a
-                          href="/documents/Users/Shareholder2/ID.pdf"
-                          target="_blank"
-                          >Print</a
-                        >
-                      </button>
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      <button
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                        type="button"
-                        aria-haspopup="dialog"
-                        aria-expanded="false"
-                        aria-controls="radix-:R6alrrrqla:"
-                        data-state="closed"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          class="lucide lucide-upload"
-                        >
-                          <path
-                            d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                          ></path>
-                          <polyline points="17 8 12 3 7 8"></polyline>
-                          <line x1="12" x2="12" y1="3" y2="15"></line>
-                        </svg>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr
-                    class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                  >
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 font-medium"
-                    >
-                      4
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Ma Heauteng
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Director 1
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Person
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 space-x-1.5"
-                    >
-                      <button
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                        data-state="closed"
-                      >
-                        <a
-                          href="/documents/Users/Shareholder1/ID.pdf"
-                          target="_blank"
-                          >Print</a
-                        ></button
-                      ><button
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                        data-state="closed"
-                      >
-                        <a
-                          href="/documents/Users/Shareholder1/ID.pdf"
-                          target="_blank"
-                          >Print</a
-                        >
-                      </button>
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      <button
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                        type="button"
-                        aria-haspopup="dialog"
-                        aria-expanded="false"
-                        aria-controls="radix-:R6elrrrqla:"
-                        data-state="closed"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          class="lucide lucide-upload"
-                        >
-                          <path
-                            d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                          ></path>
-                          <polyline points="17 8 12 3 7 8"></polyline>
-                          <line x1="12" x2="12" y1="3" y2="15"></line>
-                        </svg>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr
-                    class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                  >
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 font-medium"
-                    >
-                      5
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Way to Web Pvt. Ltd.
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Director 1
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Company
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 space-x-1.5"
-                    >
-                      <button
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                        data-state="closed"
-                      >
-                        <a
-                          href="/documents/Users/Director1Company/ID.pdf"
-                          target="_blank"
-                          >Print</a
-                        >
-                      </button>
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      <button
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                        type="button"
-                        aria-haspopup="dialog"
-                        aria-expanded="false"
-                        aria-controls="radix-:R6ilrrrqla:"
-                        data-state="closed"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          class="lucide lucide-upload"
-                        >
-                          <path
-                            d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                          ></path>
-                          <polyline points="17 8 12 3 7 8"></polyline>
-                          <line x1="12" x2="12" y1="3" y2="15"></line>
-                        </svg>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr
-                    class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                  >
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 font-medium"
-                    >
-                      6
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Curtis Mar
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Company Secretary
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      Person
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 space-x-1.5"
-                    >
-                      <button
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                        data-state="closed"
-                      >
-                        <a
-                          href="/documents/Users/CompanySecretary/ID.pdf"
-                          target="_blank"
-                          >Print</a
-                        ></button
-                      ><button
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                        data-state="closed"
-                      >
-                        <a
-                          href="/documents/Users/CompanySecretary/ID.pdf"
-                          target="_blank"
-                          >Print</a
-                        >
-                      </button>
-                    </td>
-                    <td
-                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                    >
-                      <button
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                        type="button"
-                        aria-haspopup="dialog"
-                        aria-expanded="false"
-                        aria-controls="radix-:R6mlrrrqla:"
-                        data-state="closed"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          class="lucide lucide-upload"
-                        >
-                          <path
-                            d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                          ></path>
-                          <polyline points="17 8 12 3 7 8"></polyline>
-                          <line x1="12" x2="12" y1="3" y2="15"></line>
-                        </svg>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <!-- document-management.component.html -->
+<table class="w-full caption-bottom text-sm">
+  <thead class="[&_tr]:border-b">
+    <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+      <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+        Sr No.
+      </th>
+      <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+        Documents
+      </th>
+      <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+        Position
+      </th>
+      <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+        Type
+      </th>
+      <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+        Print
+      </th>
+      <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+        Upload Signed NNC1
+      </th>
+    </tr>
+  </thead>
+  <tbody class="[&_tr:last-child]:border-0">
+    <!-- Shareholders Rows -->
+    <ng-container *ngFor="let shareholder of data.shareholders; let i = index">
+      <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0 font-medium">
+          {{ i + 1 }}
+        </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          {{ shareholder.surname }} {{ shareholder.name }}
+        </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          Shareholder {{ i + 1 }}
+        </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          {{ shareholder.userType === 'person' ? 'Person' : 'Company' }}
+        </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0 space-x-1.5">
+          <button *ngIf="shareholder.idProof" 
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+            (click)="previewDocument(shareholder.idProof)">
+            ID Proof
+          </button>
+          <button *ngIf="shareholder.addressProof" 
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+            (click)="previewDocument(shareholder.addressProof)">
+            Address Proof
+          </button>
+        </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          <button 
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+            (click)="openUploadModal(shareholder._id)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" x2="12" y1="3" y2="15"></line>
+            </svg>
+          </button>
+        </td>
+      </tr>
+    </ng-container>
+
+    <!-- Directors Rows -->
+    <ng-container *ngFor="let director of data.directors; let i = index">
+      <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0 font-medium">
+          {{ data.shareholders.length + i + 1 }}
+        </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          {{ director.surname }} {{ director.name }}
+        </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          Director {{ i + 1 }}
+        </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          {{ director.type === 'person' ? 'Person' : 'Company' }}
+        </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0 space-x-1.5">
+          <button *ngIf="director.idProof" 
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+            (click)="previewDocument(director.idProof)">
+            ID Proof
+          </button>
+          <button *ngIf="director.addressProof" 
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+            (click)="previewDocument(director.addressProof)">
+            Address Proof
+          </button>
+        </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          <button 
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+            (click)="openUploadModal(director._id)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" x2="12" y1="3" y2="15"></line>
+            </svg>
+          </button>
+        </td>
+      </tr>
+    </ng-container>
+
+    <!-- Secretary Row -->
+    <ng-container *ngFor="let sec of data.secretary; let i = index">
+      <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0 font-medium">
+          {{ data.shareholders.length + data.directors.length + i + 1 }}
+        </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          {{ sec.surname }} {{ sec.name }}
+        </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          Company Secretary
+        </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          {{ sec.type === 'person' ? 'Person' : 'Company' }}
+        </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0 space-x-1.5">
+          <button *ngIf="sec.idProof" 
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+            (click)="previewDocument(sec.idProof)">
+            ID Proof
+          </button>
+          <button *ngIf="sec.addressProof" 
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+            (click)="previewDocument(sec.addressProof)">
+            Address Proof
+          </button>
+        </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          <button 
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+            (click)="openUploadModal(sec._id)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" x2="12" y1="3" y2="15"></line>
+            </svg>
+          </button>
+        </td>
+      </tr>
+    </ng-container>
+  </tbody>
+</table>
+
+<!-- Upload Modal -->
+<div *ngIf="showUploadModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+  <div class="bg-white p-6 rounded-lg w-96">
+    <h3 class="text-lg font-medium mb-4">Upload Signed NNC1 Document</h3>
+    <p class="mb-4 text-sm text-gray-600">Please upload a PDF or DOC file.</p>
+    
+    <input type="file" (change)="uploadFile($event)" accept=".pdf,.doc,.docx" class="mb-4 w-full">
+    
+    <div class="flex justify-end space-x-2">
+      <button 
+        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+        (click)="closeUploadModal()">
+        Cancel
+      </button>
+      <button 
+        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-primary text-white hover:bg-primary/90 h-10 px-4 py-2">
+        Upload
+      </button>
+    </div>
+  </div>
+</div>
             </div>
           </div>
         </div>
