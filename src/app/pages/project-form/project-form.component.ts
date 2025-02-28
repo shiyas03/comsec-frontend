@@ -1153,24 +1153,31 @@ initializeSharesHoldersForm() {
 }
 
 updateFormValidation(userType: string) {
-  const surnameControl = this.shareHoldersForm.get('surname');
-  const idNoControl = this.shareHoldersForm.get('idNo');
-  const companyNoControl = this.shareHoldersForm.get('companyNo');
+  const surnameControl = this.shareHoldersForm.get("surname");
+  const chineseNameControl = this.shareHoldersForm.get("chineeseName");
+  const idNoControl = this.shareHoldersForm.get("idNo");
+  const addressProofControl = this.shareHoldersForm.get("addressProof");
 
-  if (userType === 'company') {
+  if (userType === "company") {
     surnameControl?.clearValidators();
-    idNoControl?.clearValidators();
-    companyNoControl?.setValidators(Validators.required);
+    chineseNameControl?.clearValidators();
+    this.shareHoldersForm.get("name")?.setValidators([Validators.required]);
+    
+    // Remove validation for address proof
+    addressProofControl?.clearValidators();
   } else {
-    surnameControl?.setValidators(Validators.required);
-    idNoControl?.setValidators(Validators.required);
-    companyNoControl?.clearValidators();
+    surnameControl?.setValidators([Validators.required]);
+    this.shareHoldersForm.get("name")?.setValidators([Validators.required]);
+
+    // Restore validation for address proof
+    addressProofControl?.setValidators([Validators.required]);
   }
 
   surnameControl?.updateValueAndValidity();
   idNoControl?.updateValueAndValidity();
-  companyNoControl?.updateValueAndValidity();
+  addressProofControl?.updateValueAndValidity(); // Ensure validation updates
 }
+
 
 shareHoldersFormSubmit() {
   console.log('this.shareHoldersForm.value',this.shareHoldersForm.value)
@@ -1193,6 +1200,14 @@ shareHoldersFormSubmit() {
 
   const userId = localStorage.getItem('userId');
   const userRole = localStorage.getItem('userRole'); 
+  if(!this.companyId){
+    const savedCompanyId = localStorage.getItem('companyId');
+  if (savedCompanyId) {
+    this.companyId = savedCompanyId;
+    console.log('found saved one',this.companyId);
+    
+  }
+  }
   const formData = {
     ...this.shareHoldersForm.value,
     userId,
@@ -1600,26 +1615,31 @@ initializeDirectorInfoForm() {
 }
 
 updateFormValidation1(type: string) {
-  const surnameControl = this.directorInformationForm.get("surname")
-  const chineseNameControl = this.directorInformationForm.get("chineeseName")
-  const idNoControl = this.directorInformationForm.get("idNo")
+  const surnameControl = this.directorInformationForm.get("surname");
+  const chineseNameControl = this.directorInformationForm.get("chineeseName");
+  const idNoControl = this.directorInformationForm.get("idNo");
+  const addressProofControl = this.directorInformationForm.get("addressProof");
 
   if (type === "company") {
-    surnameControl?.clearValidators()
-    chineseNameControl?.clearValidators()
-    idNoControl?.setValidators([Validators.required])
-    this.directorInformationForm.get("name")?.setValidators([Validators.required])
+    surnameControl?.clearValidators();
+    chineseNameControl?.clearValidators();
+    this.directorInformationForm.get("name")?.setValidators([Validators.required]);
+    
+    // Remove validation for address proof
+    addressProofControl?.clearValidators();
   } else {
-    surnameControl?.setValidators([Validators.required])
-    idNoControl?.setValidators([Validators.required])
-    this.directorInformationForm.get("name")?.setValidators([Validators.required])
+    surnameControl?.setValidators([Validators.required]);
+    this.directorInformationForm.get("name")?.setValidators([Validators.required]);
+
+    // Restore validation for address proof
+    addressProofControl?.setValidators([Validators.required]);
   }
 
-  surnameControl?.updateValueAndValidity()
-  chineseNameControl?.updateValueAndValidity()
-  idNoControl?.updateValueAndValidity()
-  this.directorInformationForm.get("name")?.updateValueAndValidity()
+  surnameControl?.updateValueAndValidity();
+  idNoControl?.updateValueAndValidity();
+  addressProofControl?.updateValueAndValidity(); // Ensure validation updates
 }
+
 
 
 getErrorMessage4(controlName: string): string {
@@ -1951,20 +1971,23 @@ initializeCompanySecretaryForm() {
   }
 
   updateFormValidation3(type: string) {
-    const surnameControl = this.comapnySecretaryForm.get("surname")
-    const idNoControl = this.comapnySecretaryForm.get("idNo")
-
+    const surnameControl = this.comapnySecretaryForm.get("surname");
+    const idNoControl = this.comapnySecretaryForm.get("idNo");
+    const addressProofControl = this.comapnySecretaryForm.get("addressProof");
+  
     if (type === "company") {
-      surnameControl?.clearValidators()
-      idNoControl?.setValidators([Validators.required])
+      surnameControl?.clearValidators();
+      addressProofControl?.clearValidators(); // Remove validation for address proof
     } else {
-      surnameControl?.setValidators([Validators.required])
-      idNoControl?.setValidators([Validators.required])
+      surnameControl?.setValidators([Validators.required]);
+      addressProofControl?.setValidators([Validators.required]); // Restore validation for address proof
     }
-
-    surnameControl?.updateValueAndValidity()
-    idNoControl?.updateValueAndValidity()
+  
+    surnameControl?.updateValueAndValidity();
+    idNoControl?.updateValueAndValidity();
+    addressProofControl?.updateValueAndValidity(); // Ensure validation updates
   }
+  
 
 
 

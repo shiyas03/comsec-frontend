@@ -6,6 +6,7 @@ import { PdfSharedAgrementService } from '../../core/services/pdf-shared-agremen
 import { PdfAoAService } from '../../core/services/pdf-ao-a.service';
 import { PdfAoBService } from '../../core/services/pdf-ao-b.service';
 import Swal from 'sweetalert2';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-document-status',
@@ -21,6 +22,7 @@ export class DocumentStatusComponent implements OnInit, OnDestroy {
   currentUploadId: string | null = null;
   showUploadModal = false;
   private companyService = inject(CompanyService);
+  private router = inject(Router);
   private pdfService = inject(PdfService);
   private pdfSharesService = inject(PdfSharedAgrementService);
   private pdfAoAService = inject(PdfAoAService);
@@ -61,6 +63,7 @@ export class DocumentStatusComponent implements OnInit, OnDestroy {
           text: 'Company data has been saved successfully!',
           confirmButtonText: 'OK',
         });
+        this.router.navigate(['/user-dashboard']);
       },
       error: (error) => {
         console.error('Error storing data:', error);
