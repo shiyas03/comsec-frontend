@@ -40,6 +40,30 @@ export class CompanyService {
     );
   }
 
+  updateShare(data: any) {
+    console.log("Updating share:", data);
+    
+    return this.http.put<{ message: string }>(`${this.baseUrl}company/updateShare`, data).pipe(
+      catchError((error) => {
+        console.error("Share update error:", error);
+        const errorMessage = error.error?.message || "Failed to update share.";
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+  
+  deleteShare(shareId: string, companyId: string) {
+    console.log("Deleting share:", shareId);
+    
+    return this.http.delete<{ message: string }>(`${this.baseUrl}company/deleteShare/${shareId}/${companyId}`).pipe(
+      catchError((error) => {
+        console.error("Share deletion error:", error);
+        const errorMessage = error.error?.message || "Failed to delete share.";
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+
 
   shareHoldersCreation(data: any): Observable<{ message: string }> {
     console.log('data',data);
@@ -51,6 +75,18 @@ export class CompanyService {
         return throwError(() => new Error(errorMessage));
       })
     );
+  }
+
+  updateShareHolder(data: any): Observable<{ message: string }> {
+    console.log("Updating shareholder data:", data)
+
+    return this.http.put<{ message: string }>(`${this.baseUrl}company/updateShareHolder/${data._id}`, data).pipe(
+      catchError((error) => {
+        console.error("Shareholder update error:", error)
+        const errorMessage = error.error?.message || "Failed to update shareholder."
+        return throwError(() => new Error(errorMessage))
+      }),
+    )
   }
 
   getShareCapitalList(companyId: string, userId: string): Observable<{ message: string; data: any }> {
@@ -140,6 +176,20 @@ export class CompanyService {
       })
     )
   }
+
+  updateDirector(data: any): Observable<{ message: string }> {
+    console.log("Updating director data:", data)
+
+    return this.http.put<{ message: string }>(`${this.baseUrl}company/updateDirector/${data._id}`, data).pipe(
+      catchError((error) => {
+        console.error("Director update error:", error)
+        const errorMessage = error.error?.message || "Failed to update director."
+        return throwError(() => new Error(errorMessage))
+      }),
+    )
+  }
+
+
 
 
   directorInviteCreation(data: any): Observable<{ message: string }> {

@@ -12,6 +12,8 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { Location } from '@angular/common'; 
 import { ThemeService } from '../../core/services/theme.service';
+import { ShareholderEditModalComponent } from '../edit/shareholder-edit-modal/shareholder-edit-modal.component';
+import { DirectorEditModalComponent } from '../edit/director-edit-modal/director-edit-modal.component';
 
 interface BuisnessNature {
   value: string;
@@ -28,6 +30,8 @@ interface BuisnessNature {
     DropdownModule,
     ButtonModule,
     SelectModule,
+    ShareholderEditModalComponent,
+    DirectorEditModalComponent
 ],
   templateUrl: './project-form.component.html',
   styleUrl: './project-form.component.css'
@@ -43,6 +47,13 @@ export class ProjectFormComponent implements OnInit {
   public isInviteLoading = false;
   public isSaveLoading = false;
   public isSubmitLoading = false;
+  editModalOpen: boolean = false;
+  selectedDirector: any = null
+  isDirectorEditModalOpen = false
+  editShareForm!: FormGroup;
+isEditing: boolean = false;
+isViewModalOpen: boolean = false;
+currentShareId: string = '';
   tabs: any[] = ["Company Info", "Shares Info", "Directors", "Company Secretary"];
   shareCapitalList:any[]= []
   shareholders: any[] = [];
@@ -53,6 +64,8 @@ export class ProjectFormComponent implements OnInit {
   DirectorTabIndex:number=3
   invateShareHolderForm:boolean = false
   imagePreview: string | null = null;
+  selectedShareholder: any | null = null
+  isEditModalOpen = false
   imagePreviewDirectorsId: string | ArrayBuffer | null = null; 
   imagePreviewDirectorsAddressProof: string | ArrayBuffer | null = null;
   imagePreviewCompanySecretaryId: string | ArrayBuffer | null = null;
@@ -387,6 +400,7 @@ export class ProjectFormComponent implements OnInit {
     this.initializeInvateDirectorForm()
     this.initializeCompanySecretaryForm()
     this.getUserDatas()
+    this.initializeEditShareForm()
     // this.fetchDirectorsInfo()
     // this.getShareHoldersList()
     this.themeService.isDarkTheme$.subscribe(
@@ -1160,6 +1174,247 @@ isFieldInvalid(controlName: string): boolean {
       },
     });
   }
+
+  initializeEditShareForm() {
+    this.editShareForm = this.fb.group({
+      class_of_shares: ['', Validators.required],
+      total_shares_proposed: ['', Validators.required],
+      currency: ['HKD', Validators.required],
+      unit_price: [null, [Validators.required, Validators.min(0)]],
+      total_amount: [{ value: null, disabled: true }],
+      total_capital_subscribed: ['', Validators.required],
+      unpaid_amount: [{ value: 0, disabled: true }],
+      particulars_of_rights: ['']
+    });
+  
+    // Subscribe to changes for calculations - same as in add form
+    this.editShareForm.get('unit_price')?.valueChanges.subscribe(() => {
+      this.calculateEditTotalAmount();
+    });
+  
+    this.editShareForm.get('total_shares_proposed')?.valueChanges.subscribe(() => {
+      this.calculateEditTotalAmount();
+    });
+  
+    this.editShareForm.get('total_amount')?.valueChanges.subscribe(() => {
+      this.calculateEditUnpaidAmount();
+    });
+  
+    this.editShareForm.get('total_capital_subscribed')?.valueChanges.subscribe(() => {
+      this.calculateEditUnpaidAmount();
+    });
+  }
+
+  calculateEditTotalAmount() {
+    const unitPrice = this.editShareForm.get('unit_price')?.value;
+    const totalShares = this.editShareForm.get('total_shares_proposed')?.value;
+  
+    if (unitPrice && totalShares) {
+      const totalAmount = unitPrice * totalShares;
+      this.editShareForm.get('total_amount')?.setValue(totalAmount.toFixed(2));
+    }
+  }
+  
+  // Calculate unpaid amount for edit form
+  calculateEditUnpaidAmount() {
+    const totalAmount = parseFloat(this.editShareForm.get('total_amount')?.value) || 0;
+    const totalCapitalSubscribed = parseFloat(this.editShareForm.get('total_capital_subscribed')?.value) || 0;
+  
+    const unpaidAmount = totalAmount - totalCapitalSubscribed;
+    this.editShareForm.get('unpaid_amount')?.setValue(unpaidAmount >= 0 ? unpaidAmount.toFixed(2) : 0);
+  }
+  
+  // Method to handle the edit button click from the table
+  editShareCapitalList(event: Event) {
+    const target = event.currentTarget as HTMLElement;
+    const row = target.closest('tr');
+    const shareId = row?.getAttribute('data-id');
+    
+    if (shareId) {
+      this.currentShareId = shareId;
+      this.isEditing = true;
+      
+      // Find the share data from the list
+      const shareToEdit = this.shareCapitalList.find(share => share._id === shareId);
+      
+      if (shareToEdit) {
+        // Initialize the edit form if not already initialized
+        if (!this.editShareForm) {
+          this.initializeEditShareForm();
+        }
+        
+        // Populate the form with existing data
+        this.editShareForm.patchValue({
+          class_of_shares: shareToEdit.share_class,
+          total_shares_proposed: shareToEdit.total_share,
+          currency: 'HKD', // Default or fetch from data if available
+          unit_price: shareToEdit.amount_share,
+          total_capital_subscribed: shareToEdit.total_capital_subscribed,
+          particulars_of_rights: shareToEdit.share_right
+        });
+        
+        // Calculate total amount and unpaid amount
+        this.calculateEditTotalAmount();
+        this.calculateEditUnpaidAmount();
+        
+        // Open the edit modal
+        this.editModalOpen = true;
+      }
+    }
+  }
+  
+  // Method to handle the form submission for editing
+  updateShareSubmit() {
+    const userId = localStorage.getItem('userId');
+    
+    // Mark all fields as touched for validation
+    Object.keys(this.editShareForm.controls).forEach(key => {
+      const control = this.editShareForm.get(key);
+      control?.markAsTouched();
+    });
+    
+    if (this.editShareForm.invalid) {
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Please fill in all required fields.",
+        toast: true,
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      });
+      return;
+    }
+  
+    if (!userId) {
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "User ID not found. Please log in again.",
+        toast: true,
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      });
+      return;
+    }
+  
+    const updateData = {
+      shareId: this.currentShareId,
+      companyId: this.companyId,
+      userid: userId,
+      total_shares_proposed: this.editShareForm.get('total_shares_proposed')?.value,
+      unit_price: this.editShareForm.get('unit_price')?.value,
+      total_capital_subscribed: this.editShareForm.get('total_capital_subscribed')?.value,
+      unpaid_amount: this.editShareForm.get('unpaid_amount')?.value,
+      class_of_shares: this.editShareForm.get('class_of_shares')?.value,
+      particulars_of_rights: this.editShareForm.get('particulars_of_rights')?.value,
+    };
+  
+    this.companyService.updateShare(updateData).subscribe({
+      next: (response) => {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: response.message,
+          toast: true,
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true,
+        });
+        this.getShareCapitalList();
+        this.closeEditModal();
+      },
+      error: (error) => {
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Error",
+          text: error.message || "Failed to update share.",
+          toast: true,
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true,
+        });
+      },
+    });
+  }
+  
+  // Method to close the edit modal and reset form
+  closeShareEditModal() {
+    this.editModalOpen = false;
+    this.isEditing = false;
+    this.currentShareId = '';
+    this.editShareForm.reset();
+  }
+  
+  // Method to handle the delete button click
+  deleteShareCapitalList(shareId: string) {
+    // Show confirmation dialog before deleting
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Call service to delete the share
+        this.companyService.deleteShare(shareId, this.companyId).subscribe({
+          next: (response) => {
+            Swal.fire({
+              position: "top-end",
+              icon: "success",
+              title: response.message,
+              toast: true,
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true,
+            });
+            // Refresh the list after deletion
+            console.log('response',response)
+            this.getShareCapitalList();
+          },
+          error: (error) => {
+            Swal.fire({
+              position: "top-end",
+              icon: "error",
+              title: "Error",
+              text: error.message || "Failed to delete share.",
+              toast: true,
+              showConfirmButton: false,
+              timer: 1500,
+              timerProgressBar: true,
+            });
+            this.getShareCapitalList();
+          },
+        });
+      }
+    });
+  }
+
+  openEditModal(shareholder: any) {
+    this.selectedShareholder = shareholder
+    this.isEditModalOpen = true
+  }
+
+  closeEditModal() {
+    this.isEditModalOpen = false
+    this.selectedShareholder = null
+  }
+
+  onShareholderUpdated(updatedShareholder: any) {
+    // Update the shareholder in the local array
+    const index = this.shareholders.findIndex((s) => s._id === updatedShareholder._id)
+    if (index !== -1) {
+      this.shareholders[index] = { ...this.shareholders[index], ...updatedShareholder }
+    }
+
+    // Refresh the list from the server
+    this.getShareHoldersList()
+  }
   
 
 resetAddShareForm() {
@@ -1406,6 +1661,16 @@ getShareCapitalList() {
     });
     return;
   }
+  const savedCompanyId = localStorage.getItem('companyId');
+
+  if (!savedCompanyId) {
+    console.error("Company ID is missing in localStorage!");
+    return;
+  }
+
+  // Ensure companyId is correctly set before adding it to formData
+  this.companyId = savedCompanyId; 
+  console.log('this.companyId ',this.companyId );
 
   this.companyService.getShareCapitalList(this.companyId, userId).subscribe({
     next: (response) => {
@@ -1415,11 +1680,12 @@ getShareCapitalList() {
     },
     error: (error) => {
       console.error("Error fetching share capital list:", error);
+      this.shareCapitalList=[]
 
       Swal.fire({
         position: "top-end",
         icon: "error",
-        title: error.error?.message || "Failed to fetch share capital list. Please try again later.",
+        title: error.error?.message || "Empty Share capital / Not Found",
         toast: true,
         showConfirmButton: false,
         timer: 1500,
@@ -1432,56 +1698,53 @@ getShareCapitalList() {
 
 
 
-editShareCapitalList(event:Event){
-console.log(event);
-}
 
 
-deleteShareCapitalList(id: string) {
-  Swal.fire({
-    title: 'Are you sure?',
-    text: "You won't be able to revert this!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!',
-    cancelButtonText: 'Cancel',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      this.companyService.deleteShareCapital(id).subscribe({
-        next: (response) => {
-          console.log('Share capital deleted:', response.message);
+// deleteShareCapitalList(id: string) {
+//   Swal.fire({
+//     title: 'Are you sure?',
+//     text: "You won't be able to revert this!",
+//     icon: 'warning',
+//     showCancelButton: true,
+//     confirmButtonColor: '#3085d6',
+//     cancelButtonColor: '#d33',
+//     confirmButtonText: 'Yes, delete it!',
+//     cancelButtonText: 'Cancel',
+//   }).then((result) => {
+//     if (result.isConfirmed) {
+//       this.companyService.deleteShareCapital(id).subscribe({
+//         next: (response) => {
+//           console.log('Share capital deleted:', response.message);
 
-          Swal.fire({
-            position: 'top-end',
-            icon: 'success',
-            title: response.message || 'Share capital deleted successfully!',
-            toast: true,
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-          });
+//           Swal.fire({
+//             position: 'top-end',
+//             icon: 'success',
+//             title: response.message || 'Share capital deleted successfully!',
+//             toast: true,
+//             showConfirmButton: false,
+//             timer: 1500,
+//             timerProgressBar: true,
+//           });
 
-          this.getShareCapitalList();
-        },
-        error: (error) => {
-          console.error('Error deleting share capital:', error);
+//           this.getShareCapitalList();
+//         },
+//         error: (error) => {
+//           console.error('Error deleting share capital:', error);
 
-          Swal.fire({
-            position: 'top-end',
-            icon: 'error',
-            title: error.message || 'Failed to delete share capital.',
-            toast: true,
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-          });
-        },
-      });
-    }
-  });
-}
+//           Swal.fire({
+//             position: 'top-end',
+//             icon: 'error',
+//             title: error.message || 'Failed to delete share capital.',
+//             toast: true,
+//             showConfirmButton: false,
+//             timer: 1500,
+//             timerProgressBar: true,
+//           });
+//         },
+//       });
+//     }
+//   });
+// }
 
 
 
@@ -1546,6 +1809,18 @@ getShareHoldersList() {
 
 invateShareHoldersButton(){
   this.invateShareHolderForm=!this.invateShareHolderForm
+}
+
+viewShareDetails(shareholder:any) {
+  // Set the selected shareholder
+  this.selectedShareholder = shareholder;
+  
+  // Show the modal
+  this.isViewModalOpen = true;
+}
+
+closeShareModal() {
+  this.isViewModalOpen = false;
 }
 
 generateSecurePassword(length: number = 12): string {
@@ -1926,53 +2201,115 @@ fetchDirectorsInfo(): void {
     },
   });
 }
+openDirectorEditModal(director: any) {
+  this.selectedDirector = director
+  this.isDirectorEditModalOpen = true
+}
+
+closeDirectorEditModal() {
+  this.isDirectorEditModalOpen = false
+  this.selectedDirector = null
+}
+
+onDirectorUpdated(updatedDirector: any) {
+  const index = this.directorsInformation.findIndex((d) => d._id === updatedDirector._id)
+  if (index !== -1) {
+    this.directorsInformation[index] = { ...this.directorsInformation[index], ...updatedDirector }
+  }
+  this.fetchDirectorsInfo()
+}
 
 OnDeleteDirectorInfo(directorId: string): void {
   Swal.fire({
-    title: 'Are you sure?',
-    text: 'You won\'t be able to revert this!',
-    icon: 'warning',
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
     showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Yes, delete it!',
-    cancelButtonText: 'Cancel',
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, delete it!",
+    cancelButtonText: "Cancel",
   }).then((result) => {
     if (result.isConfirmed) {
       this.companyService.deleteDirector(directorId).subscribe({
         next: (response) => {
-          console.log('Director deleted successfully:', response);
-          this.directorsInformation = this.directorsInformation.filter(
-            (director) => director._id !== directorId
-          );
+          console.log("Director deleted successfully:", response)
+          this.directorsInformation = this.directorsInformation.filter((director) => director._id !== directorId)
 
           Swal.fire({
-            position: 'top-end',
-            icon: 'success',
-            title: 'The director has been deleted.',
+            position: "top-end",
+            icon: "success",
+            title: "The director has been deleted.",
             toast: true,
             showConfirmButton: false,
             timer: 1500,
             timerProgressBar: true,
-          });
+          })
         },
         error: (error) => {
-          console.error('Error deleting director:', error.message);
+          console.error("Error deleting director:", error.message)
 
           Swal.fire({
-            position: 'top-end',
-            icon: 'error',
-            title: 'Failed to delete the director. Please try again.',
+            position: "top-end",
+            icon: "error",
+            title: "Failed to delete the director. Please try again.",
             toast: true,
             showConfirmButton: false,
             timer: 1500,
             timerProgressBar: true,
-          });
+          })
         },
-      });
+      })
     }
-  });
+  })
 }
+
+// OnDeleteDirectorInfo(directorId: string): void {
+//   Swal.fire({
+//     title: 'Are you sure?',
+//     text: 'You won\'t be able to revert this!',
+//     icon: 'warning',
+//     showCancelButton: true,
+//     confirmButtonColor: '#d33',
+//     cancelButtonColor: '#3085d6',
+//     confirmButtonText: 'Yes, delete it!',
+//     cancelButtonText: 'Cancel',
+//   }).then((result) => {
+//     if (result.isConfirmed) {
+//       this.companyService.deleteDirector(directorId).subscribe({
+//         next: (response) => {
+//           console.log('Director deleted successfully:', response);
+//           this.directorsInformation = this.directorsInformation.filter(
+//             (director) => director._id !== directorId
+//           );
+
+//           Swal.fire({
+//             position: 'top-end',
+//             icon: 'success',
+//             title: 'The director has been deleted.',
+//             toast: true,
+//             showConfirmButton: false,
+//             timer: 1500,
+//             timerProgressBar: true,
+//           });
+//         },
+//         error: (error) => {
+//           console.error('Error deleting director:', error.message);
+
+//           Swal.fire({
+//             position: 'top-end',
+//             icon: 'error',
+//             title: 'Failed to delete the director. Please try again.',
+//             toast: true,
+//             showConfirmButton: false,
+//             timer: 1500,
+//             timerProgressBar: true,
+//           });
+//         },
+//       });
+//     }
+//   });
+// }
 
 
 openDirectorInvateForm(){
