@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ThemeService } from '../../core/services/theme.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CompanyService } from '../../core/services/company.service';
-
+import Swal from 'sweetalert2';
 @Component({
   selector: 'app-user-dashboard',
   imports: [CommonModule],
@@ -102,6 +102,7 @@ export class UserDashboardComponent {
   }
 
   getUserDatas() {
+    // Get the userId from localStorage directly
     this.userId = localStorage.getItem('userId');
     console.log('userId:', this.userId);
   
@@ -109,16 +110,28 @@ export class UserDashboardComponent {
       this.authService.getUserById(this.userId).subscribe({
         next: (user) => {
           this.userData = user;
-          const userRole = this.userData?.roles?.toLowerCase();
-          console.log('userRole');
-          
-          if (userRole === 'shareholder' || userRole === 'director') {
-            this.isRestrictedUser = true;
-          } else {
-            this.isRestrictedUser = false;
+          console.log('User data:', this.userData);
+          if (
+            this.userData.roles === "Company Secretary" &&
+            (!this.userData.companyid || this.userData.companyid.length === 0)
+          ) {
+            Swal.fire({
+              title: "ComSec",
+              html: `
+                <h2>ComSec360</h2>
+                <p><strong>Company Secretarial Management</strong></p>
+                <p>You do not have any project or company yet!!</p>
+                <p><strong>Project - Company Incorporate Starts.</strong></p>
+              `,
+              icon: "info",
+              confirmButtonText: "OK",
+              allowOutsideClick: false,
+              allowEscapeKey: false,
+            });
+            this.router.navigate(['/project-form']);
           }
         },
-        error: (err) => {
+        error: (err:any) => {
           console.error('Error fetching user data:', err);
         }
       });

@@ -4,7 +4,7 @@
     <div class="flex h-full max-h-screen flex-col gap-2 fixed">
       <div class="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
         <a class="flex items-center gap-2 font-semibold" href="/"><img alt="logo" loading="eager" width="24" height="24"
-          src="assets/logos/logo.png"/><span class="">ComSec360 Admin</span></a>
+            src="assets/logos/logo.png" /><span class="">ComSec360 Admin</span></a>
       </div>
       <div class="flex-1">
         <nav class="grid items-start text-sm font-medium gap-4 mt-6">
@@ -57,21 +57,21 @@
           </div>
           <div data-state="closed" class="ml-3">
             <button type="button" aria-controls="radix-:Rv6ja:" aria-expanded="false" data-state="closed"
-                class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 flex gap-3 mb-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-circle-dollar-sign size-4">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
-                    <path d="M12 18V6"></path>
-                </svg>
-                <!-- -->Annual Return
+              class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 flex gap-3 mb-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-circle-dollar-sign size-4">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
+                <path d="M12 18V6"></path>
+              </svg>
+              <!-- -->Annual Return
             </button>
             <div data-state="closed" id="radix-:Rv6ja:" hidden="" class="CollapsibleContent" style=""></div>
-            
+
             <!-- Red Sign Out Button -->
             <a href="#" (click)="logout()" class="block px-4 py-2 text-sm text-red-700 hover:bg-red-50">Sign out</a>
-        </div>
+          </div>
         </nav>
       </div>
     </div>
@@ -254,16 +254,26 @@
                   placeholder="XXXXXXX" aria-invalid="false" />
               </div> -->
               <button
-                class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium bg-black text-white h-11 rounded-md px-8 w-full"
-                type="submit" [disabled]="inviteUserForm.invalid">
-                Create an Account User
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                  class="lucide lucide-user-round ml-3 size-5 my-auto">
+                class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium bg-black text-white h-11 rounded-md px-8 w-full disabled:pointer-events-none disabled:opacity-50"
+                type="submit" [disabled]="inviteUserForm.invalid || isLoading">
+                <span *ngIf="isLoading" class="mr-2">
+                  <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                  </svg>
+                </span>
+                {{ isLoading ? 'Processing...' : 'Create an Account User' }}
+                <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" class="lucide lucide-user-round ml-3 size-5 my-auto">
                   <circle cx="12" cy="8" r="5"></circle>
                   <path d="M20 21a8 8 0 0 0-16 0"></path>
                 </svg>
               </button>
+
             </form>
           </div>
           <!-- Edit Email Modal -->
@@ -285,23 +295,20 @@
                       <label class="text-sm font-medium leading-none">First Name</label>
                       <input formControlName="firstName"
                         class="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm !bg-opacity-100 focus:!bg-opacity-100"
-                        style="background-color: white !important"
-                        aria-invalid="false" />
+                        style="background-color: white !important" aria-invalid="false" />
                     </div>
                     <div class="space-y-2">
                       <label class="text-sm font-medium leading-none">Last Name</label>
                       <input formControlName="lastName"
                         class="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm !bg-opacity-100 focus:!bg-opacity-100"
-                        style="background-color: white !important"
-                        aria-invalid="false" />
+                        style="background-color: white !important" aria-invalid="false" />
                     </div>
                   </div>
                   <div class="space-y-2">
                     <label class="text-sm font-medium leading-none">E-mail</label>
                     <input type="email" formControlName="email"
                       class="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm !bg-opacity-100 focus:!bg-opacity-100"
-                      style="background-color: white !important"
-                      placeholder="example@email.com" aria-invalid="false" />
+                      style="background-color: white !important" placeholder="example@email.com" aria-invalid="false" />
                   </div>
                   <div class="flex justify-end space-x-4 mt-4">
                     <button type="button" (click)="closeEditModal()"
@@ -309,9 +316,33 @@
                       Cancel
                     </button>
                     <button
-                      class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium bg-black text-white h-11 rounded-md px-8"
-                      type="submit" [disabled]="editEmailForm.invalid">
-                      Update User
+                      class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium bg-black text-white h-11 rounded-md px-8 disabled:pointer-events-none disabled:opacity-50"
+                      type="submit"
+                      [disabled]="editEmailForm.invalid || isLoading"
+                    >
+                      <span *ngIf="isLoading" class="mr-2">
+                        <svg
+                          class="animate-spin h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            class="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            stroke-width="4"
+                          ></circle>
+                          <path
+                            class="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                      </span>
+                      {{ isLoading ? 'Processing...' : 'Update User' }}
                     </button>
                   </div>
                 </form>

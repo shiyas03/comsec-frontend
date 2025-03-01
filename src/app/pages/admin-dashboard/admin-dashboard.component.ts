@@ -21,6 +21,7 @@ export class AdminDashboardComponent implements OnInit {
   invitedUsers: InvitedUser[] = [];
   isEditModalOpen: boolean = false;
   selectedUser: any | null = null;
+  public isLoading=false
   private fb = inject(FormBuilder);
   private adminService = inject(AdminService);
   private authService = inject(AuthService);
@@ -70,11 +71,15 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadInvitedUsers() {
+    
     this.adminService.getInvitedUsers().subscribe({
+      
       next: (users) => {
         this.invitedUsers = users;
+       
       },
       error: (error) => {
+     
         console.error('Error loading invited users:', error);
         Swal.fire({
           icon: 'error',
@@ -98,10 +103,12 @@ export class AdminDashboardComponent implements OnInit {
       };
 
       console.log("gg password",userData);
+      this.isLoading=true
       
   
       this.adminService.inviteUser(userData).pipe(
         catchError((error) => {
+          this.isLoading=false
           console.error('Error during user invitation:', error);
           Swal.fire({
             icon: 'error',
@@ -112,6 +119,7 @@ export class AdminDashboardComponent implements OnInit {
           return throwError(() => new Error('Invitation failed.'));
         })
       ).subscribe((response) => {
+        this.isLoading=false
         Swal.fire({
           position: 'top-end',
           icon: 'success',
@@ -130,6 +138,7 @@ export class AdminDashboardComponent implements OnInit {
 
   updateUser(user: InvitedUser) {
     this.selectedUser = user;
+
     this.editEmailForm.patchValue({
       _id: user._id,
       firstName: user.firstName,
@@ -147,6 +156,7 @@ export class AdminDashboardComponent implements OnInit {
 
   onSubmitEditEmail() {
     if (this.editEmailForm.valid && this.selectedUser) {
+      this.isLoading=true
       const userId = this.selectedUser._id;
       const userData = {
         firstName: this.editEmailForm.get('firstName')?.value,
@@ -159,6 +169,7 @@ export class AdminDashboardComponent implements OnInit {
       
       this.adminService.updateUser(userId, userData).subscribe({
         next: (response) => {
+          this.isLoading=false
           Swal.fire({
             position: 'top-end',
             icon: 'success',
@@ -173,6 +184,7 @@ export class AdminDashboardComponent implements OnInit {
           this.closeEditModal();
         },
         error: (error) => {
+          this.isLoading=false
           Swal.fire({
             icon: 'error',
             title: 'Error!',

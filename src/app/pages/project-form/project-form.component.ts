@@ -38,6 +38,11 @@ export class ProjectFormComponent implements OnInit {
   private route=inject(ActivatedRoute)
   public isCompanySelected: boolean = false;
   companyId!:any
+  public isShareLoading = false;
+  public isDirectorLoading = false;
+  public isInviteLoading = false;
+  public isSaveLoading = false;
+  public isSubmitLoading = false;
   tabs: any[] = ["Company Info", "Shares Info", "Directors", "Company Secretary"];
   shareCapitalList:any[]= []
   shareholders: any[] = [];
@@ -382,6 +387,8 @@ export class ProjectFormComponent implements OnInit {
     this.initializeInvateDirectorForm()
     this.initializeCompanySecretaryForm()
     this.getUserDatas()
+    // this.fetchDirectorsInfo()
+    // this.getShareHoldersList()
     this.themeService.isDarkTheme$.subscribe(
       isDark => {
         this.isDarkTheme = isDark;
@@ -389,85 +396,102 @@ export class ProjectFormComponent implements OnInit {
       }
     );
     const savedCompanyId = localStorage.getItem('companyId');
-  if (savedCompanyId) {
-    this.companyId = savedCompanyId;
-    console.log('found saved one',this.companyId);
+    if (savedCompanyId) {
+      this.companyId = savedCompanyId;
+      console.log('Found saved companyId:', this.companyId);
+    }
     
-  }
-    this.userData = this.authservice.getUserId()
+    // Setup authentication check
+    this.userData = this.authservice.getUserId();
     this.visitedTabs[0] = true;
+    
+    // Handle route parameters (single subscription)
+    this.route.queryParams.subscribe(params => {
+      // Handle tab parameter
+      const tabParam = params['tab'];
+      if (tabParam !== undefined) {
+        const tabIndex = parseInt(tabParam, 10);
+        if (!isNaN(tabIndex)) {
+          // Mark all tabs up to current one as visited
+          for (let i = 0; i <= tabIndex; i++) {
+            this.visitedTabs[i] = true;
+          }
+          this.activeTabIndex = tabIndex;
+          
+          // Load data based on active tab
+          this.loadTabData(tabIndex);
+        }
+      }
+      
+      // Handle company ID (if not already set from localStorage)
+      if (!this.companyId && params['companyId']) {
+        this.companyId = decodeURIComponent(params['companyId']).trim().replace(/\\$/, '');
+        console.log('Set companyId from URL:', this.companyId);
+      }
+      
+      // Handle special parameters
+      if (params['fromEmail']) {
+        this.activeTabIndex = 2;
+        this.fetchDirectorsInfo();
+      }
+      
+      if (params['fromShare']) {
+        this.activeTabIndex = 1;
+        this.loadShareholderData();
+      }
+      
+      // Handle invitation token
+      this.invitationToken = params['token'];
+      if (this.invitationToken) {
+        this.validateInvitationToken();
+      }
+    });
+    
+    // Check authentication
     if (this.authservice.isLoggedIn()) {
       this.isAuthenticated = true;
       this.getUserDatas();
-    } else {
-      // Check for invitation token
-      this.route.queryParams.subscribe(params => {
-        this.invitationToken = params['token'];
-        this.companyId = params['companyId'] 
-    ? decodeURIComponent(params['companyId']).trim().replace(/\\$/, '') 
-    : null;
-    
-  console.log('Cleaned companyId:', this.companyId);
-;
-        // console.log('compeeeeeee',this.companyId);
-        
-        
-        
-        if (this.invitationToken) {
-          this.validateInvitationToken();
-        } else {
-          // Neither logged in nor has token - shouldn't reach here due to guard
-          this.router.navigate(['/login']);
-        }
-      });
+    } else if (!this.invitationToken) {
+      // Neither logged in nor has token - redirect to login
+      this.router.navigate(['/login']);
     }
-  
-    // Check URL for tab index
-    const urlTabIndex = this.getTabIndexFromUrl();
-    if (urlTabIndex !== null) {
-      // Mark all tabs up to current one as visited
-      for (let i = 0; i <= urlTabIndex; i++) {
-        this.visitedTabs[i] = true;
-      }
-      this.activeTabIndex = urlTabIndex;
-    }
-
-    this.route.queryParams.subscribe(params => {
-      this.companyId = params['companyId'] 
-    ? decodeURIComponent(params['companyId']).trim().replace(/\\$/, '') 
-    : null;
     
-  console.log('Cleaned companyId:', this.companyId);
-
-      if (params['fromEmail']) {
-        this.activeTabIndex = 2; 
-        this.fetchDirectorsInfo();
-      }
-    });
-
+    // Disable public radio if needed
     const publicRadioEl = document.querySelector('input[value="public"]');
-  if (publicRadioEl) {
-    publicRadioEl.setAttribute('disabled', 'disabled');
-  }
-
-    this.route.queryParams.subscribe(params => {
-      this.companyId = params['companyId'] 
-    ? decodeURIComponent(params['companyId']).trim().replace(/\\$/, '') 
-    : null;
+    if (publicRadioEl) {
+      publicRadioEl.setAttribute('disabled', 'disabled');
+    }
     
-  console.log('Cleaned companyId:', this.companyId);
-
-      
-      if (params['fromShare']) {
-        this.activeTabIndex = 1; 
-        this.getShareCapitalList();
-        this.getShareHoldersList();
-      }
-    });
+    // Disable form fields
+    this.companyInfoForm.get('country_Address')?.disable();
+    this.companyInfoForm.get('presentorReferance')?.disable();
+  }
+  
+  // New method to load data based on tab index
+  private loadTabData(tabIndex: number) {
+    switch (tabIndex) {
+      case 0:
+        // Load company info data if needed
+        break;
+      case 1:
+        // Load shareholder data
+        this.loadShareholderData();
+        break;
+      case 2:
+        // Load directors data
+        this.fetchDirectorsInfo();
+        break;
+      // Add other cases as needed
+    }
     
 
     this.companyInfoForm.get('country_Address')?.disable();
     this.companyInfoForm.get('presentorReferance')?.disable();
+  }
+  private loadShareholderData() {
+    console.log('Loading shareholder data for company:', this.companyId);
+    this.getShareCapitalList();
+    this.getShareHoldersList();
   }
 
   ngAfterViewInit() {
@@ -660,24 +684,44 @@ export class ProjectFormComponent implements OnInit {
     return '';
 }
 
-  getErrorMessage1(controlName: string): string {
-    const control = this.addShareForm.get(controlName);
-  
-    if (control?.touched || control?.dirty) { 
-      if (control?.hasError('required')) {
-        return `${controlName} is required.`;
-      }
-      if (control?.hasError('min')) {
-        if (controlName === 'total_shares_proposed') {
-          return 'At least 1 share must be proposed.';
-        }
-        if (controlName === 'unit_price') {
-          return 'Unit price must be at least 0.';
-        }
-      }
-    }
-    return '';
+getErrorMessage1(controlName: string): string {
+  const control = this.addShareForm.get(controlName);
+  if (!control || !(control.touched || control.dirty)) return '';
+
+  // Define user-friendly field names
+  const fieldLabels: { [key: string]: string } = {
+    class_of_shares: 'Class of Shares',
+    total_shares_proposed: 'Total Shares Proposed',
+    currency: 'Currency',
+    unit_price: 'Unit Price',
+    total_amount: 'Total Amount',
+    total_capital_subscribed: 'Total Capital Subscribed',
+    unpaid_amount: 'Unpaid Amount',
+    particulars_of_rights: 'Particulars of Rights',
+  };
+
+  const fieldLabel = fieldLabels[controlName] || controlName; // Fallback if not mapped
+
+  // Error messages
+  if (control.hasError('required')) {
+    return `${fieldLabel} is required.`;
   }
+  if (control.hasError('min')) {
+    if (controlName === 'total_shares_proposed') {
+      return 'You must propose at least 1 share.';
+    }
+    if (controlName === 'unit_price') {
+      return 'Unit price cannot be negative.';
+    }
+  }
+
+  return '';
+}
+isFieldInvalid(controlName: string): boolean {
+  const control = this.addShareForm.get(controlName);
+  return control ? (control.invalid && (control.touched || control.dirty)) : false;
+}
+
 
   getErrorMessage2(fieldName: string): string {
     const control = this.shareHoldersForm.get(fieldName);
@@ -898,8 +942,10 @@ export class ProjectFormComponent implements OnInit {
   onSaveAndNext(): void {
     console.log('companyInfoForm',this.companyInfoForm.value)
     if (this.companyInfoForm.valid) {
+      this.isSaveLoading=true
       this.submitCompanyInfo().subscribe({
         next: () => {
+          this.isSaveLoading=false
           this.changeTab(this.activeTabIndex + 1);
           Swal.fire({
             position: "top-end",
@@ -912,6 +958,7 @@ export class ProjectFormComponent implements OnInit {
           });
         },
         error: () => {
+          this.isSaveLoading=false
           Swal.fire({
             position: "top-end",
             icon: "error",
@@ -941,10 +988,12 @@ export class ProjectFormComponent implements OnInit {
   
   
   submitCompanyInfo(): Observable<boolean> {
-    const formValues = this.companyInfoForm.getRawValue();
-    console.log("Submitted form dataAAAAAA", formValues);
+    const datas = this.companyInfoForm.getRawValue();
+    const userId = localStorage.getItem('userId');
+    const fromValues = { ...datas, userId };
+    console.log("Submitted form dataAAAAAA", fromValues);
   
-    return this.companyService.submitCompanyInfo(formValues).pipe(
+    return this.companyService.submitCompanyInfo(fromValues).pipe(
       tap((response) => {
         console.log("Form submitted successfully", response);
         this.companyId=response.companyId
@@ -1042,6 +1091,22 @@ export class ProjectFormComponent implements OnInit {
 
   addSharesSubmit() {
     const userId = localStorage.getItem('userId');
+    Object.keys(this.addShareForm.controls).forEach(key => {
+      const control = this.addShareForm.get(key);
+      control?.markAsTouched();
+    });
+    if (this.addShareForm.invalid) {
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Please fill in all required fields.",
+        toast: true,
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      });
+      return;
+    }
   
     if (!userId) {
       Swal.fire({
@@ -1180,7 +1245,10 @@ updateFormValidation(userType: string) {
 
 
 shareHoldersFormSubmit() {
-  console.log('this.shareHoldersForm.value',this.shareHoldersForm.value)
+  // Set loading state to true at the beginning
+  this.isShareLoading = true;
+
+  console.log('this.shareHoldersForm.value', this.shareHoldersForm.value);
 
   // Mark all fields as touched to trigger validation messages
   Object.keys(this.shareHoldersForm.controls).forEach(key => {
@@ -1189,35 +1257,40 @@ shareHoldersFormSubmit() {
   });
 
   if (this.shareHoldersForm.invalid) {
+    // Reset loading state if form is invalid
+    this.isShareLoading = false;
+    
     // Optionally scroll to the first error
     const firstInvalidElement = document.querySelector('.error-message');
     firstInvalidElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
 
-  console.log('this.shareHoldersForm.value',this.shareHoldersForm.value)
-
+  console.log('this.shareHoldersForm.value', this.shareHoldersForm.value);
 
   const userId = localStorage.getItem('userId');
   const userRole = localStorage.getItem('userRole'); 
   if(!this.companyId){
     const savedCompanyId = localStorage.getItem('companyId');
-  if (savedCompanyId) {
-    this.companyId = savedCompanyId;
-    console.log('found saved one',this.companyId);
-    
+    if (savedCompanyId) {
+      this.companyId = savedCompanyId;
+      console.log('found saved one', this.companyId);
+    }
   }
-  }
+  
   const formData = {
     ...this.shareHoldersForm.value,
     userId,
     companyId: this.companyId
   };
-  console.log('this.shareHoldersForm.value',formData)
+  console.log('this.shareHoldersForm.value', formData);
 
   this.companyService.shareHoldersCreation(formData).subscribe({
     next: (response) => {
-      console.log('userRole',userRole);
+      // Reset loading state on success
+      this.isShareLoading = false;
+      
+      console.log('userRole', userRole);
       
       Swal.fire({
         position: "top-end",
@@ -1233,7 +1306,9 @@ shareHoldersFormSubmit() {
       this.addressProofPreview = null;
       this.idProofPreview = null;
       this.currentHolder = formData;
+      this.initializeSharesHoldersForm();
       this.getShareHoldersList();
+      
       if (userRole !== 'Company Secretary') {
         Swal.fire({
           position: "top-end",
@@ -1250,6 +1325,9 @@ shareHoldersFormSubmit() {
       }
     },
     error: (error) => {
+      // Reset loading state on error
+      this.isShareLoading = false;
+      
       console.error('Error occurred during share creation:', error);
       Swal.fire({
         position: "top-end",
@@ -1508,6 +1586,8 @@ invateShareHoldersSubmit() {
     this.inviteShareholderForm.markAllAsTouched(); 
     return; 
   }
+  this.isInviteLoading=true
+  
 
   const userId = localStorage.getItem('userId');
   const savedCompanyId = localStorage.getItem('companyId');
@@ -1543,6 +1623,7 @@ invateShareHoldersSubmit() {
         timer: 2000, 
         timerProgressBar: true, 
       });
+      this.isInviteLoading=false
 
       this.inviteShareholderForm.reset();
       this.addressProofPreview = null;
@@ -1551,6 +1632,7 @@ invateShareHoldersSubmit() {
     },
     error: (error) => {
       console.error('Error occurred during share creation:', error);
+      this.isInviteLoading=true
 
        Swal.fire({
           position: "top-end", 
@@ -1626,6 +1708,7 @@ updateFormValidation1(type: string) {
     this.directorInformationForm.get("name")?.setValidators([Validators.required]);
     
     // Remove validation for address proof
+    addressProofControl?.clearValidators();
     addressProofControl?.clearValidators();
   } else {
     surnameControl?.setValidators([Validators.required]);
@@ -1717,6 +1800,9 @@ imagePreviewOnDirectorsAddressProof(event: Event): void {
 
 
 directorFormSubmission() {
+  // Set loading state to true at the beginning
+  this.isDirectorLoading = true;
+
   // Mark all fields as touched to trigger validation messages
   Object.keys(this.directorInformationForm.controls).forEach(key => {
     const control = this.directorInformationForm.get(key);
@@ -1724,6 +1810,9 @@ directorFormSubmission() {
   });
 
   if (this.directorInformationForm.invalid) {
+    // Reset loading state if form is invalid
+    this.isDirectorLoading = false;
+    
     // Scroll to first error message
     const firstInvalidElement = document.querySelector('.error-message');
     if (firstInvalidElement) {
@@ -1747,6 +1836,9 @@ directorFormSubmission() {
 
   this.companyService.DirectorInfoCreation(formData).subscribe({
     next: (response) => {
+      // Reset loading state on success
+      this.isDirectorLoading = false;
+      
       console.log('Director creation successful:', response.message);
       
       Swal.fire({
@@ -1780,6 +1872,9 @@ directorFormSubmission() {
       }
     },
     error: (error) => {
+      // Reset loading state on error
+      this.isDirectorLoading = false;
+      
       console.error('Error occurred during director information creation:', error);
 
       Swal.fire({
@@ -1794,19 +1889,37 @@ directorFormSubmission() {
     }
   });
 }
-
 fetchDirectorsInfo(): void {
   const userId = localStorage.getItem('userId');
-  const companyId = this.companyId;
+  // const companyId = this.companyId;
+  if(!this.companyId){
+    const savedCompanyId = localStorage.getItem('companyId');
+    if (savedCompanyId) {
+      this.companyId = savedCompanyId;
+      console.log('found saved one',this.companyId);
+      
+    }
+  }
+  console.log("for director infor",this.companyId)
 
   if (!userId) {
     console.error('Error: User ID is not found in localStorage');
     return;
   }
 
-  this.companyService.getDirectorsInfo(companyId, userId).subscribe({
+  this.companyService.getDirectorsInfo(this.companyId, userId).subscribe({
     next: (response) => {
       this.directorsInformation = response.data;
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Directors list fetched successfully.",
+        toast: true,
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      });
+      this.initializeDirectorInfoForm()
     },
     error: (err) => {
       console.error('Error fetching directors info:', err.message);
@@ -1900,7 +2013,9 @@ invateDirectorSubmit(): void {
     const control = this.InviteDirectorsForm.get(key);
     control?.markAsTouched();
   });
+  
   if (this.InviteDirectorsForm.valid) {
+    this.isInviteLoading=true
     const userId = localStorage.getItem("userId");
     const companyId = this.companyId;
     const formData = this.InviteDirectorsForm.value;
@@ -1915,6 +2030,7 @@ invateDirectorSubmit(): void {
     this.companyService.directorInviteCreation(data).subscribe({
       next: (response) => {
         console.log('director creation created',response);
+        this.isInviteLoading=false
         
         Swal.fire({
           position: "top-end", 
@@ -1930,6 +2046,7 @@ invateDirectorSubmit(): void {
         this.InviteDirectorsForm.reset();
       },
       error: (error) => {
+        this.isInviteLoading=false
         Swal.fire({
           position: "top-end", 
           icon: "error",
@@ -1999,9 +2116,11 @@ comapnySecretarySubmission(){
     const control = this.comapnySecretaryForm.get(key);
     control?.markAsTouched();
   });
+  this.isSubmitLoading=true
 
   if (this.comapnySecretaryForm.invalid) {
     this.comapnySecretaryForm.markAllAsTouched(); 
+    this.isSubmitLoading=false
     return; 
   }
 
@@ -2020,7 +2139,7 @@ comapnySecretarySubmission(){
   this.companyService.companySecretaryCreation(formData).subscribe({
     next: (response) => {
       console.log('Company Secretary information successfully added:', response.message);
-      
+      this.isSubmitLoading=false
       Swal.fire({
           position: "top-end", 
           icon: "success",
@@ -2038,6 +2157,7 @@ comapnySecretarySubmission(){
     },
     error: (error) => {
       console.error('Error occurred during company Secretary information creation:', error);
+      this.isSubmitLoading=false
 
        Swal.fire({
           position: "top-end", 
