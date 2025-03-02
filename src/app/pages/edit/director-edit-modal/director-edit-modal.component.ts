@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { SelectModule } from 'primeng/select';
 import { TreeSelectModule } from 'primeng/treeselect';
+import { ThemeService } from '../../../core/services/theme.service';
 
 @Component({
   selector: 'app-director-edit-modal',
@@ -30,12 +31,14 @@ export class DirectorEditModalComponent implements OnInit {
 
   editDirectorForm: FormGroup;
   isLoading: boolean = false;
+  isDarkTheme: boolean = false;
   idProofPreview: string | null = null;
   addressProofPreview: string | null = null;
 
   constructor(
     private fb: FormBuilder,
-    private companyService: CompanyService
+    private companyService: CompanyService,
+    private themeService: ThemeService
   ) {
     this.editDirectorForm = this.fb.group({
       type: ['person', Validators.required],
@@ -57,6 +60,14 @@ export class DirectorEditModalComponent implements OnInit {
   ngOnInit(): void {
     this.editDirectorForm.get('type')?.valueChanges.subscribe((type) => {
       this.updateFormValidation(type);
+    });
+    this.themeService.isDarkTheme$.subscribe(isDark => {
+      // Apply theme-specific styles or classes here
+      if (isDark) {
+        // Add classes for dark mode
+      } else {
+        // Add classes for light mode
+      }
     });
   }
 
@@ -95,13 +106,15 @@ export class DirectorEditModalComponent implements OnInit {
 
     if (type === "company") {
       surnameControl?.clearValidators();
+      surnameControl?.setValue('');
       chineseNameControl?.clearValidators();
-      this.editDirectorForm.get("name")?.setValidators([Validators.required]);
+      this.editDirectorForm.get("name")?.setValidators([Validators.required,Validators.minLength(3)]);
       addressProofControl?.clearValidators();
+      addressProofControl?.setValue('');
     } else {
-      surnameControl?.setValidators([Validators.required]);
+      surnameControl?.setValidators([Validators.required,Validators.minLength(3)]);
       this.editDirectorForm.get("name")?.setValidators([Validators.required]);
-      addressProofControl?.setValidators([]);
+      addressProofControl?.setValidators([Validators.required]);
     }
 
     surnameControl?.updateValueAndValidity();

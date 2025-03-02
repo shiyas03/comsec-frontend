@@ -89,6 +89,18 @@ export class CompanyService {
     )
   }
 
+  deleteShareholder(shareholderId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.baseUrl}company/deleteShareHolder/${shareholderId}`).pipe(
+      catchError((error) => {
+        console.error("Shareholder deletion error:", error);
+        const errorMessage = error.error?.message || "Failed to delete shareholder.";
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+
+  
+
   getShareCapitalList(companyId: string, userId: string): Observable<{ message: string; data: any }> {
     const params = new HttpParams()
       .set('companyId', companyId)

@@ -48,8 +48,10 @@ export class ProjectFormComponent implements OnInit {
   public isSaveLoading = false;
   public isSubmitLoading = false;
   editModalOpen: boolean = false;
+  editSharesModalOpen: boolean = false;
   selectedDirector: any = null
   isDirectorEditModalOpen = false
+  isSharedsEditing:boolean = false
   editShareForm!: FormGroup;
 isEditing: boolean = false;
 isViewModalOpen: boolean = false;
@@ -1104,6 +1106,7 @@ isFieldInvalid(controlName: string): boolean {
 
 
   addSharesSubmit() {
+    console.log("addshareds called ")
     const userId = localStorage.getItem('userId');
     Object.keys(this.addShareForm.controls).forEach(key => {
       const control = this.addShareForm.get(key);
@@ -1232,7 +1235,7 @@ isFieldInvalid(controlName: string): boolean {
     
     if (shareId) {
       this.currentShareId = shareId;
-      this.isEditing = true;
+      this.isSharedsEditing = true;
       
       // Find the share data from the list
       const shareToEdit = this.shareCapitalList.find(share => share._id === shareId);
@@ -1258,7 +1261,7 @@ isFieldInvalid(controlName: string): boolean {
         this.calculateEditUnpaidAmount();
         
         // Open the edit modal
-        this.editModalOpen = true;
+        this.editSharesModalOpen = true;
       }
     }
   }
@@ -1323,7 +1326,7 @@ isFieldInvalid(controlName: string): boolean {
           timerProgressBar: true,
         });
         this.getShareCapitalList();
-        this.closeEditModal();
+        this.closeShareEditModal();
       },
       error: (error) => {
         Swal.fire({
@@ -1342,10 +1345,12 @@ isFieldInvalid(controlName: string): boolean {
   
   // Method to close the edit modal and reset form
   closeShareEditModal() {
-    this.editModalOpen = false;
-    this.isEditing = false;
+    console.log('hahahaha');
+    
+    this.editSharesModalOpen = false;
+    this.isSharedsEditing = false;
     this.currentShareId = '';
-    this.editShareForm.reset();
+    this.editShareForm.reset(); 
   }
   
   // Method to handle the delete button click
@@ -1480,23 +1485,29 @@ updateFormValidation(userType: string) {
 
   if (userType === "company") {
     surnameControl?.clearValidators();
+    surnameControl?.setValue(''); // Clear the value
     chineseNameControl?.clearValidators();
+    chineseNameControl?.setValue(''); // Clear the value
     this.shareHoldersForm.get("name")?.setValidators([Validators.required]);
-    
+
     // Remove validation for address proof
     addressProofControl?.clearValidators();
+    addressProofControl?.setValue('');
   } else {
-    surnameControl?.setValidators([Validators.required]);
-    this.shareHoldersForm.get("name")?.setValidators([Validators.required]);
+    surnameControl?.setValidators([Validators.required, Validators.minLength(3)]);
+    this.shareHoldersForm.get("name")?.setValidators([Validators.required, Validators.minLength(3)]);
 
     // Restore validation for address proof
     addressProofControl?.setValidators([Validators.required]);
   }
 
   surnameControl?.updateValueAndValidity();
+  chineseNameControl?.updateValueAndValidity();
   idNoControl?.updateValueAndValidity();
   addressProofControl?.updateValueAndValidity(); // Ensure validation updates
 }
+
+
 
 
 shareHoldersFormSubmit() {
@@ -1596,6 +1607,39 @@ shareHoldersFormSubmit() {
     }
   });
 }
+
+deleteShareholder(shareholderId: string) {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.companyService.deleteShareholder(shareholderId).subscribe({
+        next: (response) => {
+          Swal.fire(
+            'Deleted!',
+            response.message,
+            'success'
+          );
+          this.getShareHoldersList(); // Refresh the list
+        },
+        error: (error) => {
+          Swal.fire(
+            'Error!',
+            error.message || 'Failed to delete shareholder.',
+            'error'
+          );
+        }
+      });
+    }
+  });
+}
+
 
 
 onImageSelectedAddress(event: Event): void {
@@ -1979,24 +2023,29 @@ updateFormValidation1(type: string) {
 
   if (type === "company") {
     surnameControl?.clearValidators();
+    surnameControl?.setValue('');
     chineseNameControl?.clearValidators();
-    this.directorInformationForm.get("name")?.setValidators([Validators.required]);
+    chineseNameControl?.setValue('');
+    this.directorInformationForm.get("name")?.setValidators([Validators.required,Validators.minLength(3)]);
     
     // Remove validation for address proof
     addressProofControl?.clearValidators();
-    addressProofControl?.clearValidators();
+    addressProofControl?.setValue('');  
   } else {
-    surnameControl?.setValidators([Validators.required]);
-    this.directorInformationForm.get("name")?.setValidators([Validators.required]);
+    surnameControl?.setValidators([Validators.required,Validators.minLength(3)]);
+    this.directorInformationForm.get("name")?.setValidators([Validators.required,Validators.minLength(3)]);
 
     // Restore validation for address proof
     addressProofControl?.setValidators([Validators.required]);
   }
 
   surnameControl?.updateValueAndValidity();
+  chineseNameControl?.updateValueAndValidity();
   idNoControl?.updateValueAndValidity();
   addressProofControl?.updateValueAndValidity(); // Ensure validation updates
 }
+
+
 
 
 
@@ -2406,8 +2455,8 @@ initializeCompanySecretaryForm() {
       tcspLicenseNo: ["", [Validators.required]],
       tcspReason: [""],
       type: ["person", Validators.required],
-      surname: ["",Validators.required],
-      name: ["", [Validators.required]],
+      surname: ["",[Validators.required,Validators.minLength(3)]],
+      name: ["", [Validators.required,Validators.minLength(3)]],
       chineeseName: [""],
       idNo: [""],
       idProof: ["", [Validators.required]],
@@ -2417,7 +2466,7 @@ initializeCompanySecretaryForm() {
       district: ["",Validators.minLength(4)],
       addressProof: ["", [Validators.required]],
       email: ["", [Validators.required, Validators.email]],
-      phone: [""],
+          phone: ["", [Validators.pattern(/^\d{10}$/)]], 
     })
     this.comapnySecretaryForm.get("type")?.valueChanges.subscribe((type) => {
       this.updateFormValidation3(type)
@@ -2431,9 +2480,11 @@ initializeCompanySecretaryForm() {
   
     if (type === "company") {
       surnameControl?.clearValidators();
+      surnameControl?.setValue('')
       addressProofControl?.clearValidators(); // Remove validation for address proof
+      addressProofControl?.setValue(''); // Remove validation for address proof
     } else {
-      surnameControl?.setValidators([Validators.required]);
+      surnameControl?.setValidators([Validators.required,Validators.minLength(3)]);
       addressProofControl?.setValidators([Validators.required]); // Restore validation for address proof
     }
   
@@ -2441,6 +2492,46 @@ initializeCompanySecretaryForm() {
     idNoControl?.updateValueAndValidity();
     addressProofControl?.updateValueAndValidity(); // Ensure validation updates
   }
+
+  fieldLabels: { [key: string]: string } = {
+    tcspLicenseNo: "TCSP License Number",
+    tcspReason: "TCSP Reason",
+    type: "Company Secretary Type",
+    surname: "Surname",
+    name: "Name",
+    chineeseName: "Chinese Name",
+    idNo: "ID Number",
+    idProof: "ID Proof",
+    address: "Address",
+    street: "Street",
+    building: "Building",
+    district: "District",
+    addressProof: "Address Proof",
+    email: "Email",
+    phone: "Phone Number",
+  };
+  
+  getErrorMessage6(controlName: string): string {
+    const control = this.comapnySecretaryForm.get(controlName);
+    const label = this.fieldLabels[controlName] || controlName; // Get user-friendly label
+  
+    if (control?.errors && (control.dirty || control.touched)) {
+      if (control.errors["required"]) {
+        return `${label} is required.`;
+      }
+      if (control.errors["email"]) {
+        return `Please enter a valid email address.`;
+      }
+      if (control.errors["pattern"]) {
+        return `Invalid ${label.toLowerCase()} format.`;
+      }
+      if (control.errors["minlength"]) {
+        return `${label} must be at least ${control.errors["minlength"].requiredLength} characters long.`;
+      }
+    }
+    return "";
+  }
+  
   
 
 
@@ -2535,44 +2626,44 @@ imagePreviewOnCompanySecretaryIDProof(event:Event){
   }
 }
 
-getErrorMessage6(controlName: string): string {
-  const control = this.comapnySecretaryForm.get(controlName);
+// getErrorMessage6(controlName: string): string {
+//   const control = this.comapnySecretaryForm.get(controlName);
 
-  const fieldNames: { [key: string]: string } = {
-    tcspLicenseNo: 'TCSP License Number',
-    tcspReason: 'TCSP Reason',
-    type: 'Type',
-    surname: 'Surname',
-    name: 'Name',
-    chineeseName: 'Chinese Name',
-    idProof: 'ID Proof',
-    address: 'Address',
-    street: 'Street',
-    building: 'Building',
-    district: 'District',
-    addressProof: 'Address Proof',
-    email: 'Email',
-    phone: 'Phone',
-  };
+//   const fieldNames: { [key: string]: string } = {
+//     tcspLicenseNo: 'TCSP License Number',
+//     tcspReason: 'TCSP Reason',
+//     type: 'Type',
+//     surname: 'Surname',
+//     name: 'Name',
+//     chineeseName: 'Chinese Name',
+//     idProof: 'ID Proof',
+//     address: 'Address',
+//     street: 'Street',
+//     building: 'Building',
+//     district: 'District',
+//     addressProof: 'Address Proof',
+//     email: 'Email',
+//     phone: 'Phone',
+//   };
 
-  const fieldLabel = fieldNames[controlName] || controlName;
+//   const fieldLabel = fieldNames[controlName] || controlName;
 
-  if (control?.errors && (control.touched || control.dirty)) {
-    if (control.hasError('required')) {
-      return `${fieldLabel} is required.`;
-    }
-    if (control.hasError('minlength')) {
-      return `${fieldLabel} must be at least ${control.getError('minlength').requiredLength} characters long.`;
-    }
-    if (control.hasError('email')) {
-      return 'Enter a valid email address.';
-    }
-    if (control.hasError('pattern')) {
-      return `${fieldLabel} must be exactly 10 digits long.`;
-    }
-  }
-  return '';
-}
+//   if (control?.errors && (control.touched || control.dirty)) {
+//     if (control.hasError('required')) {
+//       return `${fieldLabel} is required.`;
+//     }
+//     if (control.hasError('minlength')) {
+//       return `${fieldLabel} must be at least ${control.getError('minlength').requiredLength} characters long.`;
+//     }
+//     if (control.hasError('email')) {
+//       return 'Enter a valid email address.';
+//     }
+//     if (control.hasError('pattern')) {
+//       return `${fieldLabel} must be exactly 10 digits long.`;
+//     }
+//   }
+//   return '';
+// }
 
 
 

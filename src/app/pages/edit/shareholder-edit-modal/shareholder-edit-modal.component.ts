@@ -102,17 +102,19 @@ export class ShareholderEditModalComponent implements OnInit {
 
     if (userType === "company") {
       surnameControl?.clearValidators()
+      surnameControl?.setValue('')
       chineseNameControl?.clearValidators()
-      this.editShareholderForm.get("name")?.setValidators([Validators.required])
+      this.editShareholderForm.get("name")?.setValidators([Validators.required,Validators.minLength(3)])
 
       // Remove validation for address proof
       addressProofControl?.clearValidators()
+      addressProofControl?.setValue('')
     } else {
-      surnameControl?.setValidators([Validators.required])
-      this.editShareholderForm.get("name")?.setValidators([Validators.required])
+      surnameControl?.setValidators([Validators.required,Validators.minLength(3)])
+      this.editShareholderForm.get("name")?.setValidators([Validators.required,Validators.minLength(3)])
 
       // Restore validation for address proof
-      addressProofControl?.setValidators([])
+      addressProofControl?.setValidators([Validators.required])
     }
 
     surnameControl?.updateValueAndValidity()
