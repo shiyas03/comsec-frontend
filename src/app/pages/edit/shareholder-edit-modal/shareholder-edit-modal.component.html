@@ -98,7 +98,7 @@
                   <td class="p-4 align-middle space-y-6">
                     <div class="space-y-2">
                       <input class="flex h-10 w-full rounded-md border px-3 py-2 text-sm"
-                             [formControlName]="editShareholderForm.get('userType')?.value === 'person' ? 'idNo' : 'companyNo'"
+                      formControlName="idNo"
                              [placeholder]="editShareholderForm.get('userType')?.value === 'person' ? 'ID No. Eg: S313XX31X' : 'Company No. Eg: S313XX31X'" />
                       <div class="error-message text-red-500 text-xs" *ngIf="editShareholderForm.get(editShareholderForm.get('userType')?.value === 'person' ? 'idNo' : 'companyNo')?.touched && 
                                                                editShareholderForm.get(editShareholderForm.get('userType')?.value === 'person' ? 'idNo' : 'companyNo')?.errors">
@@ -176,6 +176,11 @@
                           class="h-20 w-20 object-cover rounded-md"
                         />
                       </div>
+                      <div
+                          *ngIf="(editShareholderForm.get('addressProof')?.touched || editShareholderForm.get('addressProof')?.dirty) && editShareholderForm.get('addressProof')?.invalid"
+                          class="error-message text-red-500 text-xs">
+                          {{ getErrorMessage("addressProof") }}
+                        </div>
                     </div>
                   </td>
                  
@@ -238,14 +243,27 @@
           <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <label class="text-sm font-medium">Class of Shares</label>
-              <input 
-                class="flex h-10 w-full rounded-md border px-3 py-2 text-sm"
+              <select
+                id="editClass"
                 formControlName="shareDetailsClassOfShares"
-                placeholder="Class of Shares" />
-              <div class="error-message text-red-500 text-xs" *ngIf="editShareholderForm.get('shareDetailsClassOfShares')?.touched && editShareholderForm.get('shareDetailsClassOfShares')?.errors">
+                class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+              >
+                <option value="">Select Class of Shares</option>
+                <option value="Ordinary">Ordinary</option>
+                <option value="Preference">Preference</option>
+                <option value="Ordinary Class 1">Ordinary Class 1</option>
+                <option value="Ordinary Class 10">Ordinary Class 10</option>
+                <option value="Ordinary12">Ordinary 12</option>
+              </select>
+              
+              <div 
+                class="error-message text-red-500 text-xs" 
+                *ngIf="editShareholderForm.get('shareDetailsClassOfShares')?.touched && editShareholderForm.get('shareDetailsClassOfShares')?.errors"
+              >
                 {{ getErrorMessage('shareDetailsClassOfShares') }}
               </div>
             </div>
+            
             <div class="space-y-2">
               <label class="text-sm font-medium">Number of Shares</label>
               <input 

@@ -1179,7 +1179,7 @@
                               >
                               <td class="p-4 align-middle">{{ share?.share_class || '-' }}</td>
                               <td class="p-4 align-middle">{{ share?.total_share || '-' }}</td>
-                              <td class="p-4 align-middle">HBK</td> <td class="p-4 align-middle">{{ share?.amount_share || '-' }}</td>
+                              <td class="p-4 align-middle">{{ share?.currency || '-' }}</td> <td class="p-4 align-middle">{{ share?.amount_share || '-' }}</td>
                               <td class="p-4 align-middle">{{ share?.total_capital_subscribed || '-' }}</td>
                               <td class="p-4 align-middle">{{ share?.total_capital_subscribed || '-' }}</td> 
                               <td class="p-4 align-middle">{{ share?.unpaid_amount || '-' }}</td>
@@ -1350,23 +1350,28 @@
                           >
                             <td
                               class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                            >
-                              <div class="space-y-2">
-                                <input
-                                  class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                  placeholder="Eg: Ordinary, Preferance..."
-                                  type="text"
-                                  value="Ordinary"
-                                  name="class"
-                                  formControlName="class_of_shares"
-                                />
-                                <div
+                            ><div class="space-y-2">
+                              <select
+                                id="classOfShares"
+                                formControlName="class_of_shares"
+                                class="flex h-10 w-full items-center rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                <option value="">Select Class of Shares</option>
+                                <option value="Ordinary">Ordinary</option>
+                                <option value="Preferance">Preference</option>
+                                <option value="Ordinary Class 1">Ordinary Class 1</option>
+                                <option value="Ordinary Class 10">Ordinary Class 10</option>
+                                <option value="Ordinary12">Ordinary 12</option>
+                              </select>
+                              
+                              <div
                                 class="error-message text-sm text-red-500"
-                                  *ngIf="getErrorMessage1('class_of_shares')"
-                                >
-                                  {{ getErrorMessage1("class_of_shares") }}
-                                </div>
+                                *ngIf="getErrorMessage1('class_of_shares')"
+                              >
+                                {{ getErrorMessage1("class_of_shares") }}
                               </div>
+                            </div>
+                            
                             </td>
                             <td
                               class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
@@ -1401,23 +1406,25 @@
                               <div class="space-y-2">
                                 <div class="relative">
                                   <select
-                                    class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-transparent px-4 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                    aria-describedby="currency-description"
-                                    aria-invalid="false"
-                                  >
-                                    <option value="HKD">HKD</option>
-                                    <option value="USD">USD</option>
-                                    <option value="EUR">EUR</option>
-                                    <option value="INR">INR</option>
-                                    <option value="JPY">JPY</option>
-                                    <option value="GBP">GBP</option>
-                                    <option value="AUD">AUD</option>
-                                    <option value="CAD">CAD</option>
-                                    <option value="CHF">CHF</option>
-                                    <option value="CNY">CNY</option>
-                                    <option value="SEK">SEK</option>
-                                    <option value="NZD">NZD</option>
-                                  </select>
+  class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-transparent px-4 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+  formControlName="currency"
+  id="addCurrency"
+>
+  <option value="" disabled>Select Currency</option>
+  <option value="HKD">HKD</option>
+  <option value="USD">USD</option>
+  <option value="EUR">EUR</option>
+  <option value="INR">INR</option>
+  <option value="JPY">JPY</option>
+  <option value="GBP">GBP</option>
+  <option value="AUD">AUD</option>
+  <option value="CAD">CAD</option>
+  <option value="CHF">CHF</option>
+  <option value="CNY">CNY</option>
+  <option value="SEK">SEK</option>
+  <option value="NZD">NZD</option>
+</select>
+
                                   <div
                                   class="error-message text-sm text-red-500"
                                     *ngIf="getErrorMessage1('currency')"
@@ -1583,14 +1590,20 @@
                         <label class="text-sm font-medium" for="editClass">
                           Class of Shares
                         </label>
-                        <input
-                          class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
-                          placeholder="Ordinary Class 1"
-                          type="text"
+                        <select
                           id="editClass"
                           formControlName="class_of_shares"
-                        />
+                          class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                        >
+                          <option value="">Select Class of Shares</option>
+                          <option value="Ordinary">Ordinary</option>
+                          <option value="Preferance">Preference</option>
+                          <option value="Ordinary Class 1">Ordinary Class 1</option>
+                          <option value="Ordinary Class 10">Ordinary Class 10</option>
+                          <option value="Ordinary12">Ordinary 12</option>
+                        </select>
                       </div>
+                      
                       
                       <!-- Total Shares Proposed -->
                       <div class="space-y-2">
@@ -1840,9 +1853,19 @@
                               *ngFor="let shareholder of shareholders"
                               class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
                             >
-                            <td class="p-4 align-middle">{{ shareholder?.userType || '-' }}</td>
+                            <td class="p-4 align-middle">{{ shareholder?.userType || '-' }}
+                              <div 
+                                *ngIf="shareholder?.isInvited" 
+                                class="mt-1 inline-block bg-green-500 text-white text-xs px-2 py-0.5 rounded-full"
+                              >
+                                Invited
+                              </div>
+                            </td>
                             <td class="p-4 align-middle">{{ shareholder?.surname || '-' }}</td>
-                            <td class="p-4 align-middle">{{ shareholder?.name || '-' }}</td>
+                            <td class="p-4 align-middle text-center">
+                              {{ shareholder?.name || '-' }}
+                              
+                            </td>
                             <td class="p-4 align-middle">{{ shareholder?.chineeseName || '-' }}</td>
                             <td class="p-4 align-middle">{{ shareholder?.idNo || '-' }}</td>
                             <td class="p-4 align-middle">{{ shareholder?.address || '-' }}</td>
@@ -1929,16 +1952,19 @@
                     tabindex="0"
                     style="outline: none"
                   >
-                    <div class="flex items-center space-x-2 py-6">
-                      <button
-                        type="button"
-                        (click)="toggleShareHoldersForm()"
-                        class="aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      ></button>
-                      <label class="font-medium text-2xl"
-                        >Fill in all the information for this Shareholder</label
-                      >
-                    </div>
+                  <div class="flex items-center space-x-2 py-6">
+                    <input
+                      type="radio"
+                      [checked]="isShareholderFormVisible"
+                      (click)="toggleShareHoldersForm()"
+                      class="h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    />
+                    <label class="font-medium text-2xl">
+                      Fill in all the information for this Shareholder
+                    </label>
+                  </div>
+                  
+                  
 
                     <div *ngIf="showForm">
                       <div
@@ -2451,25 +2477,25 @@
                       </div>
                     </div>
                     <div class="flex items-center space-x-2 py-6">
-                      <button
-                        (click)="invateShareHoldersButton()"
-                        type="button"
-                        role="radio"
-                        aria-checked="false"
-                        data-state="unchecked"
-                        value="invite"
-                        class="aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      <input
+                        type="radio"
                         id="r2"
-                        tabindex="-1"
-                        data-radix-collection-item=""
-                      ></button
-                      ><label
-                        class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-2xl"
+                        name="inviteType"
+                        value="invite"
+                        [checked]="inviteShareHolderForm"
+                        (click)="toggleShareHoldersInviteForm()"
+                        class="h-4 w-4 rounded-full border border-primary text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      />
+                      <label
                         for="r2"
-                        >Invite a Shareholder to fill in the details.</label
+                        class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-2xl"
                       >
+                        Invite a Shareholder to fill in the details.
+                      </label>
                     </div>
-                    <div *ngIf="invateShareHolderForm">
+                    
+                    
+                    <div *ngIf="inviteShareHolderForm">
                       <div
                         class="rounded-lg border bg-card text-card-foreground shadow-sm"
                       >
@@ -2847,7 +2873,14 @@
                             class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
                             *ngFor="let director of directorsInformation"
                           >
-                          <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ director.type || '-' }}</td>
+                          <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ director.type || '-' }}
+                            <div 
+                                *ngIf="director?.isInvited" 
+                                class="mt-1 inline-block bg-green-500 text-white text-xs px-2 py-0.5 rounded-full"
+                              >
+                                Invited
+                              </div>
+                          </td>
                           <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ director.surname || '-' }}</td>
                           <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ director.name || '-' }}</td>
                           <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ director.chineeseName || '-' }}</td>
@@ -2932,25 +2965,23 @@
                     tabindex="0"
                     style="outline: none"
                   >
-                    <div class="flex items-center space-x-2 py-6">
-                      <button
-                        (click)="directorsInfoFormOpen()"
-                        type="button"
-                        role="radio"
-                        aria-checked="false"
-                        data-state="unchecked"
-                        value="self"
-                        class="aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        id="r1"
-                        tabindex="-1"
-                        data-radix-collection-item=""
-                      ></button
-                      ><label
-                        class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-2xl"
-                        for="r1"
-                        >Fill in all the information for this Director</label
-                      >
-                    </div>
+                  <div class="flex items-center space-x-2 py-6">
+                    <input
+                      type="radio"
+                      id="r1"
+                      name="directorType"
+                      value="self"
+                      [checked]="directorsInfoOpen"
+                      (click)="toggleDirectorsInfo()"
+                      class="h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+                    <label
+                      for="r1"
+                      class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-2xl"
+                    >
+                      Fill in all the information for this Director
+                    </label>
+                  </div>
                     <div *ngIf="directorsInfoOpen">
                       <div
                         class="rounded-lg border bg-card text-card-foreground shadow-sm"
@@ -3306,20 +3337,21 @@
                       </div>
                     </div>
                     <div class="flex items-center space-x-2 py-6">
-                      <button
-                      (click)="openDirectorInvateForm()"
-                      type="button"
-                      role="radio"
-                      aria-checked="false"
-                      class="aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none ..."
-                      id="r2"
-                      tabindex="-1"
-                      ></button
-                      ><label
-                        class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-2xl"
+                      <input
+                        type="radio"
+                        id="r2"
+                        name="directorInviteType"
+                        value="invite"
+                        [checked]="directorInvateOpen"
+                        (click)="openDirectorInvateForm()"
+                        class="h-4 w-4 rounded-full border border-primary text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      />
+                      <label
                         for="r2"
-                        >Invite a Director to fill in the details.</label
+                        class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-2xl"
                       >
+                        Invite a Director to fill in the details.
+                      </label>
                     </div>
                     <div *ngIf="directorInvateOpen">
                       <div

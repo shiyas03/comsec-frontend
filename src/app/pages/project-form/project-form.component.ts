@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit,AfterViewInit, HostListener } from '@angular/core';
+import { Component, inject, OnInit,OnDestroy,AfterViewInit, HostListener } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
@@ -8,7 +8,7 @@ import { TreeSelectModule } from 'primeng/treeselect';
 import { CompanyService } from '../../core/services/company.service';
 import Swal from 'sweetalert2';
 import { catchError, map, Observable, tap } from 'rxjs';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router,NavigationStart  } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { Location } from '@angular/common'; 
 import { ThemeService } from '../../core/services/theme.service';
@@ -36,7 +36,7 @@ interface BuisnessNature {
   templateUrl: './project-form.component.html',
   styleUrl: './project-form.component.css'
 })
-export class ProjectFormComponent implements OnInit {
+export class ProjectFormComponent implements OnInit,OnDestroy  {
 
   private companyService = inject(CompanyService)
   private route=inject(ActivatedRoute)
@@ -49,8 +49,11 @@ export class ProjectFormComponent implements OnInit {
   public isSubmitLoading = false;
   editModalOpen: boolean = false;
   editSharesModalOpen: boolean = false;
+  inviteShareHolderForm: boolean = false;
+  showInviteForm:boolean= false
   selectedDirector: any = null
   isDirectorEditModalOpen = false
+  isShareholderFormVisible = false;
   isSharedsEditing:boolean = false
   editShareForm!: FormGroup;
 isEditing: boolean = false;
@@ -98,9 +101,15 @@ currentShareId: string = '';
   private router = inject(Router)
   private authservice = inject(AuthService)
   private themeService = inject(ThemeService)
+  private isNavigatingAway = false;
   constructor(
-    private location: Location
+    private location: Location,
   ) {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart) {
+        this.isNavigatingAway = true; // User is navigating to a new page
+      }
+    });
     // Subscribe to router events to handle browser back/forward
     // this.router.events.subscribe((event) => {
     //   if (event instanceof NavigationEnd) {
@@ -394,35 +403,38 @@ currentShareId: string = '';
   private fb = inject(FormBuilder)
   isAuthenticated:Boolean=false
   ngOnInit() {
-    this.initializeCompanyInfoForm()
-    this.initializeAddSharesForm()
-    this.initializeSharesHoldersForm()
-    this.initializeInvateSharesHoldersForm()
-    this.initializeDirectorInfoForm()
-    this.initializeInvateDirectorForm()
-    this.initializeCompanySecretaryForm()
-    this.getUserDatas()
-    this.initializeEditShareForm()
-    // this.fetchDirectorsInfo()
-    // this.getShareHoldersList()
-    this.themeService.isDarkTheme$.subscribe(
-      isDark => {
-        this.isDarkTheme = isDark;
-        this.applyTheme();
-      }
-    );
-    const savedCompanyId = localStorage.getItem('companyId');
-    if (savedCompanyId) {
-      this.companyId = savedCompanyId;
-      console.log('Found saved companyId:', this.companyId);
-    }
-    
-    // Setup authentication check
-    this.userData = this.authservice.getUserId();
-    this.visitedTabs[0] = true;
-    
+    this.initializeCompanyInfoForm();
+    this.initializeAddSharesForm();
+    this.initializeSharesHoldersForm();
+    this.initializeInvateSharesHoldersForm();
+    this.initializeDirectorInfoForm();
+    this.initializeInvateDirectorForm();
+    this.initializeCompanySecretaryForm();
+    this.getUserDatas();
+    this.initializeEditShareForm();
+  
+    // Subscribe to theme changes
+    this.themeService.isDarkTheme$.subscribe(isDark => {
+      this.isDarkTheme = isDark;
+      this.applyTheme();
+    });
+  
     // Handle route parameters (single subscription)
     this.route.queryParams.subscribe(params => {
+      // Handle company ID from URL (priority)
+      if (params['companyId']) {
+        this.companyId = decodeURIComponent(params['companyId']).trim().replace(/\\$/, '');
+        console.log('Set companyId from URL:', this.companyId);
+        localStorage.setItem('companyId', this.companyId); // Store it for future use
+      } else {
+        // Fallback to localStorage
+        const savedCompanyId = localStorage.getItem('companyId');
+        if (savedCompanyId) {
+          this.companyId = savedCompanyId;
+          console.log('Found saved companyId:', this.companyId);
+        }
+      }
+  
       // Handle tab parameter
       const tabParam = params['tab'];
       if (tabParam !== undefined) {
@@ -433,37 +445,34 @@ currentShareId: string = '';
             this.visitedTabs[i] = true;
           }
           this.activeTabIndex = tabIndex;
-          
+  
           // Load data based on active tab
           this.loadTabData(tabIndex);
         }
       }
-      
-      // Handle company ID (if not already set from localStorage)
-      if (!this.companyId && params['companyId']) {
-        this.companyId = decodeURIComponent(params['companyId']).trim().replace(/\\$/, '');
-        console.log('Set companyId from URL:', this.companyId);
-      }
-      
+  
       // Handle special parameters
       if (params['fromEmail']) {
         this.activeTabIndex = 2;
         this.fetchDirectorsInfo();
       }
-      
+  
       if (params['fromShare']) {
         this.activeTabIndex = 1;
         this.loadShareholderData();
       }
-      
+  
       // Handle invitation token
       this.invitationToken = params['token'];
       if (this.invitationToken) {
         this.validateInvitationToken();
       }
     });
-    
-    // Check authentication
+  
+    // Setup authentication check
+    this.userData = this.authservice.getUserId();
+    this.visitedTabs[0] = true;
+  
     if (this.authservice.isLoggedIn()) {
       this.isAuthenticated = true;
       this.getUserDatas();
@@ -471,13 +480,13 @@ currentShareId: string = '';
       // Neither logged in nor has token - redirect to login
       this.router.navigate(['/login']);
     }
-    
+  
     // Disable public radio if needed
     const publicRadioEl = document.querySelector('input[value="public"]');
     if (publicRadioEl) {
       publicRadioEl.setAttribute('disabled', 'disabled');
     }
-    
+  
     // Disable form fields
     this.companyInfoForm.get('country_Address')?.disable();
     this.companyInfoForm.get('presentorReferance')?.disable();
@@ -608,10 +617,10 @@ currentShareId: string = '';
       company_Email: new FormControl('', [Validators.email]),
     
       company_Telphone: new FormControl('', [
-        Validators.pattern(/^\d{10}$/) // Must be exactly 10 digits if entered
+        Validators.pattern(/^\d{8}$/) // Must be exactly 10 digits if entered
       ]),
       company_Fax: new FormControl('', [
-        Validators.pattern(/^\d{10}$/) // Must be exactly 10 digits if entered
+        Validators.pattern(/^\d{8}$/) // Must be exactly 10 digits if entered
       ]),
     
       subscriptionDuration: new FormControl('1 year', [Validators.required]),
@@ -623,10 +632,10 @@ currentShareId: string = '';
       presentorDistrict: new FormControl('', [Validators.minLength(6)]),
     
       presentorTel: new FormControl('', [
-        Validators.pattern(/^\d{10}$/) // Must be exactly 10 digits if entered
+        Validators.pattern(/^\d{8}$/) // Must be exactly 10 digits if entered
       ]),
       presentorFax: new FormControl('', [
-        Validators.pattern(/^\d{10}$/) // Must be exactly 10 digits if entered
+        Validators.pattern(/^\d{8}$/) // Must be exactly 10 digits if entered
       ]),
     
       presentorEmail: new FormControl('', [Validators.email]),
@@ -694,7 +703,7 @@ currentShareId: string = '';
             return `Please enter a valid email address for ${fieldLabel}.`;
         }
         if (control?.hasError('pattern')) {
-            return `${fieldLabel} must be exactly 10 digits long.`;
+          return `${fieldLabel} must be exactly 8 digits long.`; // Updated message for HK phone numbers
         }
     }
     return '';
@@ -773,8 +782,8 @@ isFieldInvalid(controlName: string): boolean {
         if (control.errors['email']) {
             return `Please enter a valid email address.`;
         }
-        if (control.errors['pattern']) {
-            return `${fieldLabel} must be exactly 10 digits long.`;
+        if (control?.hasError('pattern')) {
+          return `${fieldLabel} must be exactly 8 digits long.`; // Updated message for HK phone numbers
         }
     }
     return '';
@@ -1055,9 +1064,9 @@ isFieldInvalid(controlName: string): boolean {
     // });
   }
 
-  initializeAddSharesForm(){
+  initializeAddSharesForm() {
     this.addShareForm = this.fb.group({
-      class_of_shares: ['', Validators.required],
+      class_of_shares: ['Ordinary', Validators.required],
       total_shares_proposed: ['', Validators.required],
       currency: ['HKD', Validators.required],
       unit_price: [null, [Validators.required, Validators.min(0)]],
@@ -1065,8 +1074,8 @@ isFieldInvalid(controlName: string): boolean {
       total_capital_subscribed: ['', Validators.required],
       unpaid_amount: [{ value: 0, disabled: true }],
       particulars_of_rights: ['']
-    })
-
+    });
+  
     // Subscribe to changes in unit price and total shares to calculate total amount
     this.addShareForm.get('unit_price')?.valueChanges.subscribe(() => {
       this.calculateTotalAmount();
@@ -1082,31 +1091,67 @@ isFieldInvalid(controlName: string): boolean {
     });
   
     this.addShareForm.get('total_capital_subscribed')?.valueChanges.subscribe(() => {
-      this.calculateUnpaidAmount();
+      this.validateTotalCapitalSubscribed();
+    });
+  
+    // Ensure unpaid amount does not exceed total amount
+    this.addShareForm.get('unpaid_amount')?.valueChanges.subscribe(() => {
+      this.validateUnpaidAmount();
     });
   }
-
+  
   calculateTotalAmount() {
-    const unitPrice = this.addShareForm.get('unit_price')?.value;
-    const totalShares = this.addShareForm.get('total_shares_proposed')?.value;
-
-    if (unitPrice && totalShares) {
-      const totalAmount = unitPrice * totalShares;
-      this.addShareForm.get('total_amount')?.setValue(totalAmount.toFixed(2));
-    }
+    const unitPrice = this.addShareForm.get('unit_price')?.value || 0;
+    const totalShares = this.addShareForm.get('total_shares_proposed')?.value || 0;
+  
+    const totalAmount = unitPrice * totalShares;
+    this.addShareForm.get('total_amount')?.setValue(totalAmount.toFixed(2), { emitEvent: false });
+  
+    // Recalculate unpaid amount when total amount changes
+    this.calculateUnpaidAmount();
   }
-
+  
   calculateUnpaidAmount() {
     const totalAmount = parseFloat(this.addShareForm.get('total_amount')?.value) || 0;
-    const totalCapitalSubscribed = parseFloat(this.addShareForm.get('total_capital_subscribed')?.value) || 0;
+    let totalCapitalSubscribed = parseFloat(this.addShareForm.get('total_capital_subscribed')?.value) || 0;
   
-    const unpaidAmount = totalAmount - totalCapitalSubscribed;
-    this.addShareForm.get('unpaid_amount')?.setValue(unpaidAmount >= 0 ? unpaidAmount.toFixed(2) : 0);
+    // Ensure totalCapitalSubscribed does not exceed totalAmount
+    if (totalCapitalSubscribed > totalAmount) {
+      totalCapitalSubscribed = totalAmount;
+      this.addShareForm.get('total_capital_subscribed')?.setValue(totalAmount.toFixed(2), { emitEvent: false });
+    }
+  
+    let unpaidAmount = totalAmount - totalCapitalSubscribed;
+    unpaidAmount = unpaidAmount < 0 ? 0 : unpaidAmount; // Ensure unpaid amount is not negative
+  
+    this.addShareForm.get('unpaid_amount')?.setValue(unpaidAmount.toFixed(2), { emitEvent: false });
   }
-
+  
+  validateTotalCapitalSubscribed() {
+    const totalAmount = parseFloat(this.addShareForm.get('total_amount')?.value) || 0;
+    let totalCapitalSubscribed = parseFloat(this.addShareForm.get('total_capital_subscribed')?.value) || 0;
+  
+    if (totalCapitalSubscribed > totalAmount) {
+      this.addShareForm.get('total_capital_subscribed')?.setValue(totalAmount.toFixed(2), { emitEvent: false });
+    }
+  
+    this.calculateUnpaidAmount();
+  }
+  
+  validateUnpaidAmount() {
+    const unpaidAmount = parseFloat(this.addShareForm.get('unpaid_amount')?.value) || 0;
+    const totalAmount = parseFloat(this.addShareForm.get('total_amount')?.value) || 0;
+  
+    if (unpaidAmount > totalAmount) {
+      this.addShareForm.get('unpaid_amount')?.setValue(totalAmount.toFixed(2), { emitEvent: false });
+    }
+  }
+  
 
   addSharesSubmit() {
-    console.log("addshareds called ")
+    console.log("Form Values: ", this.addShareForm.value);
+  console.log("Form Raw Values: ", this.addShareForm.getRawValue());
+  console.log("Currency Control Value: ", this.addShareForm.get('currency')?.value);
     const userId = localStorage.getItem('userId');
     Object.keys(this.addShareForm.controls).forEach(key => {
       const control = this.addShareForm.get(key);
@@ -1141,6 +1186,7 @@ isFieldInvalid(controlName: string): boolean {
     const shareData = {
       companyId: this.companyId,
       userid: userId,
+      currency: this.addShareForm.get('currency')?.value,
       total_shares_proposed: this.addShareForm.get('total_shares_proposed')?.value,
       unit_price: this.addShareForm.get('unit_price')?.value,
       total_capital_subscribed: this.addShareForm.get('total_capital_subscribed')?.value,
@@ -1180,7 +1226,7 @@ isFieldInvalid(controlName: string): boolean {
 
   initializeEditShareForm() {
     this.editShareForm = this.fb.group({
-      class_of_shares: ['', Validators.required],
+      class_of_shares: ['Ordinary', Validators.required],
       total_shares_proposed: ['', Validators.required],
       currency: ['HKD', Validators.required],
       unit_price: [null, [Validators.required, Validators.min(0)]],
@@ -1190,7 +1236,7 @@ isFieldInvalid(controlName: string): boolean {
       particulars_of_rights: ['']
     });
   
-    // Subscribe to changes for calculations - same as in add form
+    // Subscribe to changes in unit price and total shares to calculate total amount
     this.editShareForm.get('unit_price')?.valueChanges.subscribe(() => {
       this.calculateEditTotalAmount();
     });
@@ -1199,32 +1245,69 @@ isFieldInvalid(controlName: string): boolean {
       this.calculateEditTotalAmount();
     });
   
+    // Subscribe to changes in total amount and total capital subscribed to validate and calculate unpaid amount
     this.editShareForm.get('total_amount')?.valueChanges.subscribe(() => {
       this.calculateEditUnpaidAmount();
     });
   
     this.editShareForm.get('total_capital_subscribed')?.valueChanges.subscribe(() => {
-      this.calculateEditUnpaidAmount();
+      this.validateEditTotalCapitalSubscribed();
+    });
+  
+    this.editShareForm.get('unpaid_amount')?.valueChanges.subscribe(() => {
+      this.validateEditUnpaidAmount();
     });
   }
-
-  calculateEditTotalAmount() {
-    const unitPrice = this.editShareForm.get('unit_price')?.value;
-    const totalShares = this.editShareForm.get('total_shares_proposed')?.value;
   
-    if (unitPrice && totalShares) {
-      const totalAmount = unitPrice * totalShares;
-      this.editShareForm.get('total_amount')?.setValue(totalAmount.toFixed(2));
-    }
+  // Calculate total amount based on unit price and total shares
+  calculateEditTotalAmount() {
+    const unitPrice = this.editShareForm.get('unit_price')?.value || 0;
+    const totalShares = this.editShareForm.get('total_shares_proposed')?.value || 0;
+  
+    const totalAmount = unitPrice * totalShares;
+    this.editShareForm.get('total_amount')?.setValue(totalAmount.toFixed(2), { emitEvent: false });
+  
+    // Ensure totalCapitalSubscribed is valid
+    this.validateEditTotalCapitalSubscribed();
   }
   
   // Calculate unpaid amount for edit form
   calculateEditUnpaidAmount() {
     const totalAmount = parseFloat(this.editShareForm.get('total_amount')?.value) || 0;
-    const totalCapitalSubscribed = parseFloat(this.editShareForm.get('total_capital_subscribed')?.value) || 0;
+    let totalCapitalSubscribed = parseFloat(this.editShareForm.get('total_capital_subscribed')?.value) || 0;
   
-    const unpaidAmount = totalAmount - totalCapitalSubscribed;
-    this.editShareForm.get('unpaid_amount')?.setValue(unpaidAmount >= 0 ? unpaidAmount.toFixed(2) : 0);
+    // Ensure totalCapitalSubscribed does not exceed totalAmount
+    if (totalCapitalSubscribed > totalAmount) {
+      totalCapitalSubscribed = totalAmount;
+      this.editShareForm.get('total_capital_subscribed')?.setValue(totalAmount.toFixed(2), { emitEvent: false });
+    }
+  
+    let unpaidAmount = totalAmount - totalCapitalSubscribed;
+    unpaidAmount = unpaidAmount < 0 ? 0 : unpaidAmount; // Ensure unpaid amount is not negative
+  
+    this.editShareForm.get('unpaid_amount')?.setValue(unpaidAmount.toFixed(2), { emitEvent: false });
+  }
+  
+  // Ensure totalCapitalSubscribed does not exceed totalAmount
+  validateEditTotalCapitalSubscribed() {
+    const totalAmount = parseFloat(this.editShareForm.get('total_amount')?.value) || 0;
+    let totalCapitalSubscribed = parseFloat(this.editShareForm.get('total_capital_subscribed')?.value) || 0;
+  
+    if (totalCapitalSubscribed > totalAmount) {
+      this.editShareForm.get('total_capital_subscribed')?.setValue(totalAmount.toFixed(2), { emitEvent: false });
+    }
+  
+    this.calculateEditUnpaidAmount();
+  }
+  
+  // Ensure unpaid amount does not exceed total amount
+  validateEditUnpaidAmount() {
+    const unpaidAmount = parseFloat(this.editShareForm.get('unpaid_amount')?.value) || 0;
+    const totalAmount = parseFloat(this.editShareForm.get('total_amount')?.value) || 0;
+  
+    if (unpaidAmount > totalAmount) {
+      this.editShareForm.get('unpaid_amount')?.setValue(totalAmount.toFixed(2), { emitEvent: false });
+    }
   }
   
   // Method to handle the edit button click from the table
@@ -1250,7 +1333,7 @@ isFieldInvalid(controlName: string): boolean {
         this.editShareForm.patchValue({
           class_of_shares: shareToEdit.share_class,
           total_shares_proposed: shareToEdit.total_share,
-          currency: 'HKD', // Default or fetch from data if available
+          currency: shareToEdit.currency, // Default or fetch from data if available
           unit_price: shareToEdit.amount_share,
           total_capital_subscribed: shareToEdit.total_capital_subscribed,
           particulars_of_rights: shareToEdit.share_right
@@ -1306,6 +1389,8 @@ isFieldInvalid(controlName: string): boolean {
       shareId: this.currentShareId,
       companyId: this.companyId,
       userid: userId,
+      currency:this.editShareForm.get('currency')?.value,
+
       total_shares_proposed: this.editShareForm.get('total_shares_proposed')?.value,
       unit_price: this.editShareForm.get('unit_price')?.value,
       total_capital_subscribed: this.editShareForm.get('total_capital_subscribed')?.value,
@@ -1445,16 +1530,25 @@ resetAddShareForm() {
 
 toggleShareHoldersForm() {
   console.log(this.showForm);
-  
+  this.isShareholderFormVisible = !this.isShareholderFormVisible;
   this.showForm = !this.showForm; 
 }
 
+
+toggleShareHoldersInviteForm() {
+  this.inviteShareHolderForm = !this.inviteShareHolderForm;
+  this.showInviteForm = !this.showInviteForm; 
+}
+
+
 initializeSharesHoldersForm() {
+  const isInvitedValue = this.route.snapshot.queryParams['isInvited'] === 'true';
  this.shareHoldersForm = this.fb.group({
     surname: ['', [Validators.required, Validators.minLength(3)]],
     name: ['', [Validators.required, Validators.minLength(3)]],
     chineeseName: ['', [Validators.minLength(3)]],
     idNo: [''],
+    isInvited:[isInvitedValue],
     idProof: ['', Validators.required],
     userType: ['person', Validators.required], 
     address: ['', [Validators.required, Validators.minLength(10)]],
@@ -1465,7 +1559,7 @@ initializeSharesHoldersForm() {
     email: ['', [Validators.required, Validators.email]],
 
     phone: ['', [
-      Validators.pattern(/^\d{10}$/) // Must be 10 digits if entered
+      Validators.pattern(/^\d{8}$/) // Must be 10 digits if entered
     ]],
 
     shareDetailsNoOfShares: ['', Validators.required],
@@ -1511,52 +1605,76 @@ updateFormValidation(userType: string) {
 
 
 shareHoldersFormSubmit() {
-  // Set loading state to true at the beginning
   this.isShareLoading = true;
 
-  console.log('this.shareHoldersForm.value', this.shareHoldersForm.value);
-
-  // Mark all fields as touched to trigger validation messages
+  // Form validation
   Object.keys(this.shareHoldersForm.controls).forEach(key => {
-    const control = this.shareHoldersForm.get(key);
-    control?.markAsTouched();
+    this.shareHoldersForm.get(key)?.markAsTouched();
   });
 
   if (this.shareHoldersForm.invalid) {
-    // Reset loading state if form is invalid
     this.isShareLoading = false;
-    
-    // Optionally scroll to the first error
     const firstInvalidElement = document.querySelector('.error-message');
     firstInvalidElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
 
-  console.log('this.shareHoldersForm.value', this.shareHoldersForm.value);
-
+  // Get user and company IDs
   const userId = localStorage.getItem('userId');
-  const userRole = localStorage.getItem('userRole'); 
-  if(!this.companyId){
-    const savedCompanyId = localStorage.getItem('companyId');
-    if (savedCompanyId) {
-      this.companyId = savedCompanyId;
-      console.log('found saved one', this.companyId);
-    }
+  const userRole = localStorage.getItem('userRole');
+  
+  if (!userId) {
+    this.isShareLoading = false;
+    Swal.fire({
+      position: "top-end",
+      icon: "error",
+      title: "User ID not found. Please log in again.",
+      toast: true,
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    });
+    return;
   }
   
+  // Get companyId from localStorage if not set
+  if (!this.companyId) {
+    const savedCompanyId = localStorage.getItem('companyId');
+    if (!savedCompanyId) {
+      this.isShareLoading = false;
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Company ID not found. Please select a company first.",
+        toast: true,
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      });
+      return;
+    }
+    this.companyId = savedCompanyId;
+    console.log('Using company ID from localStorage:', this.companyId);
+  }
+  
+  // Create form data
   const formData = {
     ...this.shareHoldersForm.value,
     userId,
     companyId: this.companyId
   };
-  console.log('this.shareHoldersForm.value', formData);
+  
+  console.log('Submitting shareholder data:', formData);
 
+  // Submit form
   this.companyService.shareHoldersCreation(formData).subscribe({
     next: (response) => {
-      // Reset loading state on success
       this.isShareLoading = false;
       
-      console.log('userRole', userRole);
+      console.log('Shareholder created successfully:', response);
+      this.showForm = !this.showForm; 
+      this.isShareholderFormVisible = !this.isShareholderFormVisible; 
+      
       
       Swal.fire({
         position: "top-end",
@@ -1568,13 +1686,17 @@ shareHoldersFormSubmit() {
         timerProgressBar: true,
       });
 
+      // Reset form and UI
       this.shareHoldersForm.reset();
       this.addressProofPreview = null;
       this.idProofPreview = null;
       this.currentHolder = formData;
       this.initializeSharesHoldersForm();
+      
+      // Refresh shareholder list
       this.getShareHoldersList();
       
+      // Redirect if not company secretary
       if (userRole !== 'Company Secretary') {
         Swal.fire({
           position: "top-end",
@@ -1586,19 +1708,18 @@ shareHoldersFormSubmit() {
           timer: 2000,
           timerProgressBar: true,
         }).then(() => {
-          this.router.navigate(['/user-dashboard']); // Redirect
+          this.router.navigate(['/user-dashboard']);
         });
       }
     },
     error: (error) => {
-      // Reset loading state on error
       this.isShareLoading = false;
+      console.error('Error creating shareholder:', error);
       
-      console.error('Error occurred during share creation:', error);
       Swal.fire({
         position: "top-end",
         icon: "error",
-        title: error.message,
+        title: error.error?.message || "Error creating shareholder",
         toast: true,
         showConfirmButton: false,
         timer: 2000,
@@ -1808,34 +1929,55 @@ getShareHoldersList() {
     });
     return;
   }
+  
+  // Get companyId from localStorage
   const savedCompanyId = localStorage.getItem('companyId');
 
   if (!savedCompanyId) {
     console.error("Company ID is missing in localStorage!");
+    Swal.fire({
+      position: "top-end",
+      icon: "error",
+      title: "Company ID not found. Please select a company first.",
+      toast: true,
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    });
     return;
   }
 
-  // Ensure companyId is correctly set before adding it to formData
-  this.companyId = savedCompanyId; 
-  console.log('this.companyId ',this.companyId );
+  // Set loading state if you have one
+  // this.isLoading = true;
   
-
-  this.companyService.getShareHoldersList(this.companyId, userId).subscribe({
+  console.log('Fetching shareholders for company:', savedCompanyId);
+  
+  this.companyService.getShareHoldersList(savedCompanyId, userId).subscribe({
     next: (response) => {
-      this.shareholders = response.data;
-      console.log('shareeeethis.shareholders',this.shareholders);
+      // this.isLoading = false;
       
-      Swal.fire({
-        position: "top-end",
-        icon: "success",
-        title: "Shareholders list fetched successfully.",
-        toast: true,
-        showConfirmButton: false,
-        timer: 1500,
-        timerProgressBar: true,
-      });
+      if (response && response.data) {
+        this.shareholders = response.data;
+        console.log('Shareholders loaded:', this.shareholders.length, this.shareholders);
+        
+        // Optional success notification
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: `${this.shareholders.length} shareholders loaded`,
+          toast: true,
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true,
+        });
+      } else {
+        console.error('Invalid response format:', response);
+      }
     },
     error: (error) => {
+      // this.isLoading = false;
+      console.error('Error fetching shareholders:', error);
+      
       Swal.fire({
         position: "top-end",
         icon: "error",
@@ -1931,6 +2073,9 @@ invateShareHoldersSubmit() {
   this.companyService.InvateshareHoldersCreation(formData).subscribe({
     next: (response) => {
       console.log('Shareholder invitation successful:', response.message);
+      this.invateShareHolderForm=!this.inviteShareHolderForm
+      
+
       
       Swal.fire({
         position: "top-end", 
@@ -1982,19 +2127,24 @@ getErrorMessage3(controlName: string): string {
   return '';
 }
 
-directorsInfoFormOpen(){
-  this.directorsInfoOpen = !this.directorsInfoOpen
+
+
+toggleDirectorsInfo() {
+  this.directorsInfoOpen = !this.directorsInfoOpen;
 }
 
 
 
+
 initializeDirectorInfoForm() {
+  const isInvitedValue = this.route.snapshot.queryParams['isInvited'] === 'true';
   this.directorInformationForm = this.fb.group({
     type: ["person", Validators.required],
     surname: ["", [Validators.required, Validators.minLength(4)]],
     name: ["", [Validators.required, Validators.minLength(4)]],
     chineeseName: ["",Validators.minLength(4)],
     idNo: [""],
+    isInvited:[isInvitedValue],
     idProof: [null, Validators.required],
 
     address: ["", [Validators.required, Validators.minLength(10)]],
@@ -2006,7 +2156,7 @@ initializeDirectorInfoForm() {
     email: ["", [Validators.required, Validators.email]],
     
     phone: ["", [
-      Validators.pattern(/^\d{10}$/) // Must be 10 digits if entered
+      Validators.pattern(/^\d{8}$/) // Must be 10 digits if entered
     ]],
   });
 
@@ -2064,8 +2214,8 @@ getErrorMessage4(controlName: string): string {
     if (control.errors['email']) {
       return 'Please enter a valid email address';
     }
-    if (control.errors['pattern']) {
-      return `Invalid ${formattedName.toLowerCase()} format`;
+    if (control?.hasError('pattern')) {
+      return `${formattedName} must be exactly 8 digits long.`; // Updated message for HK phone numbers
     }
     if (control.errors['minlength']) {
       return `${formattedName} must be at least ${control.errors['minlength'].requiredLength} characters`;
@@ -2162,6 +2312,7 @@ directorFormSubmission() {
     next: (response) => {
       // Reset loading state on success
       this.isDirectorLoading = false;
+      this.directorsInfoOpen = !this.directorsInfoOpen;
       
       console.log('Director creation successful:', response.message);
       
@@ -2361,8 +2512,8 @@ OnDeleteDirectorInfo(directorId: string): void {
 // }
 
 
-openDirectorInvateForm(){
-  this.directorInvateOpen = !this.directorInvateOpen
+openDirectorInvateForm() {
+  this.directorInvateOpen = !this.directorInvateOpen;
 }
 
 
@@ -2428,6 +2579,7 @@ invateDirectorSubmit(): void {
           timer: 2000, 
           timerProgressBar: true,
         });
+        this.directorInvateOpen=false
 
         this.InviteDirectorsForm.reset();
       },
@@ -2466,7 +2618,7 @@ initializeCompanySecretaryForm() {
       district: ["",Validators.minLength(4)],
       addressProof: ["", [Validators.required]],
       email: ["", [Validators.required, Validators.email]],
-          phone: ["", [Validators.pattern(/^\d{10}$/)]], 
+          phone: ["", Validators.pattern(/^\d{8}$/)], 
     })
     this.comapnySecretaryForm.get("type")?.valueChanges.subscribe((type) => {
       this.updateFormValidation3(type)
@@ -2522,8 +2674,8 @@ initializeCompanySecretaryForm() {
       if (control.errors["email"]) {
         return `Please enter a valid email address.`;
       }
-      if (control.errors["pattern"]) {
-        return `Invalid ${label.toLowerCase()} format.`;
+      if (control?.hasError('pattern')) {
+        return `${label} must be exactly 8 digits long.`; // Updated message for HK phone numbers
       }
       if (control.errors["minlength"]) {
         return `${label} must be at least ${control.errors["minlength"].requiredLength} characters long.`;
@@ -2684,6 +2836,13 @@ imagePreviewOnCompanySecretaryAddressProof(event: Event): void {
     reader.readAsDataURL(file);
   } else {
     this.imagePreviewCompanySecretaryAddressProof = null; 
+  }
+}
+
+ngOnDestroy(): void {
+  if (this.isNavigatingAway) {
+    localStorage.removeItem('yourItemKey'); // Replace with actual key
+    console.log('LocalStorage item removed on page exit.');
   }
 }
 

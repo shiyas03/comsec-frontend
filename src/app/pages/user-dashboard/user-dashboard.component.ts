@@ -30,6 +30,7 @@ export class UserDashboardComponent {
   isRestrictedUser: boolean = false;
   ngOnInit(): void {
     this.getUserDatas()
+    //this.authService.logout()
     this.loadCompanyData()
     console.log(this.activeTab);
     this.applyTheme();

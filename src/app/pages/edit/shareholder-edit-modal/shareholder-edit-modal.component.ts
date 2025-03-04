@@ -48,7 +48,7 @@ export class ShareholderEditModalComponent implements OnInit {
       building: ["", Validators.minLength(4)],
       district: ["", Validators.minLength(4)],
       street: ["", Validators.minLength(4)],
-      addressProof: [""],
+      addressProof: [null],
       email: ["", [Validators.required, Validators.email]],
       phone: ["", [Validators.pattern(/^\d{10}$/)]],
       shareDetailsNoOfShares: ["", Validators.required],
@@ -64,12 +64,15 @@ export class ShareholderEditModalComponent implements OnInit {
 
   ngOnChanges(): void {
     if (this.shareholder) {
+      console.log("Editing Shareholder Details:", this.shareholder); 
       // Pre-populate the form with shareholder data
       this.editShareholderForm.patchValue({
         surname: this.shareholder.surname || "",
         name: this.shareholder.name || "",
         chineeseName: this.shareholder.chineeseName || "",
         idNo: this.shareholder.idNo || "",
+        idProof: this.shareholder.idProof || "",
+        addressProof: this.shareholder.addressProof || "", 
         userType: this.shareholder.userType || "person",
         address: this.shareholder.address || "",
         building: this.shareholder.building || "",
@@ -95,32 +98,37 @@ export class ShareholderEditModalComponent implements OnInit {
   }
 
   updateFormValidation(userType: string) {
-    const surnameControl = this.editShareholderForm.get("surname")
-    const chineseNameControl = this.editShareholderForm.get("chineeseName")
-    const idNoControl = this.editShareholderForm.get("idNo")
-    const addressProofControl = this.editShareholderForm.get("addressProof")
-
+    const surnameControl = this.editShareholderForm.get("surname");
+    const chineseNameControl = this.editShareholderForm.get("chineeseName");
+    const idNoControl = this.editShareholderForm.get("idNo");
+    const addressProofControl = this.editShareholderForm.get("addressProof");
+    const nameControl = this.editShareholderForm.get("name");
+  
     if (userType === "company") {
-      surnameControl?.clearValidators()
-      surnameControl?.setValue('')
-      chineseNameControl?.clearValidators()
-      this.editShareholderForm.get("name")?.setValidators([Validators.required,Validators.minLength(3)])
+      surnameControl?.clearValidators();
+      surnameControl?.setValue('');
 
+      chineseNameControl?.clearValidators();
+      nameControl?.setValidators([Validators.required, Validators.minLength(3)]);
+  
       // Remove validation for address proof
-      addressProofControl?.clearValidators()
-      addressProofControl?.setValue('')
+      addressProofControl?.clearValidators();
+      addressProofControl?.setValue('');
     } else {
-      surnameControl?.setValidators([Validators.required,Validators.minLength(3)])
-      this.editShareholderForm.get("name")?.setValidators([Validators.required,Validators.minLength(3)])
-
+      surnameControl?.setValidators([Validators.required, Validators.minLength(3)]);
+      nameControl?.setValidators([Validators.required, Validators.minLength(3)]);
+  
       // Restore validation for address proof
-      addressProofControl?.setValidators([Validators.required])
+       addressProofControl?.setValidators([Validators.required]);
     }
-
-    surnameControl?.updateValueAndValidity()
-    idNoControl?.updateValueAndValidity()
-    addressProofControl?.updateValueAndValidity()
+  
+    // Update all controls
+    surnameControl?.updateValueAndValidity();
+    chineseNameControl?.updateValueAndValidity();
+    addressProofControl?.updateValueAndValidity();
+    nameControl?.updateValueAndValidity();
   }
+  
 
   onSelectIDProofImage(event: any) {
     const file = event.target.files[0]
@@ -170,32 +178,48 @@ export class ShareholderEditModalComponent implements OnInit {
   }
 
   submitEditForm() {
-    this.isLoading = true
-
+    this.isLoading = true;
+  
     // Mark all fields as touched to trigger validation messages
     Object.keys(this.editShareholderForm.controls).forEach((key) => {
-      const control = this.editShareholderForm.get(key)
-      control?.markAsTouched()
-    })
-
+      const control = this.editShareholderForm.get(key);
+      control?.markAsTouched();
+    });
+  
+    // Check overall form validity
+    console.log("Form Errors:", this.editShareholderForm.value);
+    console.log("Form Valid:", !this.editShareholderForm.invalid); // Should be true if valid
+  
+    // Identify specific invalid fields
+    const invalidFields: any = {};
+    Object.keys(this.editShareholderForm.controls).forEach((key) => {
+      const control = this.editShareholderForm.get(key);
+      if (control?.invalid) {
+        invalidFields[key] = control.errors;
+      }
+    });
+  
+    // Log invalid fields and their errors
+    console.log("Invalid Fields:", invalidFields);
+  
     if (this.editShareholderForm.invalid) {
-      this.isLoading = false
-      const firstInvalidElement = document.querySelector(".error-message")
-      firstInvalidElement?.scrollIntoView({ behavior: "smooth", block: "center" })
-      return
+      this.isLoading = false;
+      const firstInvalidElement = document.querySelector(".error-message");
+      firstInvalidElement?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
     }
-
+  
     const formData = {
       ...this.editShareholderForm.value,
       _id: this.shareholder._id,
       userId: localStorage.getItem("userId"),
       companyId: localStorage.getItem("companyId"),
-    }
-
+    };
+  
     this.companyService.updateShareHolder(formData).subscribe({
       next: (response) => {
-        this.isLoading = false
-
+        this.isLoading = false;
+  
         Swal.fire({
           position: "top-end",
           icon: "success",
@@ -204,15 +228,15 @@ export class ShareholderEditModalComponent implements OnInit {
           showConfirmButton: false,
           timer: 2000,
           timerProgressBar: true,
-        })
-
-        this.shareholderUpdated.emit(formData)
-        this.closeModal.emit()
+        });
+  
+        this.shareholderUpdated.emit(formData);
+        this.closeModal.emit();
       },
       error: (error) => {
-        this.isLoading = false
-
-        console.error("Error occurred during shareholder update:", error)
+        this.isLoading = false;
+  
+        console.error("Error occurred during shareholder update:", error);
         Swal.fire({
           position: "top-end",
           icon: "error",
@@ -221,11 +245,11 @@ export class ShareholderEditModalComponent implements OnInit {
           showConfirmButton: false,
           timer: 2000,
           timerProgressBar: true,
-        })
+        });
       },
-    })
+    });
   }
-
+  
   close() {
     this.closeModal.emit()
   }
