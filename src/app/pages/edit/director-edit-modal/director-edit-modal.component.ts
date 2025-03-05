@@ -53,7 +53,7 @@ export class DirectorEditModalComponent implements OnInit {
       district: ['', Validators.minLength(4)],
       addressProof: [null],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.pattern(/^\d{10}$/)]]
+      phone: ['', [Validators.pattern(/^\d{8}$/)]]
     });
   }
 
@@ -165,7 +165,7 @@ export class DirectorEditModalComponent implements OnInit {
         return 'Please enter a valid email address';
       }
       if (control.errors['pattern']) {
-        return 'Please enter a valid phone number (10 digits)';
+        return 'Please enter a valid phone number (8 digits)';
       }
     }
     return '';

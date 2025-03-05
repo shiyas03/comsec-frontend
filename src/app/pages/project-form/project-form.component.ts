@@ -48,6 +48,7 @@ export class ProjectFormComponent implements OnInit,OnDestroy  {
   public isSaveLoading = false;
   public isSubmitLoading = false;
   editModalOpen: boolean = false;
+  isInvited: boolean = false;
   editSharesModalOpen: boolean = false;
   inviteShareHolderForm: boolean = false;
   showInviteForm:boolean= false
@@ -1543,6 +1544,10 @@ toggleShareHoldersInviteForm() {
 
 initializeSharesHoldersForm() {
   const isInvitedValue = this.route.snapshot.queryParams['isInvited'] === 'true';
+  if(isInvitedValue==true){
+
+    this.isInvited=isInvitedValue
+  }
  this.shareHoldersForm = this.fb.group({
     surname: ['', [Validators.required, Validators.minLength(3)]],
     name: ['', [Validators.required, Validators.minLength(3)]],
@@ -2137,7 +2142,12 @@ toggleDirectorsInfo() {
 
 
 initializeDirectorInfoForm() {
+ // const isInvitedValue = this.route.snapshot.queryParams['isInvited'] === 'true';
   const isInvitedValue = this.route.snapshot.queryParams['isInvited'] === 'true';
+  if(isInvitedValue==true){
+
+    this.isInvited=isInvitedValue
+  }
   this.directorInformationForm = this.fb.group({
     type: ["person", Validators.required],
     surname: ["", [Validators.required, Validators.minLength(4)]],

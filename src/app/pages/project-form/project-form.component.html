@@ -2476,23 +2476,23 @@
                         </div>
                       </div>
                     </div>
-                    <div class="flex items-center space-x-2 py-6">
-                      <input
-                        type="radio"
-                        id="r2"
-                        name="inviteType"
-                        value="invite"
-                        [checked]="inviteShareHolderForm"
-                        (click)="toggleShareHoldersInviteForm()"
-                        class="h-4 w-4 rounded-full border border-primary text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      />
-                      <label
-                        for="r2"
-                        class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-2xl"
-                      >
-                        Invite a Shareholder to fill in the details.
-                      </label>
-                    </div>
+                      <div *ngIf="!isInvited" class="flex items-center space-x-2 py-6">
+                        <input
+                          type="radio"
+                          id="r2"
+                          name="inviteType"
+                          value="invite"
+                          [checked]="inviteShareHolderForm"
+                          (click)="toggleShareHoldersInviteForm()"
+                          class="h-4 w-4 rounded-full border border-primary text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        />
+                        <label
+                          for="r2"
+                          class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-2xl"
+                        >
+                          Invite a Shareholder to fill in the details.
+                        </label>
+                      </div>
                     
                     
                     <div *ngIf="inviteShareHolderForm">
@@ -2741,7 +2741,7 @@
                 <div class="p-6 pt-0 flex justify-end items-center">
                   <button
                     (click)="changeTab(2)"
-                    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 px-4 py-2"
+                    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-red-600 text-white hover:bg-red-700 h-10 px-4 py-2"
                   >
                     Save & Next
                   </button>
@@ -3336,7 +3336,7 @@
                         </div>
                       </div>
                     </div>
-                    <div class="flex items-center space-x-2 py-6">
+                    <div *ngIf="!isInvited" class="flex items-center space-x-2 py-6">
                       <input
                         type="radio"
                         id="r2"
@@ -3613,7 +3613,7 @@
                 <div class="p-6 pt-0 flex justify-end items-center">
                   <button
                     (click)="changeTab(3)"
-                    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 px-4 py-2"
+                    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-red-600 text-white hover:bg-red-700 h-10 px-4 py-2"
                   >
                     Save & Next
                   </button>
