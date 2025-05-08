@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit,OnDestroy,AfterViewInit, HostListener } from '@angular/core';
+import { Component, inject, OnInit,OnDestroy,AfterViewInit, HostListener,ViewChild, ElementRef } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
@@ -98,6 +98,7 @@ currentShareId: string = '';
   invitationData: any = null;
   isInvitationValid = false;
   isLoading = false;
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   errorMessage = '';
   private router = inject(Router)
   private authservice = inject(AuthService)
@@ -412,6 +413,7 @@ currentShareId: string = '';
     this.initializeInvateDirectorForm();
     this.initializeCompanySecretaryForm();
     this.getUserDatas();
+    //this.addDefaultShareCapital();
     this.initializeEditShareForm();
   
     // Subscribe to theme changes
@@ -605,8 +607,8 @@ currentShareId: string = '';
 
   initializeCompanyInfoForm(): void {
     this.companyInfoForm = this.fb.group({
-      companyNameEN: new FormControl('', [Validators.required, Validators.minLength(3)]),
-      companyNameCN: new FormControl('', [Validators.minLength(3)]),
+      companyNameEN: new FormControl('', [Validators.required, Validators.minLength(2)]),
+      companyNameCN: new FormControl('', [Validators.minLength(2)]),
       companyType: [{ value: 'private', disabled: false }, Validators.required],
       natureofCompany: new FormControl<BuisnessNature | null>(null, [Validators.required]),
       code: new FormControl('', [Validators.required]),
@@ -663,7 +665,7 @@ currentShareId: string = '';
     const control = this.companyInfoForm.get(controlName);
     
     const fieldNames: { [key: string]: string } = {
-        companyNameEN: "Company Name (English)",
+        companyNameEN: "Company Name",
         companyNameCN: "Company Name (Chinese)",
         companyType: "Company Type",
         natureofCompany: "Nature of Company",
@@ -955,7 +957,7 @@ isFieldInvalid(controlName: string): boolean {
       const reader = new FileReader();
       reader.onload = () => {
         this.imagePreview = reader.result as string;
-        console.log('base64 converted image link',this.imagePreview);
+        console.log('base64 converted image link', this.imagePreview);
         
         this.companyInfoForm.patchValue({
           companyLogo: this.imagePreview 
@@ -963,6 +965,20 @@ isFieldInvalid(controlName: string): boolean {
       };
       reader.readAsDataURL(file);
     }
+  }
+  
+  // Method to trigger file input when edit button is clicked
+  triggerFileInput(): void {
+    this.fileInput.nativeElement.click();
+  }
+  
+  // Method to remove the image
+  removeImage(): void {
+    this.imagePreview = null;
+    this.fileInput.nativeElement.value = '';
+    this.companyInfoForm.patchValue({
+      companyLogo: null
+    });
   }
 
   onSaveAndNext(): void {
@@ -982,6 +998,7 @@ isFieldInvalid(controlName: string): boolean {
             timer: 1500,
             timerProgressBar: true,
           });
+          this.addDefaultShareCapital()
         },
         error: () => {
           this.isSaveLoading=false
@@ -1064,7 +1081,111 @@ isFieldInvalid(controlName: string): boolean {
     //   natureofCompany: event.value
     // });
   }
+  addDefaultShareCapital() {
+    // Set default values in the form
+    this.addShareForm.patchValue({
+      class_of_shares: 'Ordinary',
+      total_shares_proposed: 1000,
+      currency: 'HKD',
+      unit_price: 1,
+      total_capital_subscribed: 200,
+      particulars_of_rights: 'Voting Rights'
+    });
+    
+    // Calculate the total amount (since it's a disabled field)
+    const totalShares = this.addShareForm.get('total_shares_proposed')?.value || 0;
+    const unitPrice = this.addShareForm.get('unit_price')?.value || 0;
+    const totalAmount = totalShares * unitPrice;
+    
+    // Set the total amount in the form
+    this.addShareForm.get('total_amount')?.setValue(totalAmount);
+    
+    // Calculate the unpaid amount (since it's a disabled field)
+    const totalSubscribed = this.addShareForm.get('total_capital_subscribed')?.value || 0;
+    const unpaidAmount = totalAmount - totalSubscribed;
+    
+    // Set the unpaid amount in the form
+    this.addShareForm.get('unpaid_amount')?.setValue(unpaidAmount);
+    
+    // Submit the form automatically
+    this.addSharesSubmitDefault();
+  }
 
+  addSharesSubmitDefault() {
+    console.log("Form Values: ", this.addShareForm.value);
+  console.log("Form Raw Values: ", this.addShareForm.getRawValue());
+  console.log("Currency Control Value: ", this.addShareForm.get('currency')?.value);
+    const userId = localStorage.getItem('userId');
+    Object.keys(this.addShareForm.controls).forEach(key => {
+      const control = this.addShareForm.get(key);
+      control?.markAsTouched();
+    });
+    if (this.addShareForm.invalid) {
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Please fill in all required fields.",
+        toast: true,
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      });
+      return;
+    }
+  
+    if (!userId) {
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "User ID not found. Please log in again.",
+        toast: true,
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      });
+      return;
+    }
+  
+    const shareData = {
+      companyId: this.companyId,
+      userid: userId,
+      currency: this.addShareForm.get('currency')?.value,
+      total_shares_proposed: this.addShareForm.get('total_shares_proposed')?.value,
+      unit_price: this.addShareForm.get('unit_price')?.value,
+      total_capital_subscribed: this.addShareForm.get('total_capital_subscribed')?.value,
+      unpaid_amount: this.addShareForm.get('unpaid_amount')?.value,
+      class_of_shares: this.addShareForm.get('class_of_shares')?.value,
+      particulars_of_rights: this.addShareForm.get('particulars_of_rights')?.value,
+    };
+  
+    this.companyService.shareCreation(shareData).subscribe({
+      next: (response) => {
+        // Swal.fire({
+        //   position: "top-end",
+        //   icon: "success",
+        //   title: response.message,
+        //   toast: true,
+        //   showConfirmButton: false,
+        //   timer: 2000,
+        //   timerProgressBar: true,
+        // });
+        this.getShareCapitalList();
+        this.resetAddShareForm();
+      },
+      error: (error) => {
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Error",
+          text: error.message || "Failed to create share.",
+          toast: true,
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true,
+        });
+      },
+    });
+  }
   initializeAddSharesForm() {
     this.addShareForm = this.fb.group({
       class_of_shares: ['Ordinary', Validators.required],
@@ -2626,7 +2747,7 @@ initializeCompanySecretaryForm() {
       street: ["",Validators.minLength(4)],
       building: ["",Validators.minLength(4)],
       district: ["",Validators.minLength(4)],
-      addressProof: ["", [Validators.required]],
+      addressProof: [""],
       email: ["", [Validators.required, Validators.email]],
           phone: ["", Validators.pattern(/^\d{8}$/)], 
     })

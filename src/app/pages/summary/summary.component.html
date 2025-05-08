@@ -304,11 +304,39 @@
                                         <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ shareholder.address }}</td>
                                         <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ shareholder.email }}</td>
                                         <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{ shareholder.phone }}</td>
-                                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
-                                          <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-                                            View Shares
-                                          </button>
-                                        </td>
+                                        <td class="p-4 align-middle">
+                                            <!-- Button to open modal -->
+                                            <button class="h-10 px-4 py-2 hover:bg-accent" (click)="viewShareDetails(shareholder)">View Shares</button>
+            
+                                            <!-- Modal (only shown when isModalOpen is true) -->
+                                            <div *ngIf="isViewModalOpen" class="fixed inset-0 flex items-center justify-center z-50">
+                                              <div class="fixed inset-0 bg-black opacity-50" (click)="closeShareModal()"></div>
+                                              <div class="bg-white rounded-lg p-6 max-w-md w-full relative z-10">
+                                                <!-- Close button -->
+                                                <button (click)="closeShareModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                                                  <!-- X icon -->
+                                                </button>
+                                                
+                                                <!-- Modal content -->
+                                                <h2 class="text-xl font-semibold mb-2">{{ selectedShareholder.name }} {{ selectedShareholder.surname }}</h2>
+                                                <p class="text-gray-600 mb-4">Here are the share details of {{ selectedShareholder.name }} {{ selectedShareholder.surname }}:</p>
+                                                
+                                                <!-- Share details table -->
+                                                <div class="grid grid-cols-2 gap-2 mb-4">
+                                                  <div class="py-2 px-4 font-medium text-gray-600 border-b">Class of Shares</div>
+                                                  <div class="py-2 px-4 font-medium text-gray-600 border-b">No of Shares</div>
+                                                  
+                                                  <div class="py-2 px-4 border-b">Ordinary</div>
+                                                  <div class="py-2 px-4 border-b">{{ selectedShareholder.shareDetailsClassOfShares === 'Ordinary' ? selectedShareholder.shareDetailsNoOfShares : 0 }}</div>
+                                                  
+                                                  <div class="py-2 px-4">Preference</div>
+                                                  <div class="py-2 px-4">{{ selectedShareholder.shareDetailsClassOfShares === 'Preferance' ? selectedShareholder.shareDetailsNoOfShares : 0 }}</div>
+                                                </div>
+                                                
+                                                <p class="text-center text-gray-600">Share Details of {{ selectedShareholder.name }} {{ selectedShareholder.surname }}</p>
+                                              </div>
+                                            </div>
+                                          </td>
                                       </tr>
                                     </ng-container>
                                     

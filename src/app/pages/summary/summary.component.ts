@@ -16,6 +16,8 @@ export interface ShareCapital {
   unpaid_amount: number;
   share_class: string;
   share_right: string;
+
+  
 }
 
 
@@ -35,6 +37,8 @@ export class SummaryComponent {
   shareholders: any[] = []
   directorsData: any[] = []
   secretoryData:any[]= [] 
+  isViewModalOpen=false;
+  selectedShareholder:any
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -142,6 +146,21 @@ export class SummaryComponent {
       }
     });
   }
+
+  viewShareDetails(shareholder:any) {
+    // Set the selected shareholder
+    console.log("00,",shareholder);
+    this.selectedShareholder = shareholder;
+    console.log("00,", this.selectedShareholder );
+    
+    // Show the modal
+    this.isViewModalOpen = true;
+  }
+  
+  closeShareModal() {
+    this.isViewModalOpen = false;
+  }
+
 
   saveDataBeforeNavigation() {
     const payload = {

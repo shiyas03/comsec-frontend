@@ -201,18 +201,20 @@
                               Private
                             </label>
                           </div>
-                          <!-- Public option - disabled -->
-                          <!-- Public option - correctly disabled -->
+                          <!-- Public option - disabled with red icon -->
                           <div class="space-y-2 flex items-end space-x-3">
-                            <label class="custom-radio text-sm leading-none cursor-not-allowed opacity-50 font-normal">
+                            <label class="custom-radio text-sm leading-none opacity-50 font-normal" style="pointer-events: none; position: relative;">
                               <input
-                            type="radio"
-                            name="companyType"
-                            value="public"
-                            id="publicOption"
-                            disabled
-                          />
-                              <span></span>
+                                type="radio"
+                                name="companyType"
+                                value="public"
+                                id="publicOption"
+                                disabled
+                                style="cursor: not-allowed; pointer-events: none;"
+                              />
+                              <span style="pointer-events: none; position: relative;">
+                                <!-- Red disabled icon overlay -->
+                              </span>
                               Public
                             </label>
                           </div>
@@ -955,7 +957,39 @@
                             for="companyLogo"
                             >Company Logo(optional):</label
                           >
+                          
+                          <!-- Image preview container that shows only when an image is selected -->
+                          <div *ngIf="imagePreview" class="relative w-48 h-48 mb-2">
+                            <img [src]="imagePreview" class="w-full h-full object-contain border rounded-md" alt="Company Logo Preview" />
+                            
+                            <!-- Delete button -->
+                            <button 
+                              type="button" 
+                              class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                              (click)="removeImage()"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                              </svg>
+                            </button>
+                            
+                            <!-- Edit/Replace button -->
+                            <button 
+                              type="button" 
+                              class="absolute bottom-1 right-1 bg-blue-500 text-white rounded-full p-1 hover:bg-blue-600"
+                              (click)="triggerFileInput()"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                              </svg>
+                            </button>
+                          </div>
+                          
+                          <!-- File input (hidden when preview is shown) -->
                           <input
+                            #fileInput
                             type="file"
                             class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             placeholder="Upload a Copy"
@@ -965,7 +999,24 @@
                             name="companyLogo"
                             formControlName="companyLogo"
                             (change)="onFileSelected($event)"
+                            [class.hidden]="imagePreview"
                           />
+                          
+                          <!-- Upload button (shown when preview exists) -->
+                          <button 
+                            *ngIf="imagePreview" 
+                            type="button" 
+                            class="text-sm text-blue-500 hover:text-blue-700 flex items-center"
+                            (click)="triggerFileInput()"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                              <polyline points="17 8 12 3 7 8"></polyline>
+                              <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            Replace image
+                          </button>
+                          
                           <div
                             *ngIf="
                               (companyInfoForm.get('companyLogo')?.touched ||
@@ -979,7 +1030,7 @@
                         </div>
 
                         <!-- Image Preview Section -->
-                        <div *ngIf="imagePreview">
+                        <!-- <div *ngIf="imagePreview">
                           <label class="text-sm font-medium"
                             >Image Preview:</label
                           >
@@ -988,7 +1039,7 @@
                             alt="Image Preview"
                             class="h-20 w-20 rounded-md"
                           />
-                        </div>
+                        </div> -->
                       </div>
                     </div>
                     <div class="flex justify-end items-center">
@@ -1457,13 +1508,11 @@
                                 </div>
                               </div>
                             </td>
-                            <td
-                              class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                            >
+                            <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
                               <div class="space-y-2">
                                 <input
-                                  class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                  readonly=""
+                                  class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 pointer-events-none"
+                                  readonly
                                   placeholder="XXXX"
                                   id=":rj2:-form-item"
                                   aria-describedby=":rj2:-form-item-description"
@@ -1500,13 +1549,11 @@
                                 </div>
                               </div>
                             </td>
-                            <td
-                              class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                            >
+                            <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
                               <div class="space-y-2">
                                 <input
-                                  class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                  readonly=""
+                                  class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 pointer-events-none"
+                                  readonly
                                   placeholder="XXXX"
                                   id=":rj4:-form-item"
                                   aria-describedby=":rj4:-form-item-description"
@@ -2679,38 +2726,6 @@
                                         type="button"
                                         (click)="clearInvateShareHoldersForm()"
                                       >
-                                          <!-- <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="24"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            class="lucide lucide-trash2"
-                                          >
-                                            <path d="M3 6h18"></path>
-                                            <path
-                                              d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"
-                                            ></path>
-                                            <path
-                                              d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"
-                                            ></path>
-                                            <line
-                                              x1="10"
-                                              x2="10"
-                                              y1="11"
-                                              y2="17"
-                                            ></line>
-                                            <line
-                                              x1="14"
-                                              x2="14"
-                                              y1="11"
-                                              y2="17"
-                                            ></line>
-                                          </svg> -->
                                       </button>
                                     </td>
                                   </tr>
@@ -2718,6 +2733,7 @@
                               </table>
                             </div>
                             <div>
+                              
                               <button 
                               type="submit" 
                               [disabled]="isInviteLoading" 
@@ -2739,6 +2755,14 @@
                   </div>
                 </div>
                 <div class="p-6 pt-0 flex justify-end items-center">
+                  <button
+                  type="button"
+                  (click)="changeTab(0)" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gray-600 text-white hover:bg-gray-700 h-10 px-4 py-2" >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                    <path d="m15 18-6-6 6-6"/>
+                  </svg>
+                  Back
+                </button>
                   <button
                     (click)="changeTab(2)"
                     class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-red-600 text-white hover:bg-red-700 h-10 px-4 py-2"
@@ -3612,6 +3636,14 @@
                 </div>
                 <div class="p-6 pt-0 flex justify-end items-center">
                   <button
+                  type="button"
+                  (click)="changeTab(1)" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gray-600 text-white hover:bg-gray-700 h-10 px-4 py-2" >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                    <path d="m15 18-6-6 6-6"/>
+                  </svg>
+                  Back
+                </button>
+                  <button
                     (click)="changeTab(3)"
                     class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-red-600 text-white hover:bg-red-700 h-10 px-4 py-2"
                   >
@@ -3983,6 +4015,14 @@
                     </table>
                   </div>
                   <div class="flex items-center justify-end">
+                    <button
+                  type="button"
+                  (click)="changeTab(2)" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gray-600 text-white hover:bg-gray-700 h-10 px-4 py-2" >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                    <path d="m15 18-6-6 6-6"/>
+                  </svg>
+                  Back
+                </button>
                     <button 
                         type="submit" 
                         [disabled]="isSubmitLoading" 
