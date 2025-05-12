@@ -1399,22 +1399,16 @@
                           <tr
                             class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
                           >
-                            <td
-                              class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                            ><div class="space-y-2">
-                              <select
+                          <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+                            <div class="space-y-2">
+                              <input
                                 id="classOfShares"
                                 formControlName="class_of_shares"
+                                type="text"
+                                placeholder="Enter Class of Shares"
                                 class="flex h-10 w-full items-center rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                              >
-                                <option value="">Select Class of Shares</option>
-                                <option value="Ordinary">Ordinary</option>
-                                <option value="Preferance">Preference</option>
-                                <option value="Ordinary Class 1">Ordinary Class 1</option>
-                                <option value="Ordinary Class 10">Ordinary Class 10</option>
-                                <option value="Ordinary12">Ordinary 12</option>
-                              </select>
-                              
+                              />
+                          
                               <div
                                 class="error-message text-sm text-red-500"
                                 *ngIf="getErrorMessage1('class_of_shares')"
@@ -1422,8 +1416,8 @@
                                 {{ getErrorMessage1("class_of_shares") }}
                               </div>
                             </div>
-                            
-                            </td>
+                          </td>
+                          
                             <td
                               class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
                             >
@@ -1637,19 +1631,15 @@
                         <label class="text-sm font-medium" for="editClass">
                           Class of Shares
                         </label>
-                        <select
+                        <input
                           id="editClass"
                           formControlName="class_of_shares"
+                          type="text"
+                          placeholder="Enter Class of Shares"
                           class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
-                        >
-                          <option value="">Select Class of Shares</option>
-                          <option value="Ordinary">Ordinary</option>
-                          <option value="Preferance">Preference</option>
-                          <option value="Ordinary Class 1">Ordinary Class 1</option>
-                          <option value="Ordinary Class 10">Ordinary Class 10</option>
-                          <option value="Ordinary12">Ordinary 12</option>
-                        </select>
+                        />
                       </div>
+                      
                       
                       
                       <!-- Total Shares Proposed -->
