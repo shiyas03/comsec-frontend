@@ -1084,7 +1084,7 @@ export class AddCompanyComponent implements OnInit,OnDestroy  {
     addDefaultShareCapital() {
       // Set default values in the form
       this.addShareForm.patchValue({
-        class_of_shares: 'Ordinary',
+        class_of_shares: '',
         total_shares_proposed: 1000,
         currency: 'HKD',
         unit_price: 1,
@@ -1188,7 +1188,7 @@ export class AddCompanyComponent implements OnInit,OnDestroy  {
     }
     initializeAddSharesForm() {
       this.addShareForm = this.fb.group({
-        class_of_shares: ['Ordinary', Validators.required],
+        class_of_shares: ['', Validators.required],
         total_shares_proposed: ['', Validators.required],
         currency: ['HKD', Validators.required],
         unit_price: [null, [Validators.required, Validators.min(0)]],
