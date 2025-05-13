@@ -1188,7 +1188,7 @@ isFieldInvalid(controlName: string): boolean {
   }
   initializeAddSharesForm() {
     this.addShareForm = this.fb.group({
-      class_of_shares: ['', Validators.required],
+      class_of_shares: ['Ordinary', Validators.required],
       total_shares_proposed: ['', Validators.required],
       currency: ['HKD', Validators.required],
       unit_price: [null, [Validators.required, Validators.min(0)]],
