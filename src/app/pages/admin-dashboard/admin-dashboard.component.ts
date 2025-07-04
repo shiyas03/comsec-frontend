@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { AdminService } from '../../core/services/admin.service';
 import { catchError, throwError } from 'rxjs';
 import Swal from 'sweetalert2';
@@ -7,11 +7,12 @@ import { CommonModule } from '@angular/common';
 import { InvitedUser } from '../../types/user';
 import { AuthService } from '../../core/services/auth.service';
 import { HeaderComponent } from "../../layout/header/header.component";
+import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 
 
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [ReactiveFormsModule, FormsModule, CommonModule, HeaderComponent],
+  imports: [ReactiveFormsModule, FormsModule, CommonModule, HeaderComponent, SidebarComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css'
 })
@@ -27,18 +28,34 @@ export class AdminDashboardComponent implements OnInit {
   private authService = inject(AuthService);
 
   ngOnInit(): void {
+    this.loadInvitedUsers();
     this.InitializeAdminInvationUser();
     this.InitializeEditEmailForm();
-    this.loadInvitedUsers();
+    
   }
 
   InitializeAdminInvationUser() {
     this.inviteUserForm = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-    });
+        _id: [''],
+    firstName: ['', Validators.required],
+    lastName: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
+    confirmPassword: ['', Validators.required]
+  }, { validators: this.passwordMatchValidator });
+}
+
+passwordMatchValidator(form: AbstractControl): ValidationErrors | null {
+  const password = form.get('password');
+  const confirmPassword = form.get('confirmPassword');
+  
+  if (!password || !confirmPassword) {
+    return null;
   }
+  
+  return password.value === confirmPassword.value ? null : { passwordMismatch: true };
+}
+
   generateSecurePassword(length: number = 12): string {
     const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';  // Excluding I and O to avoid confusion
     const lowercase = 'abcdefghijkmnpqrstuvwxyz';  // Excluding l and o to avoid confusion
@@ -76,7 +93,9 @@ export class AdminDashboardComponent implements OnInit {
       
       next: (users) => {
         this.invitedUsers = users;
-       
+        console.log("this.invitedUsers : ");
+
+console.log(this.invitedUsers);
       },
       error: (error) => {
      
@@ -99,10 +118,10 @@ export class AdminDashboardComponent implements OnInit {
     if (this.inviteUserForm.valid) {
       const userData = {
         ...this.inviteUserForm.value,
-        password: 'comsec@125' // Add generated password to form data
+       
       };
 
-      console.log("gg password",userData);
+      delete userData.confirmPassword;
       this.isLoading=true
       
   

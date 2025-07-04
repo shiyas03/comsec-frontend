@@ -2374,80 +2374,32 @@
                                   </tr>
                                 </thead>
                                 <tbody class="[&amp;_tr:last-child]:border-0">
-                                  <tr
-                                    class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                                  >
-                                    <td
-                                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                                    >
-                                      <div class="space-y-2">
-                                        <div>
-                                          <select
-                                            id="classOfShares"
-                                            formControlName="shareDetailsClassOfShares"
-                                            class="flex h-10 w-full items-center rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                          >
-                                            <option value="">
-                                              Select Class of Shares
-                                            </option>
-                                            <option value="Ordinary">
-                                              Ordinary
-                                            </option>
-                                            <option value="Preferance">
-                                              Preference
-                                            </option>
-                                            <option value="Ordinary Class 1">
-                                              Ordinary Class 1
-                                            </option>
-                                            <option value="Ordinary Class 10">
-                                              Ordinary Class 10
-                                            </option>
-                                            <option value="Ordinary12">
-                                              Ordinary 12
-                                            </option>
-                                          </select>
-                                          <div
-                                            class="error-message"
-                                            *ngIf="
-                                              getErrorMessage2(
-                                                'shareDetailsClassOfShares'
-                                              )
-                                            "
-                                          >
-                                            {{
-                                              getErrorMessage2(
-                                                "shareDetailsClassOfShares"
-                                              )
-                                            }}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </td>
-                                    <td
-                                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                                    >
-                                      <input
-                                        class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                        type="number"
-                                        value="800"
-                                        name="shareDetails.0.noOfShares"
-                                        formControlName="shareDetailsNoOfShares"
-                                      />
-                                      <div
-                                        class="error-message"
-                                        *ngIf="
-                                          getErrorMessage2(
-                                            'shareDetailsNoOfShares'
-                                          )
-                                        "
-                                      >
-                                        {{
-                                          getErrorMessage2(
-                                            "shareDetailsNoOfShares"
-                                          )
-                                        }}
-                                      </div>
-                                    </td>
+                               <tr *ngFor="let row of shareRows; let i = index">
+  <!-- Dropdown -->
+  <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+    <select
+      [(ngModel)]="selectedShareClass1"
+      [ngModelOptions]="{ standalone: true }"
+      (change)="onShareClassChange1($event)"
+      class="flex h-10 w-full items-center rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      <option value="">Select Class of Shares</option>
+      <option *ngFor="let share of shareCapitalList" [value]="share.share_class">
+        {{ share.share_class }}
+      </option>
+    </select>
+  </td>
+
+  <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+    <input
+      type="number"
+      [(ngModel)]="selectedUnpaidAmount1"
+      [ngModelOptions]="{ standalone: true }"
+      placeholder="Enter Number of Shares"
+      class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    />
+  </td>
+
                                     <td
                                       class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
                                     >
@@ -2645,69 +2597,33 @@
                                 </thead>
                                 
                                 <tbody class="[&amp;_tr:last-child]:border-0">
-                                  <tr
-                                    class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                                  >
-                                    <td
-                                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                                    >
-                                      <div class="space-y-2">
-                                        <div>
-                                          <select
-                                            id="classOfShares"
-                                            formControlName="classOfShares"
-                                            class="flex h-10 w-full items-center rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                          >
-                                            <option value="">
-                                              Select Class of Shares
-                                            </option>
-                                            <option value="Ordinary">
-                                              Ordinary
-                                            </option>
-                                            <option value="Preferance">
-                                              Preference
-                                            </option>
-                                            <option value="Ordinary Class 1">
-                                              Ordinary Class 1
-                                            </option>
-                                            <option value="Ordinary Class 10">
-                                              Ordinary Class 10
-                                            </option>
-                                            <option value="Ordinary12">
-                                              Ordinary 12
-                                            </option>
-                                          </select>
-                                          <div
-                                            class="error-message"
-                                            *ngIf="
-                                              getErrorMessage3('classOfShares')
-                                            "
-                                          >
-                                            {{
-                                              getErrorMessage3("classOfShares")
-                                            }}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </td>
-                                    <td
-                                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                                    >
-                                      <input
-                                        class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                        type="number"
-                                        placeholder="Enter the Number of Shares"
-                                        value="800"
-                                        name="shareDetails.0.noOfShares"
-                                        formControlName="noOfShares"
-                                      />
-                                      <div
-                                        class="error-message"
-                                        *ngIf="getErrorMessage3('noOfShares')"
-                                      >
-                                        {{ getErrorMessage3("noOfShares") }}
-                                      </div>
-                                    </td>
+ <tr *ngFor="let row of shareRows; let i = index">
+  <!-- Dropdown -->
+   <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+    <select
+      [(ngModel)]="selectedShareClass2"
+      [ngModelOptions]="{ standalone: true }"
+      (change)="onShareClassChange2($event)"
+      class="flex h-10 w-full items-center rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      <option value="">Select Class of Shares</option>
+      <option *ngFor="let share of shareCapitalList" [value]="share.share_class">
+        {{ share.share_class }}
+      </option>
+    </select>
+  </td>
+
+  <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+    <input
+      type="number"
+      [(ngModel)]="selectedUnpaidAmount2"
+      [ngModelOptions]="{ standalone: true }"
+      placeholder="Enter Number of Shares"
+      class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    />
+  </td>
+
+
                                     <td
                                       class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
                                     >

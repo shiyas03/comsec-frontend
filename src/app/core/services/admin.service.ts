@@ -61,4 +61,40 @@ export class AdminService {
     }
 
 
+    getUserInvitationEmailTemplate():Observable<any>{
+      return this.http.get<any>(`${this.baseUrl}user/get_user_invitation_email_template`).pipe(
+        catchError((error) => {
+          console.error('Error fetching user invitation email template', error);
+          return throwError(() => new Error('Failed to fetch user invitation email template. Please try again.'));
+        })
+      );
+    }
+
+    updateUserInvitationEmailTemplate(template:any):Observable<any> {
+      return this.http.put<any>(`${this.baseUrl}user/update_user_invitation_email_template`,template).pipe(
+        catchError((error)=>{
+          console.error("Error updating the user invitation email template")
+          return throwError(()=> new Error('Failed to update user invitation email template. Please try again'))
+        }))
+    }
+
+    getIncorporationDocuments():Observable<any>{
+      return this.http.get<any>(`${this.baseUrl}user/get-incorporation-documents`).pipe(
+        catchError((error) => {
+          console.error('Error fetching incorporation documents', error);
+          return throwError(() => new Error('Failed to fetch incorporation documents. Please try again.'));
+        })
+      );
+    }
+
+
+    getEmailTemplate(templateName:string):Observable<any>{
+         return this.http.get<any>(`${this.baseUrl}user/get-incorporation-email-template/${templateName}`).pipe(
+        catchError((error) => {
+          console.error('Error fetching incorporation email template', error);
+          return throwError(() => new Error('Failed to fetch incorporation email template. Please try again.'));
+        })
+      );
+    }
+
 }

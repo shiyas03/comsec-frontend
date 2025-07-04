@@ -18,6 +18,11 @@ export class HeaderComponent implements OnInit {
   private authService = inject(AuthService);
   userData: any;
   private themeService = inject(ThemeService);
+  isNotificationDropdownOpen = false;
+
+toggleNotificationDropdown() {
+  this.isNotificationDropdownOpen = !this.isNotificationDropdownOpen;
+}
 
   ngOnInit() {
     console.log('heyylloo thereeeee');

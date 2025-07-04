@@ -13,33 +13,37 @@ import { AuthGuard } from './core/guards/auth.guard';
 import { noAuthGuard } from './core/guards/no-auth.guard';
 import { AdminGuard } from './core/guards/admin.guard';
 import { InvitationGuard } from './core/guards/invitation.guard';
+import { UserInviteEmailTemplateEditorComponent } from './pages/user-invite-email-template-editor/user-invite-email-template-editor.component';
+import { IncorporationDocumentsComponent } from './pages/incorporation-documents/incorporation-documents.component';
+import { IncorporationEmailTemplatesComponent } from './pages/incorporation-email/incorporation-email-templates/incorporation-email-templates.component';
+import { EmailTemplatePreviewComponent } from './pages/incorporation-email/email-template-preview/email-template-preview.component';
 
 export const routes: Routes = [
   {
     path: '',
     redirectTo: 'login',
-    pathMatch: 'full'
+    pathMatch: 'full',
   },
   {
     path: 'login',
     component: LoginComponent,
-    canActivate: [noAuthGuard] 
+    canActivate: [noAuthGuard],
   },
   {
     path: 'register',
     component: RegisterComponent,
-    canActivate: [noAuthGuard] 
+    canActivate: [noAuthGuard],
   },
   {
     path: '',
     component: MainFrameComponent,
-    canActivate: [AuthGuard], 
+    canActivate: [AuthGuard],
     children: [
       {
         path: 'user-dashboard',
         component: UserDashboardComponent,
       },
-      
+
       {
         path: 'add-company',
         component: AddCompanyComponent,
@@ -61,27 +65,48 @@ export const routes: Routes = [
   {
     path: '',
     component: MainFrameComponent,
-    canActivate: [InvitationGuard] , 
+    canActivate: [InvitationGuard],
     children: [
       {
         path: 'project-form',
-        component: ProjectFormComponent
+        component: ProjectFormComponent,
       },
     ],
   },
   {
     path: 'admin-dashboard',
     component: AdminDashboardComponent,
-    canActivate: [AdminGuard]
+    canActivate: [AdminGuard],
+  },
+  {
+    path: 'admin/userInviteEmailTemplate',
+    component: UserInviteEmailTemplateEditorComponent,
+    canActivate: [AdminGuard],
+  },
+  {
+    path: 'admin/incorporationDocuments',
+    component: IncorporationDocumentsComponent,
+    canActivate: [AdminGuard],
+  },
+
+  {
+    path: 'admin/incorporation/emails',
+    component: IncorporationEmailTemplatesComponent,
+    canActivate: [AdminGuard],
+  },
+  {
+    path: 'admin/incorporation/emails/:id',
+    component: EmailTemplatePreviewComponent,
+    canActivate: [AdminGuard],
   },
   {
     path: 'project-form',
     component: ProjectFormComponent,
-    canActivate: [InvitationGuard] 
+    canActivate: [InvitationGuard],
   },
   // Add a catch-all route at the end
   {
     path: '**',
-    redirectTo: 'login'
-  }
+    redirectTo: 'login',
+  },
 ];

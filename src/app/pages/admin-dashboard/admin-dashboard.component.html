@@ -1,81 +1,6 @@
 <app-header></app-header>
 <div class="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[250px_1fr]">
-  <div class="hidden border-r bg-muted/40 md:block px-2 animate-in slide-in-from-left-72 delay-300 duration-700">
-    <div class="flex h-full max-h-screen flex-col gap-2 fixed">
-      <div class="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-        <a class="flex items-center gap-2 font-semibold" href="/"><img alt="logo" loading="eager" width="24" height="24"
-            src="assets/logos/logo.png" /><span class="">ComSec360 Admin</span></a>
-      </div>
-      <div class="flex-1">
-        <nav class="grid items-start text-sm font-medium gap-4 mt-6">
-          <a class="flex items-center gap-3 rounded-md px-4 py-3 hover:bg-secondary transition-all hover:text-primary animate-in slide-in-from-left duration-500 bg-muted text-primary"
-            href="/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-layout-grid size-4">
-              <rect width="7" height="7" x="3" y="3" rx="1"></rect>
-              <rect width="7" height="7" x="14" y="3" rx="1"></rect>
-              <rect width="7" height="7" x="14" y="14" rx="1"></rect>
-              <rect width="7" height="7" x="3" y="14" rx="1"></rect>
-            </svg>
-            Dashboard</a>
-          <h1 class="text-[1.01rem] font-medium mt-4">Projects</h1>
-          <div data-state="closed" class="ml-3">
-            <button type="button" aria-controls="radix-:Rf6ja:" aria-expanded="false" data-state="closed"
-              class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 flex gap-3 mb-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-scan-face size-4">
-                <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
-                <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
-                <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
-                <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
-                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                <path d="M9 9h.01"></path>
-                <path d="M15 9h.01"></path>
-              </svg>
-              <!-- -->Admin
-            </button>
-            <div data-state="closed" id="radix-:Rf6ja:" hidden="" class="CollapsibleContent" style=""></div>
-          </div>
-          <div data-state="closed" class="ml-3">
-            <button type="button" aria-controls="radix-:Rn6ja:" aria-expanded="false" data-state="closed"
-              class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 flex gap-3 mb-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-building2 size-4">
-                <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path>
-                <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path>
-                <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path>
-                <path d="M10 6h4"></path>
-                <path d="M10 10h4"></path>
-                <path d="M10 14h4"></path>
-                <path d="M10 18h4"></path>
-              </svg>
-              <!-- -->Incorporation
-            </button>
-            <div data-state="closed" id="radix-:Rn6ja:" hidden="" class="CollapsibleContent" style=""></div>
-          </div>
-          <div data-state="closed" class="ml-3">
-            <button type="button" aria-controls="radix-:Rv6ja:" aria-expanded="false" data-state="closed"
-              class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 flex gap-3 mb-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-circle-dollar-sign size-4">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
-                <path d="M12 18V6"></path>
-              </svg>
-              <!-- -->Annual Return
-            </button>
-            <div data-state="closed" id="radix-:Rv6ja:" hidden="" class="CollapsibleContent" style=""></div>
-
-            <!-- Red Sign Out Button -->
-            <a href="#" (click)="logout()" class="block px-4 py-2 text-sm text-red-700 hover:bg-red-50">Sign out</a>
-          </div>
-        </nav>
-      </div>
-    </div>
-  </div>
+<app-sidebar></app-sidebar>
   <div>
     <section class="py-6 container space-y-6">
       <div class="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
@@ -95,7 +20,7 @@
             </svg>
           </div>
           <div class="p-6 pt-0">
-            <div class="text-2xl font-bold">5</div>
+            <div class="text-2xl font-bold">{{invitedUsers.length}}</div>
             <p class="text-xs text-muted-foreground">
               Total Account Users Active
             </p>
@@ -247,12 +172,18 @@
                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
                   placeholder="example@email.com" aria-invalid="false" />
               </div>
-              <!-- <div class="space-y-2">
+              <div class="space-y-2">
                 <label class="text-sm font-medium leading-none">Password</label>
                 <input type="password" formControlName="password"
                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
                   placeholder="XXXXXXX" aria-invalid="false" />
-              </div> -->
+              </div>
+               <div class="space-y-2">
+                <label class="text-sm font-medium leading-none">Confirm Password</label>
+                <input type="password" formControlName="confirmPassword"
+                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                  placeholder="XXXXXXX" aria-invalid="false" />
+              </div>
               <button
                 class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium bg-black text-white h-11 rounded-md px-8 w-full disabled:pointer-events-none disabled:opacity-50"
                 type="submit" [disabled]="inviteUserForm.invalid || isLoading">

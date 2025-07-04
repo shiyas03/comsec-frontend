@@ -98,6 +98,21 @@ currentShareId: string = '';
   invitationData: any = null;
   isInvitationValid = false;
   isLoading = false;
+selectedShareClass: string = '';
+shareRows: { shareClass: string; unpaidAmount: number | null }[] = [
+  { shareClass: '', unpaidAmount: null },
+  
+];
+selectedShareClass1: string = '';
+selectedUnpaidAmount1: number | null = null;
+
+// For Row 2
+selectedShareClass2: string = '';
+selectedUnpaidAmount2: number | null = null;
+
+
+
+  selectedShareUnpaidAmount: any = '';
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   errorMessage = '';
   private router = inject(Router)
@@ -415,6 +430,8 @@ currentShareId: string = '';
     this.getUserDatas();
     //this.addDefaultShareCapital();
     this.initializeEditShareForm();
+
+    
   
     // Subscribe to theme changes
     this.themeService.isDarkTheme$.subscribe(isDark => {
@@ -584,6 +601,10 @@ currentShareId: string = '';
     // Now that the user is "logged in", get the user data
     this.getUserDatas();
   }
+
+  trackByIndex(index: number, item: any): number {
+  return index;
+}
 
   getUserDatas() {
     // Get the userId from localStorage directly
@@ -1968,6 +1989,9 @@ getShareCapitalList() {
       console.log("Share capital list fetched successfully:", response);
       this.shareCapitalList = response.data;
       console.log("Share Capital List:", this.shareCapitalList); 
+
+              this.selectedShareUnpaidAmount = '';
+
     },
     error: (error) => {
       console.error("Error fetching share capital list:", error);
@@ -1986,6 +2010,59 @@ getShareCapitalList() {
   });
 }
 
+// onShareClassChange(event: any) {
+//   const selectedShareClass = event.target.value;
+
+//   if (selectedShareClass) {
+//     const selectedShare = this.shareCapitalList.find(
+//       share => share.share_class === selectedShareClass
+//     );
+
+//     if (selectedShare) {
+//       this.selectedShareUnpaidAmount = selectedShare.unpaid_amount;
+
+//       // 👇 Update the form control directly
+//       const control = this.inviteShareholderForm.get(['shareDetails', 0, 'noOfShares']);
+//       if (control) {
+//         control.setValue(this.selectedShareUnpaidAmount);
+//       }
+//     }
+//   } else {
+//     this.selectedShareUnpaidAmount = '';
+//     const control = this.inviteShareholderForm.get(['shareDetails', 0, 'noOfShares']);
+//     if (control) {
+//       control.setValue(null);
+//     }
+//   }
+// }
+
+
+onShareClassChange(event: any, index: number): void {
+  const selectedClass = event.target.value;
+  const selectedShare = this.shareCapitalList.find(
+    share => share.share_class === selectedClass
+  );
+
+  if (selectedShare) {
+    this.shareRows[index].unpaidAmount = selectedShare.unpaid_amount;
+  } else {
+    this.shareRows[index].unpaidAmount = null;
+  }
+}
+
+onShareClassChange1(event: any) {
+  const selected = this.shareCapitalList.find(
+    item => item.share_class === event.target.value
+  );
+  this.selectedUnpaidAmount1 = selected ? selected.unpaid_amount : null;
+}
+
+onShareClassChange2(event: any) {
+  const selected = this.shareCapitalList.find(
+    item => item.share_class === event.target.value
+  );
+  this.selectedUnpaidAmount2 = selected ? selected.unpaid_amount : null;
+}
 
 
 
@@ -2035,6 +2112,23 @@ getShareCapitalList() {
 //       });
 //     }
 //   });
+// }
+
+
+// onShareClassChange(event: any) {
+//   const selectedShareClass = event.target.value;
+
+//   if (selectedShareClass) {
+//     const selectedShare = this.shareCapitalList.find(
+//       share => share.share_class === selectedShareClass
+//     );
+
+//     if (selectedShare) {
+//       this.selectedShareUnpaidAmount = selectedShare.unpaid_amount;
+//     }
+//   } else {
+//     this.selectedShareUnpaidAmount = null;
+//   }
 // }
 
 
