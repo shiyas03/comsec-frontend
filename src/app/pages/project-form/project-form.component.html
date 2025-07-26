@@ -2324,128 +2324,105 @@
                                 </tbody>
                               </table>
                             </div>
-                            <div class="relative w-full overflow-auto">
-                              <table class="w-full caption-bottom text-sm">
-                                <thead class="[&amp;_tr]:border-b">
-                                  <tr
-                                    class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                                  >
-                                    <th
-                                      class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
-                                    >
-                                      Class of Shares
-                                    </th>
-                                    <th
-                                      class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
-                                    >
-                                      No. of Shares
-                                    </th>
-                                    <th
-                                      class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
-                                    >
-                                      Action
-                                    </th>
-                                    <th
-                                      class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
-                                    >
-                                      <!-- <span
-                                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-                                        ><svg
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          width="24"
-                                          height="24"
-                                          viewBox="0 0 24 24"
-                                          fill="none"
-                                          stroke="currentColor"
-                                          stroke-width="2"
-                                          stroke-linecap="round"
-                                          stroke-linejoin="round"
-                                          class="lucide lucide-plus-circle"
-                                        >
-                                          <circle
-                                            cx="12"
-                                            cy="12"
-                                            r="10"
-                                          ></circle>
-                                          <path d="M8 12h8"></path>
-                                          <path d="M12 8v8"></path></svg
-                                      ></span> -->
-                                    </th>
-                                  </tr>
-                                </thead>
-                                <tbody class="[&amp;_tr:last-child]:border-0">
-                               <tr *ngFor="let row of shareRows; let i = index">
-  <!-- Dropdown -->
-  <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-    <select
-      [(ngModel)]="selectedShareClass1"
-      [ngModelOptions]="{ standalone: true }"
-      (change)="onShareClassChange1($event)"
-      class="flex h-10 w-full items-center rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-    >
-      <option value="">Select Class of Shares</option>
-      <option *ngFor="let share of shareCapitalList" [value]="share.share_class">
-        {{ share.share_class }}
-      </option>
-    </select>
-  </td>
+                           <div class="relative w-full overflow-auto">
+  <table class="w-full caption-bottom text-sm">
+    <thead class="[&_tr]:border-b">
+      <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+          Class of Shares
+        </th>
+        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+          No. of Shares
+        </th>
+        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+          Action
+        </th>
+        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+          <button
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+            type="button"
+            (click)="addShareRow1()"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-plus-circle"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M8 12h8"></path>
+              <path d="M12 8v8"></path>
+            </svg>
+          </button>
+        </th>
+      </tr>
+    </thead>
+    <tbody class="[&_tr:last-child]:border-0">
+      <tr *ngFor="let row of shareRows; let i = index" class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+        <!-- Dropdown -->
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          <select
+            [(ngModel)]="row.shareClass"
+            [ngModelOptions]="{ standalone: true }"
+            (change)="onShareClassChange($event, i)"
+            class="flex h-10 w-full items-center rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <option value="">Select Class of Shares</option>
+            <option *ngFor="let share of shareCapitalList" [value]="share.share_class">
+              {{ share.share_class }}
+            </option>
+          </select>
+        </td>
 
-  <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-    <input
-      type="number"
-      [(ngModel)]="selectedUnpaidAmount1"
-      [ngModelOptions]="{ standalone: true }"
-      placeholder="Enter Number of Shares"
-      class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-    />
-  </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          <input
+            type="number"
+            [(ngModel)]="row.unpaidAmount"
+            [ngModelOptions]="{ standalone: true }"
+            placeholder="Enter Number of Shares"
+            class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          />
+        </td>
 
-                                    <td
-                                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                                    >
-                                      <button
-                                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 px-4 py-2"
-                                        type="button"
-                                        (click)="clearForm()"
-                                      >
-                                        <svg
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          width="24"
-                                          height="24"
-                                          viewBox="0 0 24 24"
-                                          fill="none"
-                                          stroke="currentColor"
-                                          stroke-width="2"
-                                          stroke-linecap="round"
-                                          stroke-linejoin="round"
-                                          class="lucide lucide-trash2"
-                                        >
-                                          <path d="M3 6h18"></path>
-                                          <path
-                                            d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"
-                                          ></path>
-                                          <path
-                                            d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"
-                                          ></path>
-                                          <line
-                                            x1="10"
-                                            x2="10"
-                                            y1="11"
-                                            y2="17"
-                                          ></line>
-                                          <line
-                                            x1="14"
-                                            x2="14"
-                                            y1="11"
-                                            y2="17"
-                                          ></line>
-                                        </svg>
-                                      </button>
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              </table>
-                            </div>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          <button
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 px-4 py-2"
+            type="button"
+            (click)="removeShareRow1(i)"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-trash2"
+            >
+              <path d="M3 6h18"></path>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+              <line x1="10" x2="10" y1="11" y2="17"></line>
+              <line x1="14" x2="14" y1="11" y2="17"></line>
+            </svg>
+          </button>
+        </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          <!-- Empty cell for alignment -->
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
                             <div>
                               <button
                                   class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white h-10 px-4 py-2 cursor-pointer"
@@ -2582,62 +2559,106 @@
                                 </tbody>
                               </table>
                             </div>
-                            <div class="relative w-full overflow-auto">
-                              <table class="w-full caption-bottom text-sm">
-                                <thead class="[&amp;_tr]:border-b">
-                                  <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                                    <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                                      Class of Shares
-                                    </th>
-                                    <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                                      No. of Shares
-                                    </th>
-                                    
-                                  </tr>
-                                </thead>
-                                
-                                <tbody class="[&amp;_tr:last-child]:border-0">
- <tr *ngFor="let row of shareRows; let i = index">
-  <!-- Dropdown -->
-   <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-    <select
-      [(ngModel)]="selectedShareClass2"
-      [ngModelOptions]="{ standalone: true }"
-      (change)="onShareClassChange2($event)"
-      class="flex h-10 w-full items-center rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-    >
-      <option value="">Select Class of Shares</option>
-      <option *ngFor="let share of shareCapitalList" [value]="share.share_class">
-        {{ share.share_class }}
-      </option>
-    </select>
-  </td>
+                           <div class="relative w-full overflow-auto">
+  <table class="w-full caption-bottom text-sm">
+    <thead class="[&_tr]:border-b">
+      <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+          Class of Shares
+        </th>
+        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+          No. of Shares
+        </th>
+        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+          Action
+        </th>
+        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+          <button
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+            type="button"
+            (click)="addShareRow2()"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-plus-circle"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M8 12h8"></path>
+              <path d="M12 8v8"></path>
+            </svg>
+          </button>
+        </th>
+      </tr>
+    </thead>
+    
+    <tbody class="[&_tr:last-child]:border-0">
+      <tr *ngFor="let row of shareRows2; let i = index" class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+        <!-- Dropdown -->
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          <select
+            [(ngModel)]="row.shareClass"
+            [ngModelOptions]="{ standalone: true }"
+            (change)="onShareClassChange2($event, i)"
+            class="flex h-10 w-full items-center rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <option value="">Select Class of Shares</option>
+            <option *ngFor="let share of shareCapitalList" [value]="share.share_class">
+              {{ share.share_class }}
+            </option>
+          </select>
+        </td>
 
-  <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-    <input
-      type="number"
-      [(ngModel)]="selectedUnpaidAmount2"
-      [ngModelOptions]="{ standalone: true }"
-      placeholder="Enter Number of Shares"
-      class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-    />
-  </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          <input
+            type="number"
+            [(ngModel)]="row.unpaidAmount"
+            [ngModelOptions]="{ standalone: true }"
+            placeholder="Enter Number of Shares"
+            class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          />
+        </td>
 
-
-                                    <td
-                                      class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
-                                    >
-                                      <button
-                                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 px-4 py-2"
-                                        type="button"
-                                        (click)="clearInvateShareHoldersForm()"
-                                      >
-                                      </button>
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              </table>
-                            </div>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          <button
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 px-4 py-2"
+            type="button"
+            (click)="removeShareRow2(i)"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-trash2"
+            >
+              <path d="M3 6h18"></path>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+              <line x1="10" x2="10" y1="11" y2="17"></line>
+              <line x1="14" x2="14" y1="11" y2="17"></line>
+            </svg>
+          </button>
+        </td>
+        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+          <!-- Empty cell for alignment -->
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
                             <div>
                               
                               <button 
