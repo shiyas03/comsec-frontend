@@ -2969,6 +2969,42 @@ export class AddCompanyComponent implements OnInit,OnDestroy  {
       this.imagePreviewCompanySecretaryAddressProof = null; 
     }
   }
+
+  addShareClass() {
+  // Get the current form array for share details
+  const shareDetailsArray = this.inviteShareholderForm.get('shareDetails') as FormArray;
+  
+  // Create a new form group for the new share class row
+  const newShareGroup = this.fb.group({
+    classOfShares: ['', [Validators.required]], // Empty default value with required validator
+    noOfShares: ['', [Validators.required, Validators.min(1)]] // Empty default with validation
+  });
+  
+  // Add the new form group to the form array
+  shareDetailsArray.push(newShareGroup);
+}
+
+addShareClassWithDefaults() {
+  const shareDetailsArray = this.inviteShareholderForm.get('shareDetails') as FormArray;
+  
+  const newShareGroup = this.fb.group({
+    classOfShares: ['Ordinary'], // Default to 'Ordinary'
+    noOfShares: [1] // Default to 1 share
+  });
+  
+  shareDetailsArray.push(newShareGroup);
+}
+
+get shareDetailsFormArray(): FormArray {
+  return this.inviteShareholderForm.get('shareDetails') as FormArray;
+}
+
+removeShareClass(index: number) {
+  const shareDetailsArray = this.inviteShareholderForm.get('shareDetails') as FormArray;
+  if (shareDetailsArray.length > 1) { // Keep at least one row
+    shareDetailsArray.removeAt(index);
+  }
+}
   
   ngOnDestroy(): void {
     if (this.isNavigatingAway) {

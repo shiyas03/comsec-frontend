@@ -23,6 +23,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   showForgotPassword: boolean = false;
   forgotPasswordEmail: string = '';
+  showPassword: boolean = false;
+
 
   emailError: string = '';
   passwordError: string = '';

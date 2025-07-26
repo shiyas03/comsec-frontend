@@ -41,8 +41,26 @@ export class AdminDashboardComponent implements OnInit {
     lastName: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
-    confirmPassword: ['', Validators.required]
-  }, { validators: this.passwordMatchValidator });
+  //   confirmPassword: ['', Validators.required]
+  // }, { validators: this.passwordMatchValidator
+   });
+}
+
+generatePassword(): void {
+  const length = 12;
+  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+  let password = "";
+  
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charset.length);
+    password += charset[randomIndex];
+  }
+  
+  // Update both password fields
+  this.inviteUserForm.patchValue({
+    password: password,
+    confirmPassword: password
+  });
 }
 
 passwordMatchValidator(form: AbstractControl): ValidationErrors | null {
