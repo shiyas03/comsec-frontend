@@ -202,6 +202,7 @@
                           <th class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Due/Completed Dates</th>
                           <th class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Published Documents</th>
                           <th class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Processed By</th>
+                          <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -213,6 +214,39 @@
                           <td class="px-4 py-2 text-right">{{ company.dueEndDate | date:'MMM d, y' }}</td>
                           <td class="px-4 py-2 text-right">{{ company.publishedDocuments }}</td>
                           <td class="px-4 py-2 text-right">{{ company.proceededBy }}</td>
+                          <td class="px-4 py-2 text-center">
+                            <button
+                              *ngIf="shouldShowResumeButton(company)"
+                              (click)="resumeProject(company)"
+                              class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-green-500 bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 h-8 px-3 py-1"
+                              [ngClass]="{
+                                'border-green-400 bg-green-900/20 text-green-400 hover:bg-green-900/30 hover:text-green-300': isDarkTheme
+                              }"
+                              title="Resume project from stage {{ company.currentStage }}"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-play mr-1"
+                              >
+                                <polygon points="5,3 19,12 5,21"></polygon>
+                              </svg>
+                              Resume
+                            </button>
+                            <span 
+                              *ngIf="!shouldShowResumeButton(company)"
+                              class="text-xs text-gray-400"
+                            >
+                              -
+                            </span>
+                          </td>
                         </tr>
                       </tbody>
                     </table>
@@ -335,326 +369,7 @@
                         </tr>
                       </thead>
                       <tbody class="[&amp;_tr:last-child]:border-0">
-                        <!-- <tr
-                          class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                          data-state="false"
-                        >
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="capitalize">
-                              Alibaba Group Holding Limited
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              20-Jan-2020
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              14-Aug-2025
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              To Be Confirmed
-                            </div>
-                          </td>
-                        </tr>
-                        <tr
-                          class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                          data-state="false"
-                        >
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="capitalize">
-                              Tencent Holdings Limited
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              15-May-2018
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              14-Aug-2025
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              To Be Confirmed
-                            </div>
-                          </td>
-                        </tr>
-                        <tr
-                          class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                          data-state="false"
-                        >
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="capitalize">Baidu, Inc.</div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              10-Sep-2021
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              14-Aug-2025
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              10-Sep-2022
-                            </div>
-                          </td>
-                        </tr>
-                        <tr
-                          class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                          data-state="false"
-                        >
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="capitalize">JD.com, Inc.</div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              08-Dec-2019
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              14-Aug-2025
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              08-Dec-2020
-                            </div>
-                          </td>
-                        </tr>
-                        <tr
-                          class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                          data-state="false"
-                        >
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="capitalize">
-                              PetroChina Company Limited
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              25-Mar-2017
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              14-Aug-2025
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              25-Mar-2018
-                            </div>
-                          </td>
-                        </tr>
-                        <tr
-                          class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                          data-state="false"
-                        >
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="capitalize">Xiaomi Corporation</div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              14-Jul-2016
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              14-Aug-2025
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              14-Jul-2017
-                            </div>
-                          </td>
-                        </tr>
-                        <tr
-                          class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                          data-state="false"
-                        >
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="capitalize">China Mobile Limited</div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              03-Nov-2015
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              14-Aug-2025
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              03-Nov-2016
-                            </div>
-                          </td>
-                        </tr>
-                        <tr
-                          class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                          data-state="false"
-                        >
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="capitalize">
-                              Huawei Technologies Co., Ltd.
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              19-Jun-2019
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              14-Aug-2025
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              19-Jun-2020
-                            </div>
-                          </td>
-                        </tr>
-                        <tr
-                          class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                          data-state="false"
-                        >
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="capitalize">ZTE Corporation</div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              28-Feb-2018
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              14-Aug-2025
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              28-Feb-2019
-                            </div>
-                          </td>
-                        </tr>
-                        <tr
-                          class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                          data-state="false"
-                        >
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="capitalize">
-                              China Southern Airlines Company Limited
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              07-Apr-2020
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              14-Aug-2025
-                            </div>
-                          </td>
-                          <td
-                            class="p-4 align-middle "
-                          >
-                            <div class="text-right font-medium">
-                              07-Apr-2021
-                            </div>
-                          </td>
-                        </tr> -->
+                        <!-- Company data will be populated here -->
                       </tbody>
                     </table>
                   </div>

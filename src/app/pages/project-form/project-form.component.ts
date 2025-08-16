@@ -475,7 +475,15 @@ shareRows2: { shareClass: string; unpaidAmount: number | null }[] = [
           // Load data based on active tab
           this.loadTabData(tabIndex);
         }
-      }
+      }else if (this.companyId) {
+      // If no tab specified but company ID exists, load company data
+      this.loadCompanyData();
+    }
+
+     if (params['resume'] === 'true' && this.companyId) {
+      // Load all available data for full resume
+      this.resumeAllFormData();
+    }
   
       // Handle special parameters
       if (params['fromEmail']) {
@@ -517,12 +525,24 @@ shareRows2: { shareClass: string; unpaidAmount: number | null }[] = [
     this.companyInfoForm.get('country_Address')?.disable();
     this.companyInfoForm.get('presentorReferance')?.disable();
   }
+  resumeAllFormData() {
+  console.log('Resuming all form data for company:', this.companyId);
   
+  // Load data for all tabs
+  this.loadCompanyData();           // Tab 0
+  this.loadShareholderData();       // Tab 1
+  this.fetchDirectorsInfo();        // Tab 2
+  this.loadCompanySecretaryData();  // Tab 3
+  
+  // Mark all tabs as visited since we're resuming
+  this.visitedTabs = [true, true, true, true];
+}
   // New method to load data based on tab index
   private loadTabData(tabIndex: number) {
     switch (tabIndex) {
       case 0:
         // Load company info data if needed
+        this.loadCompanyData()
         break;
       case 1:
         // Load shareholder data
@@ -532,6 +552,10 @@ shareRows2: { shareClass: string; unpaidAmount: number | null }[] = [
         // Load directors data
         this.fetchDirectorsInfo();
         break;
+         case 3:
+      // Load company secretary data
+      this.loadCompanySecretaryData();
+      break;
       // Add other cases as needed
     }
     
@@ -610,6 +634,45 @@ shareRows2: { shareClass: string; unpaidAmount: number | null }[] = [
 
   trackByIndex(index: number, item: any): number {
   return index;
+}
+
+loadCompanySecretaryData() {
+  const userId = localStorage.getItem('userId');
+  
+  this.companyService.getCompanySecretaryInformation(this.companyId).subscribe({
+    next: (response:any) => {
+      if (response) {
+        this.comapnySecretaryForm.patchValue({
+          tcspLicenseNo: response.tcspLicenseNo,
+          tcspReason: response.tcspReason,
+          type: response.type,
+          surname: response.surname,
+          name: response.name,
+          chineeseName: response.chineeseName,
+          idNo: response.idNo,
+          idProof: response.idProof,
+          address: response.address,
+          street: response.street,
+          building: response.building,
+          district: response.district,
+          addressProof: response.addressProof,
+          email: response.email,
+          phone: response.phone
+        });
+        
+        // Set image previews
+        if (response.idProof) {
+          this.imagePreviewCompanySecretaryId = response.data.idProof;
+        }
+        if (response.addressProof) {
+          this.imagePreviewCompanySecretaryAddressProof = response.data.addressProof;
+        }
+      }
+    },
+    error: (error) => {
+      console.error('Error loading company secretary data:', error);
+    }
+  });
 }
 
   getUserDatas() {
@@ -901,7 +964,20 @@ isFieldInvalid(controlName: string): boolean {
       this.visitedTabs[this.activeTabIndex] = true;
       this.activeTabIndex = index;
       this.updateUrlWithTab(index);
+      this.updateCurrentStage(this.companyId,index)
     }
+  }
+
+  updateCurrentStage(companyId:any,index:any){
+    console.log("updating current stage")
+    const payload = {companyId: companyId, index: index+1}
+   return this.companyService.updateCurrentStage(payload).subscribe((response:any)=>{
+      try {
+        console.log("response from updateCurrentStage : ",response)
+      } catch (error) {
+        console.log(error)
+      }
+    })
   }
   
   // New method to determine if a tab should show a checkmark
@@ -1025,7 +1101,7 @@ isFieldInvalid(controlName: string): boolean {
             timer: 1500,
             timerProgressBar: true,
           });
-          this.addDefaultShareCapital()
+          // this.addDefaultShareCapital()
         },
         error: () => {
           this.isSaveLoading=false
@@ -1057,45 +1133,57 @@ isFieldInvalid(controlName: string): boolean {
   }
   
   
-  submitCompanyInfo(): Observable<boolean> {
-    const datas = this.companyInfoForm.getRawValue();
-    const userId = localStorage.getItem('userId');
-    const fromValues = { ...datas, userId };
-    console.log("Submitted form dataAAAAAA", fromValues);
+submitCompanyInfo(): Observable<boolean> {
+  const datas = this.companyInfoForm.getRawValue();
+  const userId = localStorage.getItem('userId');
   
-    return this.companyService.submitCompanyInfo(fromValues).pipe(
-      tap((response) => {
-        console.log("Form submitted successfully", response);
-        this.companyId=response.companyId
-        console.log("Form submitted successfully", this.companyId);
-        localStorage.setItem('companyId', this.companyId);
-        Swal.fire({
-          position: "top-end", 
-          icon: "success",
-          title: response.message, 
-          toast: true, 
-          showConfirmButton: false, 
-          timer: 2000, 
-          timerProgressBar: true, 
-        });
+  // Include companyId if it exists (for updates)
+  const fromValues = { 
+    ...datas, 
+    userId, 
+    currentStage: this.activeTabIndex + 1,
+    ...(this.companyId && { companyId: this.companyId }) // Only include if companyId exists
+  };
+  
+  console.log("Submitted form data", fromValues);
+
+  return this.companyService.submitCompanyInfo(fromValues).pipe(
+    tap((response:any) => {
+      console.log("Form submitted successfully", response);
+      
+      // Set companyId if it's a new creation
+      if (!this.companyId) {
         this.companyId = response.companyId;
-      }),
-      catchError((error) => {
-        console.error("Error submitting form", error);
-        Swal.fire({
-          position: "top-end", 
-          icon: "error",
-          title: error.message, 
-          toast: true, 
-          showConfirmButton: false, 
-          timer: 2000, 
-          timerProgressBar: true, 
-        });
-        throw error;
-      }),
-      map(() => true)
-    );
-  }
+        localStorage.setItem('companyId', this.companyId);
+      }
+      
+      const messageType = response.isUpdate ? 'updated' : 'submitted';
+      Swal.fire({
+        position: "top-end", 
+        icon: "success",
+        title: `Company information ${messageType} successfully!`, 
+        toast: true, 
+        showConfirmButton: false, 
+        timer: 2000, 
+        timerProgressBar: true, 
+      });
+    }),
+    catchError((error) => {
+      console.error("Error submitting form", error);
+      Swal.fire({
+        position: "top-end", 
+        icon: "error",
+        title: error.message, 
+        toast: true, 
+        showConfirmButton: false, 
+        timer: 2000, 
+        timerProgressBar: true, 
+      });
+      throw error;
+    }),
+    map(() => true)
+  );
+}
   
   
   
@@ -1755,15 +1843,51 @@ updateFormValidation(userType: string) {
 }
 
 
+getFormValidationErrors() {
+  const formErrors: any = {};
+  Object.keys(this.shareHoldersForm.controls).forEach(key => {
+    const controlErrors = this.shareHoldersForm.get(key)?.errors;
+    if (controlErrors) {
+      formErrors[key] = controlErrors;
+    }
+  });
+  return formErrors;
+}
+
+
 
 
 shareHoldersFormSubmit() {
+  console.log('=== FORM SUBMISSION STARTED ===');
   this.isShareLoading = true;
 
   // Form validation
   Object.keys(this.shareHoldersForm.controls).forEach(key => {
     this.shareHoldersForm.get(key)?.markAsTouched();
   });
+
+  // Validate share rows
+  if (!this.validateShareRows()) {
+    this.isShareLoading = false;
+    Swal.fire({
+      position: "top-end",
+      icon: "error",
+      title: "Please select at least one share class with a valid amount.",
+      toast: true,
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true,
+    });
+    return;
+  }
+
+  // Debug: Log form status and errors
+  console.log('Form valid:', this.shareHoldersForm.valid);
+  console.log('Form values:', this.shareHoldersForm.value);
+  console.log('Share rows:', this.shareRows);
+
+  const formErrors = this.getFormValidationErrors();
+  console.log('Form validation errors:', formErrors);
 
   if (this.shareHoldersForm.invalid) {
     this.isShareLoading = false;
@@ -1810,14 +1934,20 @@ shareHoldersFormSubmit() {
     console.log('Using company ID from localStorage:', this.companyId);
   }
   
-  // Create form data
+  // Filter out valid share rows
+  const validShareRows = this.shareRows.filter(row => 
+    row.shareClass && row.unpaidAmount !== null && row.unpaidAmount > 0
+  );
+  
+  // Create form data with share rows included
   const formData = {
     ...this.shareHoldersForm.value,
+    shareRows: validShareRows, // Include the share rows data
     userId,
     companyId: this.companyId
   };
   
-  console.log('Submitting shareholder data:', formData);
+  console.log('Submitting shareholder data with share rows:', formData);
 
   // Submit form
   this.companyService.shareHoldersCreation(formData).subscribe({
@@ -1827,7 +1957,6 @@ shareHoldersFormSubmit() {
       console.log('Shareholder created successfully:', response);
       this.showForm = !this.showForm; 
       this.isShareholderFormVisible = !this.isShareholderFormVisible; 
-      
       
       Swal.fire({
         position: "top-end",
@@ -1844,6 +1973,10 @@ shareHoldersFormSubmit() {
       this.addressProofPreview = null;
       this.idProofPreview = null;
       this.currentHolder = formData;
+      
+      // Reset share rows
+      this.shareRows = [{ shareClass: '', unpaidAmount: null }];
+      
       this.initializeSharesHoldersForm();
       
       // Refresh shareholder list
@@ -2963,6 +3096,7 @@ comapnySecretarySubmission(){
 
       this.comapnySecretaryForm.reset();
       this.router.navigate(['/summary', companyId]); 
+      this.updateCurrentStage(companyId,5)
       this.imagePreviewCompanySecretaryAddressProof = null;
       this.imagePreviewCompanySecretaryId = null;
     },
@@ -3071,19 +3205,66 @@ imagePreviewOnCompanySecretaryAddressProof(event: Event): void {
 }
 
 
-// Methods for first form
+// 5. Updated method to add share rows with better initialization
 addShareRow1() {
   this.shareRows.push({
     shareClass: '',
     unpaidAmount: null
   });
+  
+  console.log('Added new share row. Total rows:', this.shareRows.length);
 }
 
+// 6. Updated method to remove share rows with better validation sync
 removeShareRow1(index: number) {
   if (this.shareRows.length > 1) {
     this.shareRows.splice(index, 1);
+    
+    // If we removed the first row, sync the new first row with form validation
+    if (index === 0 && this.shareRows.length > 0) {
+      this.shareHoldersForm.patchValue({
+        shareDetailsClassOfShares: this.shareRows[0].shareClass,
+        shareDetailsNoOfShares: this.shareRows[0].unpaidAmount
+      });
+    } else if (this.shareRows.length === 0) {
+      // If no rows left, clear form fields
+      this.shareHoldersForm.patchValue({
+        shareDetailsClassOfShares: '',
+        shareDetailsNoOfShares: null
+      });
+    }
+  } else {
+    // If it's the last row, just clear its values
+    this.shareRows[0] = { shareClass: '', unpaidAmount: null };
+    this.shareHoldersForm.patchValue({
+      shareDetailsClassOfShares: '',
+      shareDetailsNoOfShares: null
+    });
   }
+  
+  console.log('Removed share row. Remaining rows:', this.shareRows.length);
 }
+
+
+onShareAmountChange(amount: any, index: number): void {
+  // Convert to number and handle empty strings
+  const numericAmount = amount === '' || amount === null ? null : Number(amount);
+  
+  this.shareRows[index].unpaidAmount = numericAmount;
+  
+  // Sync the first row to form fields for validation
+  if (index === 0) {
+    this.shareHoldersForm.patchValue({
+      shareDetailsNoOfShares: numericAmount
+    });
+    this.shareHoldersForm.get('shareDetailsNoOfShares')?.markAsTouched();
+  }
+  
+  console.log('Share amount updated for row', index, ':', numericAmount);
+  console.log('Form noOfShares value:', this.shareHoldersForm.get('shareDetailsNoOfShares')?.value);
+}
+
+
 
 onShareClassChange(event: any, index: number): void {
   const selectedClass = event.target.value;
@@ -3091,14 +3272,46 @@ onShareClassChange(event: any, index: number): void {
     (share) => share.share_class === selectedClass
   );
 
+  // Update the row data
+  this.shareRows[index].shareClass = selectedClass;
+  
   if (selectedShare) {
-    this.shareRows[index].shareClass = selectedClass;
+    // Auto-populate the unpaid amount from share capital
     this.shareRows[index].unpaidAmount = selectedShare.unpaid_amount;
   } else {
-    this.shareRows[index].shareClass = selectedClass;
     this.shareRows[index].unpaidAmount = null;
   }
+  
+  // Sync the first row to form fields for validation (this is crucial)
+  if (index === 0) {
+    this.shareHoldersForm.patchValue({
+      shareDetailsClassOfShares: this.shareRows[0].shareClass,
+      shareDetailsNoOfShares: this.shareRows[0].unpaidAmount
+    });
+  }
+  
+  // Mark the form controls as touched to trigger validation
+  this.shareHoldersForm.get('shareDetailsClassOfShares')?.markAsTouched();
+  this.shareHoldersForm.get('shareDetailsNoOfShares')?.markAsTouched();
+  
+  console.log('Share row updated:', this.shareRows[index]);
+  console.log('Form values after sync:', {
+    classOfShares: this.shareHoldersForm.get('shareDetailsClassOfShares')?.value,
+    noOfShares: this.shareHoldersForm.get('shareDetailsNoOfShares')?.value
+  });
 }
+
+// 3. Add a method to validate share rows
+validateShareRows(): boolean {
+  // Check if at least one share row has both class and amount
+  const validRows = this.shareRows.filter(row => 
+    row.shareClass && row.unpaidAmount !== null && row.unpaidAmount > 0
+  );
+  
+  return validRows.length > 0;
+}
+
+
 
 // Methods for second form
 addShareRow2() {
@@ -3137,17 +3350,84 @@ onShareClassChange1(event: any) {
   this.selectedUnpaidAmount1 = selected ? selected.unpaid_amount : null;
 }
 
-// Optional: Methods to clear all forms
+// 7. Method to clear all share rows
 clearAllForms1() {
-  this.shareRows = [
-    { shareClass: '', unpaidAmount: null }
-  ];
+  this.shareRows = [{ shareClass: '', unpaidAmount: null }];
+  
+  // Clear form validation fields
+  this.shareHoldersForm.patchValue({
+    shareDetailsClassOfShares: '',
+    shareDetailsNoOfShares: ''
+  });
+}
+
+// Add this method to your component (call it in ngOnInit after initializeSharesHoldersForm)
+initializeShareRows() {
+  // Initialize with one empty share row if not already initialized
+  if (!this.shareRows || this.shareRows.length === 0) {
+    this.shareRows = [{ shareClass: '', unpaidAmount: null }];
+  }
+  
+  console.log('Share rows initialized:', this.shareRows);
 }
 
 clearAllForms2() {
   this.shareRows2 = [
     { shareClass: '', unpaidAmount: null }
   ];
+}
+
+
+
+// Add this method to your component
+loadCompanyData() {
+  if (this.companyId) {
+    this.companyService.getComapnyInfo(this.companyId).subscribe({
+      next: (response:any) => {
+        if (response) {
+          // Populate the company form with existing data
+         this.companyInfoForm.patchValue({
+  companyNameEN: response.business_name,
+  companyNameCN: response.business_name_chinese,
+  companyType: response.type_of_business,
+ natureofCompany: this.buisnessNature.find(
+    opt => opt.code === response.natureOfBusiness_code
+  ),
+  Flat_Address: response.office_address,
+  Building_Address: response.office_address1,
+  District_Address: response.office_city,
+  country_Address: response.office_country,
+  company_Email: response.email_id,
+  company_Telphone: response.mobile_number,
+  company_Fax: response.fax,
+  subscriptionDuration: response.subscriptionDuration,
+  presentorName: response.presentorName,
+  presentorChiName: response.presentorChiName,
+  presentorAddress: response.presentorAddress,
+  presentorBuilding: response.presentorBuilding,
+  presentorStreet: response.presentorStreet,
+  presentorDistrict: response.presentorDistrict,
+  presentorTel: response.presentorTel,
+  presentorFax: response.presentorFax,
+  presentorEmail: response.presentorEmail,
+  presentorReferance: response.reference_no,
+  companyLogo: response.company_logo
+});
+
+// Set image preview if logo exists
+if (response.company_logo) {
+  this.imagePreview = response.company_logo;
+}
+
+          
+          console.log('Company data loaded and form populated');
+        }
+      },
+      error: (error:any) => {
+        console.error('Error loading company data:', error);
+      }
+    });
+  }
 }
 
 ngOnDestroy(): void {

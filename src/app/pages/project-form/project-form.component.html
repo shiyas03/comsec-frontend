@@ -1300,7 +1300,7 @@
                     [formGroup]="addShareForm"
                     (ngSubmit)="addSharesSubmit()"
                   >
-                    <div class="relative w-full overflow-auto">
+                   <div class="relative w-full overflow-auto">
                       <table class="w-full caption-bottom text-sm">
                         <thead class="[&amp;_tr]:border-b">
                           <tr
@@ -1399,7 +1399,7 @@
                           <tr
                             class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
                           >
-                          <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+                          <td class="p-4 align-top [&:has([role=checkbox])]:pr-0">
                             <div class="space-y-2">
                               <input
                                 id="classOfShares"
@@ -1410,7 +1410,7 @@
                               />
                           
                               <div
-                                class="error-message text-sm text-red-500"
+                                class="error-message text-sm text-red-500 min-h-[1.25rem]"
                                 *ngIf="getErrorMessage1('class_of_shares')"
                               >
                                 {{ getErrorMessage1("class_of_shares") }}
@@ -1419,7 +1419,7 @@
                           </td>
                           
                             <td
-                              class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
+                              class="p-4 align-top [&amp;:has([role=checkbox])]:pr-0"
                             >
                               <div class="space-y-2">
                                 <input
@@ -1434,7 +1434,7 @@
                                   formControlName="total_shares_proposed"
                                 />
                                 <div
-                                class="error-message text-sm text-red-500"
+                                class="error-message text-sm text-red-500 min-h-[1.25rem]"
                                   *ngIf="
                                     getErrorMessage1('total_shares_proposed')
                                   "
@@ -1446,7 +1446,7 @@
                               </div>
                             </td>
                             <td
-                              class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
+                              class="p-4 align-top [&amp;:has([role=checkbox])]:pr-0"
                             >
                               <div class="space-y-2">
                                 <div class="relative">
@@ -1471,7 +1471,7 @@
 </select>
 
                                   <div
-                                  class="error-message text-sm text-red-500"
+                                  class="error-message text-sm text-red-500 min-h-[1.25rem]"
                                     *ngIf="getErrorMessage1('currency')"
                                   >
                                     {{ getErrorMessage1("currency") }}
@@ -1480,7 +1480,7 @@
                               </div>
                             </td>
                             <td
-                              class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
+                              class="p-4 align-top [&amp;:has([role=checkbox])]:pr-0"
                             >
                               <div class="space-y-2">
                                 <input
@@ -1495,14 +1495,14 @@
                                   formControlName="unit_price"
                                 />
                                 <div
-                                class="error-message text-sm text-red-500"
+                                class="error-message text-sm text-red-500 min-h-[1.25rem]"
                                   *ngIf="getErrorMessage1('unit_price')"
                                 >
                                   {{ getErrorMessage1("unit_price") }}
                                 </div>
                               </div>
                             </td>
-                            <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+                            <td class="p-4 align-top [&:has([role=checkbox])]:pr-0">
                               <div class="space-y-2">
                                 <input
                                   class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 pointer-events-none"
@@ -1519,7 +1519,7 @@
                               </div>
                             </td>
                             <td
-                              class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
+                              class="p-4 align-top [&amp;:has([role=checkbox])]:pr-0"
                             >
                               <div class="space-y-2">
                                 <input
@@ -1532,7 +1532,7 @@
                                   formControlName="total_capital_subscribed"
                                 />
                                 <div
-                                class="error-message text-sm text-red-500"
+                                class="error-message text-sm text-red-500 min-h-[1.25rem]"
                                   *ngIf="
                                     getErrorMessage1('total_capital_subscribed')
                                   "
@@ -1543,7 +1543,7 @@
                                 </div>
                               </div>
                             </td>
-                            <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+                            <td class="p-4 align-top [&:has([role=checkbox])]:pr-0">
                               <div class="space-y-2">
                                 <input
                                   class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 pointer-events-none"
@@ -1560,17 +1560,17 @@
                               </div>
                             </td>
                             <td
-                              class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0"
+                              class="p-4 align-top [&amp;:has([role=checkbox])]:pr-0"
                             >
                               <div class="space-y-2">
                                 <input
-                                  class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                  class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                   placeholder="Voting Rights, etc..."
                                   name="rightsAttached"
                                   formControlName="particulars_of_rights"
                                 />
                                 <div
-                                class="error-message text-sm text-red-500"
+                                class="error-message text-sm text-red-500 min-h-[1.25rem]"
                                   *ngIf="
                                     getErrorMessage1('particulars_of_rights')
                                   "
@@ -2381,13 +2381,15 @@
         </td>
 
         <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-          <input
-            type="number"
-            [(ngModel)]="row.unpaidAmount"
-            [ngModelOptions]="{ standalone: true }"
-            placeholder="Enter Number of Shares"
-            class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          />
+<input
+  type="number"
+  [(ngModel)]="row.unpaidAmount"
+  [ngModelOptions]="{ standalone: true }"
+  (ngModelChange)="onShareAmountChange($event, i)"
+  placeholder="Enter Number of Shares"
+  class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+/>
+
         </td>
 
         <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">

@@ -1164,7 +1164,7 @@
                         </h3>
                       </div>
                       <div class="p-6 pt-0">
-                        <div class="relative w-full overflow-auto">
+                      <div class="relative w-full overflow-auto">
                           <table class="caption-bottom text-sm w-full">
                             <thead class="[&amp;_tr]:border-b">
                               <tr
@@ -1228,14 +1228,14 @@
                                 class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
                                 [attr.data-id]="share._id"
                               >
-                              <td class="p-4 align-middle">{{ share?.share_class || '-' }}</td>
-                              <td class="p-4 align-middle">{{ share?.total_share || '-' }}</td>
-                              <td class="p-4 align-middle">{{ share?.currency || '-' }}</td> <td class="p-4 align-middle">{{ share?.amount_share || '-' }}</td>
-                              <td class="p-4 align-middle">{{ share?.total_capital_subscribed || '-' }}</td>
-                              <td class="p-4 align-middle">{{ share?.total_capital_subscribed || '-' }}</td> 
-                              <td class="p-4 align-middle">{{ share?.unpaid_amount || '-' }}</td>
-                              <td class="p-4 align-middle">{{ share?.share_right || '-' }}</td>
-                                <td class="p-4 align-middle">
+                              <td class="p-4 align-top">{{ share?.share_class || '-' }}</td>
+                              <td class="p-4 align-top">{{ share?.total_share || '-' }}</td>
+                              <td class="p-4 align-top">{{ share?.currency || '-' }}</td> <td class="p-4 align-top">{{ share?.amount_share || '-' }}</td>
+                              <td class="p-4 align-top">{{ share?.total_capital_subscribed || '-' }}</td>
+                              <td class="p-4 align-top">{{ share?.total_capital_subscribed || '-' }}</td> 
+                              <td class="p-4 align-top">{{ share?.unpaid_amount || '-' }}</td>
+                              <td class="p-4 align-top">{{ share?.share_right || '-' }}</td>
+                                <td class="p-4 align-top">
                                   <button
                                     class="inline-flex items-center justify-center border border-input bg-transparent hover:bg-accent hover:text-accent-foreground h-10 w-10"
                                     (click)="editShareCapitalList($event)"
@@ -1256,7 +1256,7 @@
                                     </svg>
                                   </button>
                                 </td>
-                                <td class="p-4 align-middle">
+                                <td class="p-4 align-top">
                                   <button
                                     class="inline-flex items-center justify-center bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 w-10"
                                     (click)="deleteShareCapitalList(share._id)"
@@ -1284,7 +1284,7 @@
                             
                               <!-- Show "No Data Available" when list is empty -->
                               <tr *ngIf="!shareCapitalList || shareCapitalList.length === 0">
-                                <td class="p-4 text-center text-gray-500" colspan="9">
+                                <td class="p-4 text-center text-gray-500" colspan="10">
                                   No share holdersd data available
                                 </td>
                               </tr>

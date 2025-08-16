@@ -15,18 +15,30 @@ export class CompanyService {
   private baseUrl: string = environment.baseURL;
   private payloadSubject = new BehaviorSubject<any>(null);
 
-  submitCompanyInfo(payload: any) {
-    console.log("sendign req to",this.baseUrl);
-    
-    return this.http.post<{ message: string, companyId: string }>(`${this.baseUrl}company/submitCompanyInfo`, payload).pipe(
-      
-      
-      catchError((error) => {
-        console.error("Error occurred:", error);
-        return throwError(() => new Error(error.error?.error || "Failed to submit the company information."));
-      })
-    );
+submitCompanyInfo(payload: any) {
+  if (payload.companyId) {
+      console.log("update existing company")
+      console.log("payload : ",payload)  // Update existing company
+    const { companyId, ...updateData } = payload;
+    return this.http.put<{ message: string, companyId: string }>
+      (`${this.baseUrl}company/updateCompanyInfo/${companyId}`, updateData);
+  } else {
+   console.log("create new company") // Create new company
+    return this.http.post<{ message: string, companyId: string }>
+      (`${this.baseUrl}company/createCompanyInfo`, payload);
   }
+}
+
+updateCurrentStage(payload: any): Observable<any>  {
+ 
+      console.log("update company's current stage")
+      console.log("payload : ",payload)  // Update company current stage
+   
+    return this.http.put<any>
+      (`${this.baseUrl}company/updateCompanyCurrentStage/${payload.comapanyId}`, payload);
+  
+}
+
 
   shareCreation(data: any) {  
     console.log("creationOfShare",data);

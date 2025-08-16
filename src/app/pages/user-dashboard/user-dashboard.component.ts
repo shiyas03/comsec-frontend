@@ -5,6 +5,7 @@ import { ThemeService } from '../../core/services/theme.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CompanyService } from '../../core/services/company.service';
 import Swal from 'sweetalert2';
+
 @Component({
   selector: 'app-user-dashboard',
   imports: [CommonModule],
@@ -28,6 +29,7 @@ export class UserDashboardComponent {
   itemsPerPage = 5;
   userData:any
   isRestrictedUser: boolean = false;
+
   ngOnInit(): void {
     this.getUserDatas()
     //this.authService.logout()
@@ -141,7 +143,6 @@ export class UserDashboardComponent {
     }
   }
 
-
   onHandleTabChange(tabName: any) {
     this.activeTab = tabName;
     console.log(this.activeTab);
@@ -155,8 +156,51 @@ export class UserDashboardComponent {
     }
   }
 
-
   navigateToProjectForm() {
     this.router.navigate(['/project-form']); 
+  }
+
+  // New method to handle resume functionality
+  resumeProject(company: any) {
+    console.log('Resuming project for company:', company);
+    
+    // Show confirmation dialog
+    Swal.fire({
+      title: 'Resume Project',
+      text: `Do you want to resume the project for ${company.business_name}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, Resume',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Navigate to project form with company data or specific resume route
+        // You can pass company data as route params or query params
+        this.router.navigate(['/project-form'], { 
+          queryParams: { 
+            companyId: company.id || company._id,
+            resume: true,
+            tab:company.currentStage,
+            currentStage: company.currentStage
+          } 
+        });
+        
+        // Or navigate to a specific resume route if you have one
+        // this.router.navigate(['/resume-project', company.id]);
+        
+        Swal.fire(
+          'Resumed!',
+          'Project has been resumed successfully.',
+          'success'
+        );
+      }
+    });
+  }
+
+  // Helper method to check if resume button should be shown
+  shouldShowResumeButton(company: any): boolean {
+    return company.currentStage && company.currentStage !== 0;
   }
 }

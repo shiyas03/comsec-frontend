@@ -998,7 +998,7 @@ export class AddCompanyComponent implements OnInit,OnDestroy  {
               timer: 1500,
               timerProgressBar: true,
             });
-            this.addDefaultShareCapital()
+            // this.addDefaultShareCapital()
           },
           error: () => {
             this.isSaveLoading=false
