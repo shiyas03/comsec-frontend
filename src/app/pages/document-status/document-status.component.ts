@@ -6,7 +6,7 @@ import { PdfSharedAgrementService } from '../../core/services/pdf-shared-agremen
 import { PdfAoAService } from '../../core/services/pdf-ao-a.service';
 import { PdfAoBService } from '../../core/services/pdf-ao-b.service';
 import Swal from 'sweetalert2';
-import { Router } from '@angular/router';
+import { ActivatedRoute,Router } from '@angular/router';
 
 @Component({
   selector: 'app-document-status',
@@ -27,6 +27,13 @@ export class DocumentStatusComponent implements OnInit, OnDestroy {
   private pdfSharesService = inject(PdfSharedAgrementService);
   private pdfAoAService = inject(PdfAoAService);
   private pdfAoABService = inject(PdfAoBService);
+  private route!: ActivatedRoute
+
+  companyInformation: any[] = [];
+    ShareCapitalList:any = [];
+    shareholders: any[] = []
+    directorsData: any[] = []
+    secretoryData:any[]= [] 
 
   ngOnInit(): void {
     // Wait for payload before generating PDF
@@ -48,15 +55,121 @@ export class DocumentStatusComponent implements OnInit, OnDestroy {
     });
   }
 
+   getCompanyInformation(companyId:string) {
+      this.companyService.getComapnyInfo(companyId).subscribe({
+        next: (response) => {
+          console.log(response);
+          this.companyInformation.push(response);
+        },
+        error: (error) => {
+          console.error("Error fetching company information:", error);
+        }
+      });
+    }
+  
+    getShareCapitalInformation(companyId: string) {
+      this.companyService.getShareCapitalInfo(companyId).subscribe({
+        next: (response: any) => {
+          console.log('Share capital information:', response);
+          this.ShareCapitalList = response;
+        },
+        error: (error) => {
+          console.error('Error fetching share capital information:', error);
+        }
+      });
+    }
+  
+  
+    calculateTotalShareAmount(totalShare: number, amountShare: number): number {
+      return totalShare * amountShare;
+    }
+  
+    getShareHolderlist(companyId : string) {
+      this.companyService.getShareHoldersListSummery(companyId).subscribe({
+        next: (response: { message: string; data: any }) => {
+          console.log("Shareholders Data fetched successfully:", response);
+          this.shareholders = response.data;
+        },
+        error: (error) => {
+          console.error("Error fetching shareholders list:", error);
+        }
+      });
+    }
+  
+    getDirectorInformation(companyId: string) {
+      this.companyService.getDirectorInformation(companyId).subscribe(
+        (response) => {
+          console.log("Director Data fetched successfully:", response);
+          this.directorsData = response.data;
+        },
+        (error) => {
+          console.error("Error fetching Directors list:", error);
+        }
+      );
+    }
+  
+    getCompanySecretaryInformation(companyId: string) {
+      this.companyService.getCompanySecretaryInformation(companyId).subscribe(
+        (response) => {
+          console.log("Company Secretary Data fetched successfully:", response);
+          this.secretoryData = response.data;
+        },
+        (error) => {
+          console.error("Error fetching Company Secretary list:", error);
+        }
+      );
+    }
+
   confirmAndSendData() {
     if (!this.data) {
-      console.warn("No data available to send.");
+      const companyId :string = localStorage.getItem('companyId') as string
+
+       // Get ID from URL
+    const routeId: string = this.route.snapshot.paramMap.get('id') as string;
+
+    if(companyId != routeId){
+      console.warn("local storage company Id and params company Id not same")
       return;
+    }
+     else{
+
+       console.warn("No data available to send.");
+
+      this.getCompanyInformation(companyId);
+      this.getShareCapitalInformation(companyId);
+      this.getShareHolderlist(companyId);
+      this.getDirectorInformation(companyId);
+      this.getCompanySecretaryInformation(companyId)
+
+
+       const payload = {
+      companyInfo: this.companyInformation,
+      shareCapital: this.ShareCapitalList,
+      shareholders: this.shareholders,
+      directors: this.directorsData,
+      secretary : this.secretoryData
+    };
+
+    this.data = payload
+     
+     }
+
+      
     }
 
     this.companyService.storeCompanyData(this.data).subscribe({
       next: (response) => {
+         const updateStagePayload = {companyId : this.data.companyInfo[0]._id,index : 0}
+         console.log("document status payload to completed", updateStagePayload)
+         this.companyService.updateCurrentStage(updateStagePayload).subscribe((response: any) => {
+        try {
+          console.log('response from updateCurrentStage : ', response);
+        } catch (error) {
+          console.log(error);
+        }
+      });
         console.log('Data stored successfully:', response);
+        localStorage.removeItem('companyId')
         Swal.fire({
           icon: 'success',
           title: 'Company Data Saved',

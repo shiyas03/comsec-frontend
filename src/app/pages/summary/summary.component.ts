@@ -174,6 +174,16 @@ export class SummaryComponent {
     
 
     this.companyService.setPayload(payload);
+    console.log("companyInfo  ",payload.companyInfo[0])
+    const updateStagePayload = {companyId : payload.companyInfo[0]._id,index : 6}
+    console.log("updating current stage in summary", updateStagePayload)
+    this.companyService.updateCurrentStage(updateStagePayload).subscribe((response: any) => {
+        try {
+          console.log('response from updateCurrentStage : ', response);
+        } catch (error) {
+          console.log(error);
+        }
+      });
 
     Swal.fire({
       position: 'top-end',

@@ -35,7 +35,7 @@ updateCurrentStage(payload: any): Observable<any>  {
       console.log("payload : ",payload)  // Update company current stage
    
     return this.http.put<any>
-      (`${this.baseUrl}company/updateCompanyCurrentStage/${payload.comapanyId}`, payload);
+      (`${this.baseUrl}company/updateCompanyCurrentStage/${payload.companyId}`, payload);
   
 }
 

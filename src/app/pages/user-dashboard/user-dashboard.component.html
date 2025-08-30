@@ -5,7 +5,7 @@
         <section class="grid grid-cols-1 gap-4 gap-x-8 transition-all sm:grid-cols-2 xl:grid-cols-4">
           <div class="flex w-full flex-col gap-1 rounded-xl border p-4 shadow">
             <section class="flex justify-between gap-2">
-              <p class="text-sm">Start</p>
+              <p class="text-sm">Data Entering</p>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -23,13 +23,13 @@
               </svg>
             </section>
             <section class="flex flex-col gap-1">
-              <h2 class="text-2xl font-semibold">{{ startedCount }}</h2>
+              <h2 class="text-2xl font-semibold">{{ dataEnteringCount }}</h2>
               <p class="text-xs text-gray-500">Project(s) Started</p>
             </section>
           </div>
           <div class="flex w-full flex-col gap-1 rounded-xl border p-4 shadow">
             <section class="flex justify-between gap-2">
-              <p class="text-sm">In-Processing</p>
+              <p class="text-sm">Documentation</p>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -53,8 +53,32 @@
               </svg>
             </section>
             <section class="flex flex-col gap-1">
-              <h2 class="text-2xl font-semibold">{{ inProcessingCount }}</h2>
+              <h2 class="text-2xl font-semibold">{{ documentationCount }}</h2>
               <p class="text-xs text-gray-500">Project(s) In-Processing</p>
+            </section>
+          </div>
+          <div class="flex w-full flex-col gap-1 rounded-xl border p-4 shadow">
+            <section class="flex justify-between gap-2">
+              <p class="text-sm">Final Stage</p>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-check-circle2 h-4 w-4 text-green-500 dark:text-green-600 animate-pulse"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="m9 12 2 2 4-4"></path>
+              </svg>
+            </section>
+            <section class="flex flex-col gap-1">
+              <h2 class="text-2xl font-semibold">{{ finalStageCount }}</h2>
+              <p class="text-xs text-gray-500">Project(s) in Final Stage</p>
             </section>
           </div>
           <div class="flex w-full flex-col gap-1 rounded-xl border p-4 shadow">
@@ -207,7 +231,7 @@
                       </thead>
                       <tbody>
                         <tr *ngFor="let company of displayedCompanies" class="border-b hover:bg-muted/50">
-                          <td class="px-4 py-2">{{ company.status }}</td>
+                          <td class="px-4 py-2">{{ getCompanyStatusLabel(company.currentStage) }}</td>
                           <td class="px-4 py-2">{{ company.business_name }}</td>
                           <td class="px-4 py-2">{{ company.project }}</td>
                           <td class="px-4 py-2 text-right">{{ company.startDate | date:'MMM d, y' }}</td>

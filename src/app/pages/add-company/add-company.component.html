@@ -1095,7 +1095,7 @@
           </div>
         </div>
         <!-- Company info End -->
-        <!-- Share info End -->
+        <!-- Share info Start -->
         <div class="container" [ngClass]="{ hidden: activeTabIndex != 1 }">
           <div
             data-state="active"
@@ -2000,8 +2000,9 @@
                       type="radio"
                       [checked]="isShareholderFormVisible"
                       (click)="toggleShareHoldersForm()"
-                      class="h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    />
+  class="h-4 w-4 rounded-full border-2 border-gray-400 bg-white shadow-[0_0_0_2px_rgba(0,0,0,0.2)] checked:border-primary checked:bg-primary checked:shadow-[0_0_0_4px_rgba(59,130,246,0.5)] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+
+                      />
                     <label class="font-medium text-2xl">
                       Fill in all the information for this Shareholder
                     </label>
