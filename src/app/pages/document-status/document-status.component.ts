@@ -176,7 +176,8 @@ export class DocumentStatusComponent implements OnInit, OnDestroy {
           text: 'Company data has been saved successfully!',
           confirmButtonText: 'OK',
         });
-        this.router.navigate(['/user-dashboard']);
+       
+        this.router.navigate([`/incorporation-completion/${this.data.companyInfo[0]._id}`]);
       },
       error: (error) => {
         console.error('Error storing data:', error);

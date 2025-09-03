@@ -17,6 +17,7 @@ import { UserInviteEmailTemplateEditorComponent } from './pages/user-invite-emai
 import { IncorporationDocumentsComponent } from './pages/incorporation-documents/incorporation-documents.component';
 import { IncorporationEmailTemplatesComponent } from './pages/incorporation-email/incorporation-email-templates/incorporation-email-templates.component';
 import { EmailTemplatePreviewComponent } from './pages/incorporation-email/email-template-preview/email-template-preview.component';
+import { ProjectIncorporationCompletionComponent } from './pages/project-incorporation-completion/project-incorporation-completion.component';
 
 export const routes: Routes = [
   {
@@ -60,6 +61,10 @@ export const routes: Routes = [
         path: 'project-incorp',
         component: ProjectIncorporationsComponent,
       },
+      {
+        path: 'incorporation-completion/:companyId',
+        component:ProjectIncorporationCompletionComponent
+      }
     ],
   },
   {
