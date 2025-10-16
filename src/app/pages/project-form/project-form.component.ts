@@ -125,6 +125,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   isInvitationValid = false;
   isLoading = false;
   selectedShareClass: string = '';
+  invitedDirectors: any[] = [];
 
   selectedShareClass1: string = '';
   selectedUnpaidAmount1: number | null = null;
@@ -132,6 +133,17 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   // For Row 2
   selectedShareClass2: string = '';
   selectedUnpaidAmount2: number | null = null;
+
+  dropdowns: { [key: string]: { isOpen: boolean; selected: string | null } } = {
+    telephone1: { isOpen: false, selected: null },
+    telephone2: { isOpen: false, selected: null },
+    telephone3: { isOpen: false, selected: null },
+    telephone4: { isOpen: false, selected: null },
+    telephone5: { isOpen: false, selected: null },
+    fax1: { isOpen: false, selected: null },
+    fax2: { isOpen: false, selected: null },
+  };
+
 
   // Add these properties to your component class
   shareRows: { shareClass: string; unpaidAmount: number | null }[] = [
@@ -561,6 +573,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     this.getUserDatas();
     //this.addDefaultShareCapital();
     this.initializeEditShareForm();
+    this.getInvideDirectosList()
 
     // Subscribe to theme changes
     this.themeService.isDarkTheme$.subscribe((isDark) => {
@@ -774,9 +787,9 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       .getCompanySecretaryInformation(this.companyId)
       .subscribe({
         next: (response: any) => {
-          console.log("RESPONSE OF SECRETARY RESUME PATCHING",response)
+          console.log("RESPONSE OF SECRETARY RESUME PATCHING", response)
           if (response.data[0]) {
-            response  = response.data[0]
+            response = response.data[0]
             this.comapnySecretaryForm.patchValue({
               tcspLicenseNo: response.tcspLicenseNo,
               tcspReason: response.tcspReason,
@@ -845,7 +858,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       code: new FormControl('', [Validators.required]),
       Flat_Address: new FormControl('', [
         Validators.required,
-        Validators.minLength(10),
+        Validators.minLength(3),
       ]),
       Building_Address: new FormControl('', [Validators.minLength(4)]),
       Street_Address: new FormControl('', [Validators.minLength(4)]),
@@ -854,10 +867,13 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       company_Email: new FormControl('', [Validators.email]),
 
       company_Telphone: new FormControl('', [
-        Validators.pattern(/^\d{8}$/), // Must be exactly 10 digits if entered
+        Validators.required,
+        Validators.pattern(/^\d+$/),
+        Validators.minLength(8),
       ]),
       company_Fax: new FormControl('', [
-        Validators.pattern(/^\d{8}$/), // Must be exactly 10 digits if entered
+        Validators.pattern(/^\d+$/),
+        Validators.minLength(8),
       ]),
 
       subscriptionDuration: new FormControl('1 year', [Validators.required]),
@@ -868,17 +884,20 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       presentorChiName: new FormControl('', [Validators.minLength(3)]),
       presentorAddress: new FormControl('', [
         Validators.required,
-        Validators.minLength(6),
+        Validators.minLength(3),
       ]),
       presentorBuilding: new FormControl('', [Validators.minLength(6)]),
       presentorStreet: new FormControl('', [Validators.minLength(6)]),
       presentorDistrict: new FormControl('', [Validators.minLength(6)]),
 
       presentorTel: new FormControl('', [
-        Validators.pattern(/^\d{8}$/), // Must be exactly 10 digits if entered
+        Validators.required,
+        Validators.pattern(/^\d+$/),
+        Validators.minLength(8),
       ]),
       presentorFax: new FormControl('', [
-        Validators.pattern(/^\d{8}$/), // Must be exactly 10 digits if entered
+        Validators.pattern(/^\d+$/),
+        Validators.minLength(8),
       ]),
 
       presentorEmail: new FormControl('', [Validators.email]),
@@ -1110,12 +1129,12 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       // Mark current tab as visited
       this.visitedTabs[this.activeTabIndex] = true;
       this.activeTabIndex = index;
-      console.log("company Id in changeTab : ",this.companyId)
+      console.log("company Id in changeTab : ", this.companyId)
       console.log("index in change Tab ", index)
-      
+
       this.updateCurrentStage(this.companyId, index);
       this.updateUrlWithTab(index);
-      
+
     }
   }
 
@@ -2015,24 +2034,25 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       chineeseName: ['', [Validators.minLength(3)]],
       idNo: [''],
       isInvited: [isInvitedValue],
-      idProof: ['', Validators.required],
+      idProof: [''],
       userType: ['person', Validators.required],
-      address: ['', [Validators.required, Validators.minLength(10)]],
+      address: ['', [Validators.required, Validators.minLength(3)]],
       building: ['', Validators.minLength(4)],
       district: ['', Validators.minLength(4)],
       street: ['', Validators.minLength(4)],
-      addressProof: ['', Validators.required],
+      addressProof: [''],
       email: ['', [Validators.required, Validators.email]],
-
-      phone: [
-        '',
+      phone: ['',
         [
-          Validators.pattern(/^\d{8}$/), // Must be 10 digits if entered
+          Validators.required,
+          Validators.pattern(/^\d+$/),
+          Validators.minLength(8),
         ],
       ],
-
-      shareDetailsNoOfShares: ['', Validators.required],
-      shareDetailsClassOfShares: ['', Validators.required],
+      shareDetails: this.fb.group([{
+        shareDetailsNoOfShares: ['', Validators.required],
+        shareDetailsClassOfShares: ['', Validators.required],
+      }]),
     });
 
     this.shareHoldersForm
@@ -2040,6 +2060,14 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       ?.valueChanges.subscribe((userType) => {
         this.updateFormValidation(userType);
       });
+  }
+
+  get shareDetailsNoOfShares() {
+    return this.shareHoldersForm.get('shareDetails.shareDetailsNoOfShares');
+  }
+
+  get shareDetailsClassOfShares() {
+    return this.shareHoldersForm.get('shareDetails.shareDetailsClassOfShares');
   }
 
   updateFormValidation(userType: string) {
@@ -2181,8 +2209,6 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       userId,
       companyId: this.companyId,
     };
-
-    console.log('Submitting shareholder data with share rows:', formData);
 
     // Submit form
     this.companyService.shareHoldersCreation(formData).subscribe({
@@ -2622,6 +2648,8 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   }
 
   invateShareHoldersSubmit() {
+    console.log('working.........')
+    console.log(this.inviteShareholderForm.value);
     if (this.inviteShareholderForm.invalid) {
       this.inviteShareholderForm.markAllAsTouched();
       return;
@@ -2646,7 +2674,6 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       companyId: this.companyId,
     };
 
-    console.log(formData);
 
     this.companyService.InvateshareHoldersCreation(formData).subscribe({
       next: (response) => {
@@ -2720,22 +2747,21 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       chineeseName: ['', Validators.minLength(4)],
       idNo: [''],
       isInvited: [isInvitedValue],
-      idProof: [null, Validators.required],
+      idProof: [null],
 
-      address: ['', [Validators.required, Validators.minLength(10)]],
+      address: ['', Validators.minLength(3)],
       street: ['', Validators.minLength(4)],
       building: ['', Validators.minLength(4)],
       district: ['', Validators.minLength(4)],
-      addressProof: [null, Validators.required],
+      addressProof: [null],
 
       email: ['', [Validators.required, Validators.email]],
 
-      phone: [
-        '',
-        [
-          Validators.pattern(/^\d{8}$/), // Must be 10 digits if entered
-        ],
-      ],
+      phone: ['', [
+        Validators.required,
+        Validators.pattern(/^\d+$/),
+        Validators.minLength(8),
+      ]],
     });
 
     this.directorInformationForm.get('type')?.valueChanges.subscribe((type) => {
@@ -2744,6 +2770,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   }
 
   updateFormValidation1(type: string) {
+    console.log('User type changed to:', type);
     const surnameControl = this.directorInformationForm.get('surname');
     const chineseNameControl = this.directorInformationForm.get('chineeseName');
     const idNoControl = this.directorInformationForm.get('idNo');
@@ -3160,6 +3187,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
         next: (response) => {
           console.log('director creation created', response);
           this.isInviteLoading = false;
+          this.invitedDirectors.push(this.InviteDirectorsForm.value)
 
           Swal.fire({
             position: 'top-end',
@@ -3193,6 +3221,20 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     }
   }
 
+  getInvideDirectosList() {
+    const userId = localStorage.getItem('userId');
+    const companyId = <string>localStorage.getItem('companyId');
+    this.companyService.directorsInvites(companyId).subscribe({
+      next: (response) => {
+        this.invitedDirectors = response.data;
+        console.log('invited directors', this.invitedDirectors);
+      },
+      error: (error) => {
+        console.error('Error fetching invited directors:', error);
+      }
+    })
+  }
+
   initializeCompanySecretaryForm() {
     this.comapnySecretaryForm = this.fb.group({
       tcspLicenseNo: ['', [Validators.required]],
@@ -3202,14 +3244,16 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       name: ['', [Validators.required, Validators.minLength(3)]],
       chineeseName: [''],
       idNo: [''],
-      idProof: ['', [Validators.required]],
-      address: ['', [Validators.required, , Validators.minLength(8)]],
+      idProof: [null],
+      address: ['', [Validators.minLength(3)]],
       street: ['', Validators.minLength(4)],
       building: ['', Validators.minLength(4)],
       district: ['', Validators.minLength(4)],
-      addressProof: [''],
+      addressProof: [null],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', Validators.pattern(/^\d{8}$/)],
+      phone: ['', Validators.required,
+        Validators.pattern(/^\d+$/),
+        Validators.minLength(8)]
     });
     this.comapnySecretaryForm.get('type')?.valueChanges.subscribe((type) => {
       this.updateFormValidation3(type);
@@ -3231,7 +3275,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
         Validators.required,
         Validators.minLength(3),
       ]);
-      addressProofControl?.setValidators([Validators.required]); // Restore validation for address proof
+      addressProofControl?.setValidators([]); // Restore validation for address proof
     }
 
     surnameControl?.updateValueAndValidity();
@@ -3653,6 +3697,38 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       });
     }
   }
+
+  toggleDropdown(field: string) {
+    this.dropdowns[field].isOpen = !this.dropdowns[field].isOpen;
+
+    Object.keys(this.dropdowns).forEach(key => {
+      if (key !== field) this.dropdowns[key].isOpen = false;
+    });
+  }
+
+  selectItem(field: string, item: string) {
+    console.log(`Selected for ${field}:`, item);
+    this.dropdowns[field].selected = item;
+    this.dropdowns[field].isOpen = false;
+  }
+
+  onlyNumber(event: KeyboardEvent) {
+    const pattern = /[0-9]/;
+    const inputChar = event.key;
+
+    if (!pattern.test(inputChar)) {
+      event.preventDefault();
+    }
+  }
+
+
+  // @HostListener('document:click', ['$event'])
+  // onDocumentClick(event: Event) {
+  //   const target = event.target as HTMLElement;
+  //   if (!target.closest('.dropdown-container')) {
+  //     this.isTelephoneOpen = false;
+  //   }
+  // }
 
   ngOnDestroy(): void {
     if (this.isNavigatingAway) {

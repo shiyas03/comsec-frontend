@@ -43,19 +43,16 @@
           </svg>
         </button>
 
-        <!-- Notifications with dropdown -->
-        <div class="relative">
+        <!-- <div class="relative">
           <button type="button" (click)="toggleNotificationDropdown()" class="relative p-2 focus:outline-none focus:ring-2 focus:ring-offset-2" 
                   [ngClass]="{'text-gray-700 hover:text-gray-900 focus:ring-gray-500': !isDarkTheme, 'text-gray-300 hover:text-white focus:ring-gray-500': isDarkTheme}">
             <span class="sr-only">View notifications</span>
             <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
             </svg>
-            <!-- Red notification dot -->
             <span class="absolute -top-0.5 -right-0.5 h-3 w-3 bg-red-500 rounded-full"></span>
           </button>
 
-          <!-- Notification Dropdown -->
           <div *ngIf="isNotificationDropdownOpen" class="absolute right-0 z-10 mt-2 w-80 origin-top-right rounded-md shadow-lg ring-1 ring-black/5 focus:outline-none"
                [ngClass]="{'bg-white': !isDarkTheme, 'bg-gray-800': isDarkTheme}">
             <div class="py-1">
@@ -91,14 +88,14 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- Profile Dropdown -->
         <div class="relative">
           <button (click)="toggleDropdown()" class="flex items-center space-x-3 focus:outline-none">
             <div class="hidden sm:flex flex-col items-end">
-              <span class="text-sm font-medium" [ngClass]="{'text-gray-900': !isDarkTheme, 'text-white': isDarkTheme}">{{userData.name}}</span>
-              <span class="text-xs" [ngClass]="{'text-gray-600': !isDarkTheme, 'text-gray-400': isDarkTheme}">{{userData.roles}}</span>
+              <span class="text-sm font-medium" [ngClass]="{'text-gray-900': !isDarkTheme, 'text-white': isDarkTheme}">{{userData?.name}}</span>
+              <span class="text-xs" [ngClass]="{'text-gray-600': !isDarkTheme, 'text-gray-400': isDarkTheme}">{{userData?.roles}}</span>
             </div>
             <div class="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
               <img class="size-8 rounded-full object-cover" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="">

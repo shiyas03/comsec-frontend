@@ -213,11 +213,18 @@ updateCurrentStage(payload: any): Observable<any>  {
     )
   }
 
-
-
-
   directorInviteCreation(data: any): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.baseUrl}company/inviteDirector`, data).pipe(
+      catchError((error) => {
+        console.error("Director Invite error:", error);
+        const errorMessage = error.error?.message || "Failed to Invite Director.";
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+
+  directorsInvites(companyId:string):Observable<any>{
+    return this.http.get<any>(`${this.baseUrl}company/getDirectorInvites/${companyId}`).pipe(
       catchError((error) => {
         console.error("Director Invite error:", error);
         const errorMessage = error.error?.message || "Failed to Invite Director.";

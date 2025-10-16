@@ -5,6 +5,7 @@ import { ThemeService } from '../../core/services/theme.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CompanyService } from '../../core/services/company.service';
 import Swal from 'sweetalert2';
+import { AdminService } from '../../core/services/admin.service';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -18,11 +19,12 @@ export class UserDashboardComponent {
   private themeService = inject(ThemeService);
   private authService = inject(AuthService);
   private companyService = inject(CompanyService);
+  private userService = inject(AdminService);
   isDarkTheme = false;
   userId: any;
   dataEnteringCount: number = 0;
   documentationCount: number = 0;
-  finalStageCount:number = 0
+  finalStageCount: number = 0
   completedCount: number = 0;
   companies: any[] = [];
   displayedCompanies: any[] = [];
@@ -30,8 +32,10 @@ export class UserDashboardComponent {
   itemsPerPage = 5;
   userData: any;
   isRestrictedUser: boolean = false;
+  companyIds: string[] = []
 
   ngOnInit(): void {
+    this.getUser()
     this.getUserDatas();
     //this.authService.logout()
     this.loadCompanyData();
@@ -45,11 +49,14 @@ export class UserDashboardComponent {
   loadCompanyData(): void {
     this.companyService.getCompanyData().subscribe({
       next: (response) => {
-        this.companies = response;
-        console.log("response companies : ", this.companies)
-
-        this.updateDisplayedCompanies();
-        this.updateStatusCounters();
+        if (response) {
+          this.companies = response;
+          const filteredCompanies = this.companies.filter(company =>
+            this.companyIds.includes(company._id)
+          );
+          this.updateDisplayedCompanies()
+          this.updateStatusCounters(filteredCompanies);
+        }
       },
       error: (error) => {
         console.error('Error fetching company data:', error);
@@ -57,46 +64,49 @@ export class UserDashboardComponent {
     });
   }
 
-updateStatusCounters(): void {
-  // Reset counters
-  this.dataEnteringCount = 0;
-  this.documentationCount = 0;
-  this.finalStageCount = 0;
-  this.completedCount = 0;
+  updateStatusCounters(companies: any): void {
+    // Reset counters
+    this.dataEnteringCount = 0;
+    this.documentationCount = 0;
+    this.finalStageCount = 0;
+    this.completedCount = 0;
 
-  for (const company of this.companies) {
-    const stage = Number(company.currentStage);
+    for (const company of companies) {
+      const stage = Number(company.currentStage);
 
-    if (stage >= 1 && stage <= 5) {
-      this.dataEnteringCount++;
-    } else if (stage === 6) {
-      this.documentationCount++;
-    } else if (stage === 7) {
-      this.finalStageCount++;
-    } else if (stage === 0) {
-      this.completedCount++;
+      if (stage >= 1 && stage <= 5) {
+        this.dataEnteringCount++;
+      } else if (stage === 6) {
+        this.documentationCount++;
+      } else if (stage === 7) {
+        this.finalStageCount++;
+      } else if (stage === 0) {
+        this.completedCount++;
+      }
     }
   }
-}
 
-
-getCompanyStatusLabel(stage: number): string {
-  if (stage >= 1 && stage <= 5) {
-    return 'Data Entering';
-  } else if (stage === 6) {
-    return 'Documentation';
-  } else if (stage === 7) {
-    return 'Final Stage';
-  } else if (stage === 0) {
-    return 'Completed';
+  getCompanyStatusLabel(stage: number): string {
+    if (stage >= 1 && stage <= 5) {
+      return 'Data Entering';
+    } else if (stage === 6) {
+      return 'Documentation';
+    } else if (stage === 7) {
+      return 'Final Stage';
+    } else if (stage === 0) {
+      return 'Completed';
+    }
+    return 'Unknown'; // fallback if stage is missing
   }
-  return 'Unknown'; // fallback if stage is missing
-}
 
 
   updateDisplayedCompanies() {
+    const filteredCompanies = this.companies.filter(company =>
+      this.companyIds.includes(company._id)
+    );
+
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    this.displayedCompanies = this.companies.slice(
+    this.displayedCompanies = filteredCompanies.slice(
       startIndex,
       startIndex + this.itemsPerPage
     );
@@ -117,7 +127,7 @@ getCompanyStatusLabel(stage: number): string {
   }
 
   get totalPages(): number {
-    return Math.ceil(this.companies.length / this.itemsPerPage);
+    return Math.ceil(this.displayedCompanies.length / this.itemsPerPage);
   }
 
   getUserDatas() {
@@ -192,14 +202,14 @@ getCompanyStatusLabel(stage: number): string {
       confirmButtonText: 'Yes, Resume',
       cancelButtonText: 'Cancel',
     }).then((result) => {
-      
+
       if (result.isConfirmed) {
-             localStorage.removeItem('companyId')
-          localStorage.setItem('companyId', company._id);
+        localStorage.removeItem('companyId')
+        localStorage.setItem('companyId', company._id);
         if (company.currentStage >= 1 && company.currentStage <= 4) {
           // Navigate to project form with company data or specific resume route
           // You can pass company data as route params or query params
-     
+
           this.router.navigate(['/project-form'], {
             queryParams: {
               companyId: company.id || company._id,
@@ -219,10 +229,10 @@ getCompanyStatusLabel(stage: number): string {
           );
         }
 
-        else if(company.currentStage ==5 ){
+        else if (company.currentStage == 5) {
           this.router.navigate([`/summary/${company._id}`])
         }
-        else if(company.currentStage ==6){
+        else if (company.currentStage == 6) {
           this.router.navigate([`/summary/${company._id}`])
         }
       }
@@ -233,4 +243,19 @@ getCompanyStatusLabel(stage: number): string {
   shouldShowResumeButton(company: any): boolean {
     return company.currentStage && company.currentStage !== 0;
   }
+
+  getUser() {
+    let userId = <string>localStorage.getItem('userId')
+    this.userService.getUserById(userId).subscribe((res) => {
+      this.companyIds.push(...res.companyid)
+    })
+  }
+
+  getNextAnnualReturnDate(incorporateDate: string | Date): Date | null {
+    if (!incorporateDate) return null;
+    const date = new Date(incorporateDate);
+    date.setFullYear(date.getFullYear() + 1);
+    return date;
+  }
+
 }
