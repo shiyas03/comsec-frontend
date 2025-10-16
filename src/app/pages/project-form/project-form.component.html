@@ -460,40 +460,29 @@
                         <div class="flex flex-col PhoneInput">
                           <div class="flex relative">
                             <button
-                              class="items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-transparent hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 flex gap-1 rounded-e-none rounded-s-lg pr-1 pl-3"
+                              class="items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-transparent hover:bg-accent hover:text-accent-foreground h-10 px-2 py-2 flex gap-1 rounded-e-none rounded-s-lg"
                               type="button"
                               aria-haspopup="dialog"
                               aria-expanded="false"
                               aria-controls="radix-:Rdapdf9la:"
                               data-state="closed"
                               (click)="toggleDropdown('telephone1')">
-                              <span
-                                class="flex h-4 w-6 overflow-hidden rounded-sm bg-foreground/20"
-                                *ngIf="!dropdowns['telephone1'].selected">
-                                <svg viewBox="0 0.5 21 14"
-                                  xmlns="http://www.w3.org/2000/svg">
-                                  <title>HK</title>
-                                  <g fill="none" fill-rule="evenodd">
-                                    <path fill="#FFF" d="M0 0h21v15H0z"></path>
-                                    <path fill="#ee1c25"
-                                      d="M0 0h21v15H0z"></path>
-                                  </g>
-                                </svg>
-                              </span>
                               <p
                                 *ngIf="dropdowns['telephone1'].selected">{{
                                 dropdowns['telephone1'].selected }}</p>
+                              <!-- Dropdown Arrow -->
+                              <svg
+                                class="pointer-events-none text-gray-500 w-4 h-4"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M19 9l-7 7-7-7" />
+                              </svg>
                             </button>
-
-                            <input
-                              type="tel"
-                              class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-s-none rounded-e-lg PhoneInputInput"
-                              autocomplete="tel"
-                              placeholder="Enter a phone number"
-                              formControlName="company_Telphone"
-                              id="companyTel"
-                              name="companyTel"
-                              (keypress)="onlyNumber($event)" />
 
                             <ul
                               *ngIf="dropdowns['telephone1'].isOpen"
@@ -505,6 +494,17 @@
                                 ({{ item.code }}) {{ item.name }}
                               </li>
                             </ul>
+
+                            <input
+                              type="tel"
+                              class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-s-none rounded-e-lg PhoneInputInput"
+                              autocomplete="tel"
+                              placeholder="Enter a phone number"
+                              formControlName="company_Telphone"
+                              id="companyTel"
+                              name="companyTel"
+                              (keypress)="onlyNumber($event)" />
+
                           </div>
 
                           <!-- Error message should appear below the input -->
@@ -529,39 +529,29 @@
                         <div class="flex flex-col PhoneInput">
                           <div class="flex relative">
                             <button
-                              class="items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-transparent hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 flex gap-1 rounded-e-none rounded-s-lg pr-1 pl-3"
+                              class="items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-transparent hover:bg-accent hover:text-accent-foreground h-10 px-2 py-2 flex gap-1 rounded-e-none rounded-s-lg"
                               type="button"
                               aria-haspopup="dialog"
                               aria-expanded="false"
                               aria-controls="radix-:Rdapdf9la:"
                               data-state="closed"
                               (click)="toggleDropdown('fax1')">
-                              <span
-                                class="flex h-4 w-6 overflow-hidden rounded-sm bg-foreground/20"
-                                *ngIf="!dropdowns['fax1'].selected">
-                                <svg viewBox="0 0.5 21 14"
-                                  xmlns="http://www.w3.org/2000/svg">
-                                  <title>HK</title>
-                                  <g fill="none" fill-rule="evenodd">
-                                    <path fill="#FFF" d="M0 0h21v15H0z"></path>
-                                    <path fill="#ee1c25"
-                                      d="M0 0h21v15H0z"></path>
-                                  </g>
-                                </svg>
-                              </span>
-                              <p *ngIf="dropdowns['fax1'].selected">{{
+                              <p
+                                *ngIf="dropdowns['fax1'].selected">{{
                                 dropdowns['fax1'].selected }}</p>
+                              <!-- Dropdown Arrow -->
+                              <svg
+                                class="pointer-events-none text-gray-500 w-4 h-4"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M19 9l-7 7-7-7" />
+                              </svg>
                             </button>
-
-                            <input
-                              type="tel"
-                              class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-s-none rounded-e-lg PhoneInputInput"
-                              autocomplete="tel"
-                              placeholder="Enter a phone number"
-                              formControlName="company_Fax"
-                              id="company_Fax"
-                              name="company_Fax"
-                              (keypress)="onlyNumber($event)" />
 
                             <ul
                               *ngIf="dropdowns['fax1'].isOpen"
@@ -573,6 +563,16 @@
                                 ({{ item.code }}) {{ item.name }}
                               </li>
                             </ul>
+
+                            <input
+                              type="tel"
+                              class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-s-none rounded-e-lg PhoneInputInput"
+                              autocomplete="tel"
+                              placeholder="Enter a phone number"
+                              formControlName="company_Fax"
+                              id="company_Fax"
+                              name="company_Fax"
+                              (keypress)="onlyNumber($event)" />
                           </div>
 
                           <!-- Error message should appear below the input -->
@@ -1164,6 +1164,7 @@
           </div>
         </div>
         <!-- Company info End -->
+
         <!-- Share info End -->
         <div class="container" [ngClass]="{ hidden: activeTabIndex != 1 }">
           <div
@@ -2246,7 +2247,7 @@
                                   <tr
                                     class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                                     <td
-                                      class="p-2 align-middle [&:has([role=checkbox])]:pr-0 space-y-6">
+                                      class="p-2 align-start [&:has([role=checkbox])]:pr-0 space-y-6">
                                       <div class="space-y-3">
                                         <!-- Address input -->
                                         <div class="space-y-2">
@@ -2344,7 +2345,7 @@
                                       </div>
                                     </td>
 
-                                    <td colspan="2" class="p-4 align-middle">
+                                    <td colspan="2" class="p-4">
                                       <div
                                         class="flex flex-col sm:flex-row gap-4">
                                         <!-- Email Input -->
@@ -2466,6 +2467,7 @@
                                     </th>
                                   </tr>
                                 </thead>
+
                                 <tbody class="[&_tr:last-child]:border-0">
                                   <tr
                                     *ngFor="let row of shareRows; let i = index"
@@ -2723,6 +2725,7 @@
                                       class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
                                       <select
                                         [(ngModel)]="row.shareClass"
+                                        [ngModelOptions]="{ standalone: true }"
                                         (change)="onShareClassChange2($event, i)"
                                         class="flex h-10 w-full items-center rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
                                         <!-- <option value>Select Class of
@@ -2754,8 +2757,9 @@
                                       <input
                                         type="number"
                                         [(ngModel)]="row.unpaidAmount"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        (ngModelChange)="onShareAmountChange2($event, i)"
                                         placeholder="Enter Number of Shares"
-                                        formControlName="noOfShares"
                                         class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
                                     </td>
 
@@ -3507,55 +3511,65 @@
                           </div>
                         </div>
                       </div>
-                      <table class="w-full caption-bottom text-sm">
-                        <thead class="[&_tr]:border-b">
-                          <tr
-                            class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                            <th
-                              class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
-                              <label
-                                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                for="n">
-                                Name
-                              </label>
-                            </th>
-                            <th
-                              class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
-                              <label
-                                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                for="e">
-                                Email
-                              </label>
-                            </th>
-                            <th
-                              class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
-                              <label
-                                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                for="s">
-                                Status
-                              </label>
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody class="[&_tr:last-child]:border-0">
-                          <tr
-                            class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                            *ngFor="let data of invitedDirectors">
-                            <td
-                              class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-                              {{data.name}}
-                            </td>
-                            <td
-                              class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-                              {{data.email}}
-                            </td>
-                            <td
-                              class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-                              {{data?.status}}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+
+                      <div class="py-10">
+                        <h3
+                          class="text-2xl font-semibold leading-none tracking-tight mb-4">
+                          Invited Directors
+                        </h3>
+                        <p class="text-sm text-muted-foreground">
+                          Here are the details on invited Directors
+                        </p>
+                        <table class="w-full caption-bottom text-sm">
+                          <thead class="[&_tr]:border-b">
+                            <tr
+                              class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                              <th
+                                class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+                                <label
+                                  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                  for="n">
+                                  Name
+                                </label>
+                              </th>
+                              <th
+                                class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+                                <label
+                                  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                  for="e">
+                                  Email
+                                </label>
+                              </th>
+                              <th
+                                class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+                                <label
+                                  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                  for="s">
+                                  Status
+                                </label>
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody class="[&_tr:last-child]:border-0">
+                            <tr
+                              class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+                              *ngFor="let data of invitedDirectors">
+                              <td
+                                class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+                                {{data.name}}
+                              </td>
+                              <td
+                                class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+                                {{data.email}}
+                              </td>
+                              <td
+                                class="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+                                {{data?.status}}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                       <div *ngIf="!isInvited"
                         class="flex items-center space-x-2 py-6">
                         <input
@@ -3613,7 +3627,8 @@
                                       </th>
                                     </tr>
                                   </thead>
-                                  <tbody class="[&amp;_tr:last-child]:border-0">
+                                  <tbody
+                                    class="[&amp;_tr:last-child]:border-0">
                                     <tr
                                       class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                                       <td
@@ -3825,10 +3840,12 @@
                                   [disabled]=" isInviteLoading"
                                   class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white h-10 px-4 py-2 cursor-pointer">
                                   <span *ngIf="isInviteLoading" class="mr-2">
-                                    <svg class="animate-spin h-4 w-4 text-white"
+                                    <svg
+                                      class="animate-spin h-4 w-4 text-white"
                                       xmlns="http://www.w3.org/2000/svg"
                                       fill="none" viewBox="0 0 24 24">
-                                      <circle class="opacity-25" cx="12" cy="12"
+                                      <circle class="opacity-25" cx="12"
+                                        cy="12"
                                         r="10" stroke="currentColor"
                                         stroke-width="4"></circle>
                                       <path class="opacity-75"
@@ -3978,7 +3995,8 @@
                                 class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                 for="idNo">
                                 {{ comapnySecretaryForm.get('type')?.value ===
-                                'person' ? 'ID/Passport No.' : 'Company No.' }}
+                                'person' ? 'ID/Passport No.' : 'Company No.'
+                                }}
                                 / Upload a Copy
                               </label>
                             </th>
@@ -4252,7 +4270,8 @@
                                       </span>
                                       <p
                                         *ngIf="dropdowns['telephone5'].selected">{{
-                                        dropdowns['telephone5'].selected }}</p>
+                                        dropdowns['telephone5'].selected
+                                        }}</p>
                                     </button>
                                     <input
                                       class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-s-none rounded-e-lg"

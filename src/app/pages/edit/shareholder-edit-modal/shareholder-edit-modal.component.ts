@@ -44,13 +44,14 @@ export class ShareholderEditModalComponent implements OnInit {
       idNo: [""],
       idProof: [""],
       userType: ["person", Validators.required],
-      address: ["", [Validators.required, Validators.minLength(10)]],
+      address: ["", [Validators.required, Validators.minLength(3)]],
       building: ["", Validators.minLength(4)],
       district: ["", Validators.minLength(4)],
       street: ["", Validators.minLength(4)],
       addressProof: [null],
       email: ["", [Validators.required, Validators.email]],
-      phone: ["", [Validators.pattern(/^\d{10}$/)]],
+      phone: ["", [Validators.pattern(/^\d+$/),
+      Validators.minLength(8)]],
       shareDetails: this.fb.array([]),
     })
   }

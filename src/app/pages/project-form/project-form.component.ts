@@ -135,13 +135,13 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   selectedUnpaidAmount2: number | null = null;
 
   dropdowns: { [key: string]: { isOpen: boolean; selected: string | null } } = {
-    telephone1: { isOpen: false, selected: null },
-    telephone2: { isOpen: false, selected: null },
-    telephone3: { isOpen: false, selected: null },
-    telephone4: { isOpen: false, selected: null },
-    telephone5: { isOpen: false, selected: null },
-    fax1: { isOpen: false, selected: null },
-    fax2: { isOpen: false, selected: null },
+    telephone1: { isOpen: false, selected: '+91' },
+    telephone2: { isOpen: false, selected: '+91' },
+    telephone3: { isOpen: false, selected: '+91' },
+    telephone4: { isOpen: false, selected: '+91' },
+    telephone5: { isOpen: false, selected: '+91' },
+    fax1: { isOpen: false, selected: '+91' },
+    fax2: { isOpen: false, selected: '+91' },
   };
 
 
@@ -179,17 +179,17 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     //   }
     // })
   }
-  countries: any[] = [
-    { name: 'Australia', code: 'AU' },
-    { name: 'Brazil', code: 'BR' },
-    { name: 'China', code: 'CN' },
-    { name: 'Egypt', code: 'EG' },
-    { name: 'France', code: 'FR' },
-    { name: 'Germany', code: 'DE' },
-    { name: 'India', code: 'IN' },
-    { name: 'Japan', code: 'JP' },
-    { name: 'Spain', code: 'ES' },
-    { name: 'United States', code: 'US' },
+  countries = [
+    { name: 'Australia', code: '+61' },
+    { name: 'Brazil', code: '+55' },
+    { name: 'China', code: '+86' },
+    { name: 'Egypt', code: '+20' },
+    { name: 'France', code: '+33' },
+    { name: 'Germany', code: '+49' },
+    { name: 'India', code: '+91' },
+    { name: 'Japan', code: '+81' },
+    { name: 'Spain', code: '+34' },
+    { name: 'United States', code: '+1' },
   ];
 
   buisnessNature = [
@@ -865,12 +865,13 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       District_Address: new FormControl('', [Validators.minLength(4)]),
       country_Address: new FormControl('Hong Kong', [Validators.required]),
       company_Email: new FormControl('', [Validators.email]),
-
+      company_TelCountry: new FormControl('+91', [Validators.required]),
       company_Telphone: new FormControl('', [
         Validators.required,
         Validators.pattern(/^\d+$/),
         Validators.minLength(8),
       ]),
+      company_FaxCountry: new FormControl('+91'),
       company_Fax: new FormControl('', [
         Validators.pattern(/^\d+$/),
         Validators.minLength(8),
@@ -889,12 +890,13 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       presentorBuilding: new FormControl('', [Validators.minLength(6)]),
       presentorStreet: new FormControl('', [Validators.minLength(6)]),
       presentorDistrict: new FormControl('', [Validators.minLength(6)]),
-
+      presentorTelCountry: new FormControl('+91', [Validators.required]),
       presentorTel: new FormControl('', [
         Validators.required,
         Validators.pattern(/^\d+$/),
         Validators.minLength(8),
       ]),
+      presentorFaxCountry: new FormControl('+91'),
       presentorFax: new FormControl('', [
         Validators.pattern(/^\d+$/),
         Validators.minLength(8),
@@ -904,7 +906,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       presentorReferance: new FormControl('CompanyName-NNC1-06-03-2024', [
         Validators.required,
       ]),
-      companyLogo: new FormControl(''),
+      companyLogo: new FormControl(null),
     });
 
     // Listen for changes on the `natureofCompany` field
@@ -1005,6 +1007,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
 
     return '';
   }
+
   isFieldInvalid(controlName: string): boolean {
     const control = this.addShareForm.get(controlName);
     return control
@@ -1329,15 +1332,13 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       ...(this.companyId && { companyId: this.companyId }), // Only include if companyId exists
     };
 
-    console.log('Submitted form data', fromValues);
-
     return this.companyService.submitCompanyInfo(fromValues).pipe(
       tap((response: any) => {
-        console.log('Form submitted successfully', response);
 
         // Set companyId if it's a new creation
         if (!this.companyId) {
           this.companyId = response.companyId;
+          localStorage.removeItem('companyId');
           localStorage.setItem('companyId', this.companyId);
         }
 
@@ -1376,6 +1377,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     //   natureofCompany: event.value
     // });
   }
+
   addDefaultShareCapital() {
     // Set default values in the form
     this.addShareForm.patchValue({
@@ -2034,13 +2036,13 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       chineeseName: ['', [Validators.minLength(3)]],
       idNo: [''],
       isInvited: [isInvitedValue],
-      idProof: [''],
+      idProof: [null],
       userType: ['person', Validators.required],
       address: ['', [Validators.required, Validators.minLength(3)]],
       building: ['', Validators.minLength(4)],
       district: ['', Validators.minLength(4)],
       street: ['', Validators.minLength(4)],
-      addressProof: [''],
+      addressProof: [null],
       email: ['', [Validators.required, Validators.email]],
       phone: ['',
         [
@@ -2049,6 +2051,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
           Validators.minLength(8),
         ],
       ],
+      countryCode: ['', Validators.required],
       shareDetails: this.fb.group([{
         shareDetailsNoOfShares: ['', Validators.required],
         shareDetailsClassOfShares: ['', Validators.required],
@@ -2642,13 +2645,22 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       name: ['', Validators.required],
       email: ['', Validators.required],
       password: [''],
-      classOfShares: ['Ordinary', Validators.required],
-      noOfShares: ['', Validators.required],
+      shareDetails: this.fb.group([{
+        shareDetailsNoOfShares: ['', Validators.required],
+        shareDetailsClassOfShares: ['', Validators.required],
+      }]),
     });
   }
 
+  get inviteShareDetailsNoOfShares() {
+    return this.inviteShareholderForm.get('shareDetails.shareDetailsNoOfShares');
+  }
+
+  get inviteShareDetailsClassOfShares() {
+    return this.inviteShareholderForm.get('shareDetails.shareDetailsClassOfShares');
+  }
+
   invateShareHoldersSubmit() {
-    console.log('working.........')
     console.log(this.inviteShareholderForm.value);
     if (this.inviteShareholderForm.invalid) {
       this.inviteShareholderForm.markAllAsTouched();
@@ -2667,13 +2679,22 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     // Ensure companyId is correctly set before adding it to formData
     this.companyId = savedCompanyId;
 
+    const validShareRows = this.shareRows2.filter(
+      (row) =>
+        row.shareClass && row.unpaidAmount !== null && row.unpaidAmount > 0
+    );
+
+    console.log(validShareRows)
+
     const formData = {
       ...this.inviteShareholderForm.value,
       password: this.generateSecurePassword(),
+      shareRows: validShareRows,
       userId: userId,
       companyId: this.companyId,
     };
 
+    console.log(formData);
 
     this.companyService.InvateshareHoldersCreation(formData).subscribe({
       next: (response) => {
@@ -2742,8 +2763,8 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     }
     this.directorInformationForm = this.fb.group({
       type: ['person', Validators.required],
-      surname: ['', [Validators.required, Validators.minLength(4)]],
-      name: ['', [Validators.required, Validators.minLength(4)]],
+      surname: ['', [Validators.required, Validators.minLength(3)]],
+      name: ['', [Validators.required, Validators.minLength(3)]],
       chineeseName: ['', Validators.minLength(4)],
       idNo: [''],
       isInvited: [isInvitedValue],
@@ -2762,6 +2783,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
         Validators.pattern(/^\d+$/),
         Validators.minLength(8),
       ]],
+      countryCode: ['+91', Validators.required],
     });
 
     this.directorInformationForm.get('type')?.valueChanges.subscribe((type) => {
@@ -3246,14 +3268,15 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       idNo: [''],
       idProof: [null],
       address: ['', [Validators.minLength(3)]],
-      street: ['', Validators.minLength(4)],
-      building: ['', Validators.minLength(4)],
-      district: ['', Validators.minLength(4)],
+      street: [''],
+      building: [''],
+      district: [''],
       addressProof: [null],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', Validators.required,
         Validators.pattern(/^\d+$/),
-        Validators.minLength(8)]
+        Validators.minLength(8)],
+        countryCode: ['+91', Validators.required],
     });
     this.comapnySecretaryForm.get('type')?.valueChanges.subscribe((type) => {
       this.updateFormValidation3(type);
@@ -3345,9 +3368,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       userId: userId,
       companyId: companyId,
     };
-
-    console.log(formData);
-
+    
     this.companyService.companySecretaryCreation(formData).subscribe({
       next: (response) => {
         console.log(
@@ -3466,7 +3487,6 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       const reader = new FileReader();
       reader.onload = () => {
         const base64AddressProof = reader.result as string;
-        console.log('Base64 address proof:', base64AddressProof);
 
         this.imagePreviewCompanySecretaryAddressProof = base64AddressProof;
       };
@@ -3484,7 +3504,6 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       unpaidAmount: null,
     });
 
-    console.log('Added new share row. Total rows:', this.shareRows.length);
   }
 
   // 6. Updated method to remove share rows with better validation sync
@@ -3602,18 +3621,43 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
 
   onShareClassChange2(event: any, index: number): void {
     const selectedClass = event.target.value;
+
     const selectedShare = this.shareCapitalList.find(
       (share) => share.share_class === selectedClass
     );
 
+    this.shareRows2[index].shareClass = selectedClass;
+
     if (selectedShare) {
-      this.shareRows2[index].shareClass = selectedClass;
       this.shareRows2[index].unpaidAmount = selectedShare.unpaid_amount;
     } else {
-      this.shareRows2[index].shareClass = selectedClass;
       this.shareRows2[index].unpaidAmount = null;
     }
+
+    if (index === 0) {
+      this.inviteShareholderForm.patchValue({
+        shareDetailsClassOfShares: this.shareRows2[0].shareClass,
+        shareDetailsNoOfShares: this.shareRows2[0].unpaidAmount,
+      });
+
+      this.inviteShareholderForm.get('shareDetailsClassOfShares')?.markAsTouched();
+      this.inviteShareholderForm.get('shareDetailsNoOfShares')?.markAsTouched();
+    }
   }
+
+  onShareAmountChange2(amount: any, index: number): void {
+    const numericAmount = amount === '' || amount === null ? null : Number(amount);
+
+    this.shareRows2[index].unpaidAmount = numericAmount;
+
+    if (index === 0) {
+      this.inviteShareholderForm.patchValue({
+        shareDetailsNoOfShares: numericAmount,
+      });
+      this.inviteShareholderForm.get('shareDetailsNoOfShares')?.markAsTouched();
+    }
+  }
+
 
   // Keep your existing individual functions if still needed
   onShareClassChange1(event: any) {
@@ -3707,9 +3751,32 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   }
 
   selectItem(field: string, item: string) {
-    console.log(`Selected for ${field}:`, item);
     this.dropdowns[field].selected = item;
     this.dropdowns[field].isOpen = false;
+
+    switch (field) {
+      case 'telephone1':
+        this.companyInfoForm.patchValue({ company_TelCountry: item });
+        break;
+      case 'fax1':
+        this.companyInfoForm.patchValue({ company_FaxCountry: item });
+        break;
+      case 'telephone2':
+        this.companyInfoForm.patchValue({ presentorTelCountry: item });
+        break;
+      case 'telephone3':
+        this.shareHoldersForm.patchValue({ countryCode: item });
+        break;
+      case 'telephone4':
+        this.directorInformationForm.patchValue({ countryCode: item });
+        break;
+      case 'telephone5':
+        this.comapnySecretaryForm.patchValue({ countryCode: item });
+        break;
+      case 'fax2':
+        this.companyInfoForm.patchValue({ presentorFaxCountry: item });
+        break;
+    }
   }
 
   onlyNumber(event: KeyboardEvent) {

@@ -120,3 +120,13 @@ select {
   background-color: #1a1a1a !important;
   color: white !important;
 }
+
+select option {
+  padding: 4px 8px;
+  font-size: 14px;
+}
+
+select {
+  text-align: center;
+  text-align-last: center; /* Center align selected code */
+}

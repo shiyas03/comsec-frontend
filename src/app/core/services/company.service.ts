@@ -18,12 +18,12 @@ export class CompanyService {
 submitCompanyInfo(payload: any) {
   if (payload.companyId) {
       console.log("update existing company")
-      console.log("payload : ",payload)  // Update existing company
+      console.log("payload : ",payload) 
     const { companyId, ...updateData } = payload;
     return this.http.put<{ message: string, companyId: string }>
       (`${this.baseUrl}company/updateCompanyInfo/${companyId}`, updateData);
   } else {
-   console.log("create new company") // Create new company
+   console.log("create new company") 
     return this.http.post<{ message: string, companyId: string }>
       (`${this.baseUrl}company/createCompanyInfo`, payload);
   }
